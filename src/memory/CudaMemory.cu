@@ -2,6 +2,8 @@
 #include <cuda_runtime.h>
 #include "CudaMemory.cuh"
 #include "cuda_macro.h"
+#include <cstring>
+
 
 /*! \brief Allocate a chunk of memory
  *
@@ -14,7 +16,11 @@ bool CudaMemory::allocate(size_t sz)
 {
 	//! Allocate the device memory
 	if (dm == NULL)
-	{CUDA_SAFE_CALL(cudaAlloc(&dv,sz,cudaAlloc));}
+	{CUDA_SAFE_CALL(cudaMalloc(&dm,sz));}
+
+	this->sz = sz;
+
+	return true;
 }
 
 /*! \brief destroy a chunk of memory
@@ -24,39 +30,81 @@ bool CudaMemory::allocate(size_t sz)
  */
 void CudaMemory::destroy()
 {
-	CUDA_SAFE_CALL(cudaDestroy(dv));
+	CUDA_SAFE_CALL(cudaFree(dm));
 }
 
-/*! \brief copy the device memory to a pointer
+/*! \brief Allocate the host buffer
  *
- * copy the device memory to a pointer
+ * Allocate the host buffer
  *
  */
-void CudaMemory::copyToPointer()
+
+void CudaMemory::allocate_host(size_t sz)
+{
+	if (hm == NULL)
+	{CUDA_SAFE_CALL(cudaHostAlloc(&hm,sz,cudaHostAllocMapped))}
+}
+
+/*! \brief copy the data from a pointer
+ *
+ * copy the data from a pointer
+ *
+ *	\param ptr
+ *	\return true if success
+ */
+bool CudaMemory::copyFromPointer(void * ptr)
 {
 	// check if we have a host buffer, if not allocate it
 
-	if (hm == NULL)
-	{CUDA_SAFE_CALL(cudaHostAlloc(&hm,sz*sizeof(T),cudaHostAllocMapped))}
+	allocate_host(sz);
 
-	// put on queue a copy from device to host
+	// get the device pointer
 
-	t.call();
+	void * dvp;
+	CUDA_SAFE_CALL(cudaHostGetDevicePointer(&dvp,hm,0));
 
-	// put on queue a memory copy from pointers
+	// memory copy
+
+	memcpy(ptr,dvp,sz);
+
+	return true;
 }
 
-void CudaMemory::copyDeviceToDevice()
+/*! \brief copy from device to device
+ *
+ * copy a piece of memory from device to device
+ *
+ * \param CudaMemory from where to copy
+ *
+ * \return true is success
+ */
+bool CudaMemory::copyDeviceToDevice(CudaMemory & m)
 {
-	// put on queue a copy from device to device
+	//! The source buffer is too big to copy it
 
-	t.call();
+	if (m.sz > sz)
+	{
+		std::cerr << "Error " << __LINE__ << __FILE__ << ": source buffer is too big to copy";
+		return false;
+	}
+
+	//! Copy the memory
+	CUDA_SAFE_CALL(cudaMemcpy(m.dm,dm,m.sz,cudaMemcpyDeviceToDevice));
+
+	return true;
 }
 
-bool CudaMemory::copy(memory m)
+/*! \brief copy from memory
+ *
+ * copy from memory
+ *
+ * \param m a memory interface
+ *
+ */
+bool CudaMemory::copy(memory & m)
 {
 	//! Here we try to cast memory into OpenFPMwdeviceCudaMemory
-	CudaMemory * ofpm = dynamic_cast<CudaMemory>(m);
+	CudaMemory * ofpm = dynamic_cast<CudaMemory *>(&m);
 
 	//! if we fail we get the pointer and simply copy from the pointer
 
@@ -64,33 +112,91 @@ bool CudaMemory::copy(memory m)
 	{
 		// copy the memory from device to host and from host to device
 
-		copyFromPointer(t);
+		return copyFromPointer(m.getPointer());
 	}
 	else
 	{
 		// they are the same memory type, use cuda/thrust buffer copy
 
-		copyDeviceToDevice();
+		return copyDeviceToDevice(*ofpm);
 	}
 }
 
-bool CudaMemory::copy(OpenFPMwdeviceCudaMemory m)
-{
-	// they are the same type of memory so copy from device to device
-
-	copyDeviceToDevice();
-}
+/*! \brief Get the size of the allocated memory
+ *
+ * Get the size of the allocated memory
+ *
+ * \return the size of the allocated memory
+ *
+ */
 
 size_t CudaMemory::size()
 {
-	dv->size();
+	return sz;
 }
+
+/*! \brief Resize the allocated memory
+ *
+ * Resize the allocated memory, if request is smaller than the allocated memory
+ * is not resized
+ *
+ * \param sz size
+ * \return true if the resize operation complete correctly
+ *
+ */
 
 bool CudaMemory::resize(size_t sz)
 {
-	//! Allocate the device memory
-	if (dv == NULL)
-	{dv = new boost::shared_ptr<void>(new thrust::device_vector<void>());}
-	else
-	{dv.get()->resize(sz);}
+	//! Allocate the device memory if not done yet
+
+	if (size() == 0)
+		return allocate(sz);
+
+	//! Create a new buffer if sz is bigger than the actual size
+	void * tdm;
+
+	if (this->sz < sz)
+		CUDA_SAFE_CALL(cudaMalloc(&tdm,sz));
+
+	//! copy from the old buffer to the new one
+
+	CUDA_SAFE_CALL(cudaMemcpy(dm,tdm,size(),cudaMemcpyDeviceToDevice));
+
+	//! free the old buffer
+
+	destroy();
+
+	//! change to the new buffer
+
+	dm = tdm;
+	this->sz = sz;
+
+	return true;
+}
+
+/*! \brief Return a readable pointer with your data
+ *
+ * Return a readable pointer with your data
+ *
+ */
+
+void * CudaMemory::getPointer()
+{
+	//! if the host buffer is synchronized with the device buffer return the host buffer
+
+	if (is_hm_sync)
+		return hm;
+
+	//! we have to synchronize
+
+
+	//| allocate an host mempory
+	if (hm == NULL)
+		allocate_host(sz);
+
+	//! copy from device to host memory
+
+	CUDA_SAFE_CALL(cudaMemcpy(dm,hm,sz,cudaMemcpyDeviceToHost));
+
+	return hm;
 }
