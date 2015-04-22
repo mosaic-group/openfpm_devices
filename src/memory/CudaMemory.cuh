@@ -8,7 +8,7 @@
 /**
  * \brief This class create instructions to allocate, and destroy GPU memory
  * 
- * This class create instructions to allocate, destroy, resize GPU buffer, 
+ * This class allocate, destroy, resize GPU buffer, 
  * eventually if direct, comunication is not supported, it can instruction
  * to create an Host Pinned memory.
  * 
@@ -16,9 +16,9 @@
  * 
  * CudaMemory m = new CudaMemory();
  * 
- * m.allocate();
+ * m.allocate(1000*sizeof(int));
  * int * ptr = m.getPointer();
- * *ptr[i] = 1000;
+ * ptr[999] = 1000;
  * ....
  * 
  * 
@@ -28,6 +28,7 @@
 #define CUDA_MEMORY_CUH_
 
 #include "memory.hpp"
+#include <iostream>
 
 class CudaMemory : public memory
 {
@@ -43,6 +44,9 @@ class CudaMemory : public memory
 	//! host memory
 	void * hm;
 
+	//! Reference counter
+	size_t ref_cnt;
+	
 	//! Allocate an host buffer
 	void allocate_host(size_t sz);
 	
@@ -72,8 +76,31 @@ class CudaMemory : public memory
 	
 	public:
 	
+	//! Increment the reference counter
+	virtual void incRef()
+	{ref_cnt++;}
+
+	//! Decrement the reference counter
+	virtual void decRef()
+	{ref_cnt--;}
+	
+	//! Return the reference counter
+	virtual long int ref()
+	{
+		return ref_cnt;
+	}
+	
 	//! Constructor
-	CudaMemory():is_hm_sync(false),sz(0),hm(0) {};
+	CudaMemory():is_hm_sync(false),sz(0),dm(0),hm(0),ref_cnt(0) {};
+	
+	//! Destructor
+	~CudaMemory()	
+	{
+		if(ref_cnt == 0)
+			destroy();
+		else
+			std::cerr << "Error: " << __FILE__ << " " << __LINE__ << " destroying a live object" << "\n"; 
+	};
 };
 
 #endif

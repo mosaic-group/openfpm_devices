@@ -1,9 +1,10 @@
+#include "config.h"
 #include <cstddef>
 #include <cuda_runtime.h>
 #include "CudaMemory.cuh"
 #include "cuda_macro.h"
 #include <cstring>
-
+#include "Memleak_check.hpp"
 
 /*! \brief Allocate a chunk of memory
  *
@@ -30,7 +31,21 @@ bool CudaMemory::allocate(size_t sz)
  */
 void CudaMemory::destroy()
 {
-	CUDA_SAFE_CALL(cudaFree(dm));
+	if (dm != NULL)
+	{
+		//! Release the allocated memory
+		CUDA_SAFE_CALL(cudaFree(dm));
+	}
+
+	if (hm != NULL)
+	{
+		//! we invalidate hm
+		CUDA_SAFE_CALL(cudaFreeHost(hm));
+#ifdef MEMLEAK_CHECK
+		//! remove hm
+		check_delete(hm);
+#endif
+	}
 }
 
 /*! \brief Allocate the host buffer
@@ -42,7 +57,13 @@ void CudaMemory::destroy()
 void CudaMemory::allocate_host(size_t sz)
 {
 	if (hm == NULL)
-	{CUDA_SAFE_CALL(cudaHostAlloc(&hm,sz,cudaHostAllocMapped))}
+	{
+		CUDA_SAFE_CALL(cudaHostAlloc(&hm,sz,cudaHostAllocMapped))
+#ifdef MEMLEAK_CHECK
+		//! add hm to the list of allocated memory
+		check_new(hm,sz);
+#endif
+	}
 }
 
 /*! \brief copy the data from a pointer
@@ -147,6 +168,10 @@ size_t CudaMemory::size()
 
 bool CudaMemory::resize(size_t sz)
 {
+	// if the allocated memory is enough, do not resize
+	if (sz <= size())
+		return true;
+
 	//! Allocate the device memory if not done yet
 
 	if (size() == 0)

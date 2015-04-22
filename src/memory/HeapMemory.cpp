@@ -7,25 +7,48 @@
 
 #include "HeapMemory.hpp"
 #include <cstddef>
+#include <cstring>
+#include <iostream>
+#include <cstdint>
 
-typedef unsigned char byte;
+// If debugging mode include memory leak check
+#ifdef MEMLEAK_CHECK
+#include "Memleak_check.hpp"
+#endif
 
 /*! \brief Allocate a chunk of memory
- *
- * Allocate a chunk of memory
  *
  * \param sz size of the chunk of memory to allocate in byte
  *
  */
+
 bool HeapMemory::allocate(size_t sz)
 {
 	//! Allocate the device memory
 	if (dm == NULL)
-	dm = new byte[sz];
+		dmOrig = new byte[sz+alignement];
+	dm = dmOrig;
+
+#ifdef MEMLEAK_CHECK
+	check_new(dmOrig,sz+alignement);
+#endif
+
+	// align it, we do not know the size of the element we put 1
+	// and we ignore the align check
+	size_t sz_a = sz+alignement;
+	align(alignement,1,(void *&)dm,sz_a);
 
 	this->sz = sz;
 
 	return true;
+}
+
+/*! \brief set the memory block to be aligned by this number
+ *
+ */
+void HeapMemory::setAlignment(size_t align)
+{
+	this->alignement = align;
 }
 
 /*! \brief destroy a chunk of memory
@@ -35,21 +58,27 @@ bool HeapMemory::allocate(size_t sz)
  */
 void HeapMemory::destroy()
 {
-	delete [] dm;
+	if (dmOrig != NULL)
+		delete [] dmOrig;
+
+#ifdef MEMLEAK_CHECK
+	check_delete(dmOrig);
+#endif
 }
 
 
 /*! \brief copy the data from a pointer
  *
- * copy the data from a pointer
  *
  *	\param ptr
  */
-void HeapMemory::copyFromPointer(void * ptr)
+bool HeapMemory::copyFromPointer(void * ptr,size_t sz)
 {
 	// memory copy
 
-	memcpy(ptr,dm,sz);
+	memcpy(dm,ptr,sz);
+
+	return true;
 }
 
 /*! \brief copy from device to device
@@ -59,30 +88,30 @@ void HeapMemory::copyFromPointer(void * ptr)
  * \param CudaMemory from where to copy
  *
  */
-void HeapMemory::copyDeviceToDevice(HeapMemory & m)
+bool HeapMemory::copyDeviceToDevice(HeapMemory & m)
 {
 	//! The source buffer is too big to copy it
 
 	if (m.sz > sz)
 	{
 		std::cerr << "Error " << __LINE__ << __FILE__ << ": source buffer is too big to copy";
-		return;
+		return false;
 	}
 
-	memcpy(m.dm,dm,m.sz);
+	// Copy the memory from m
+	memcpy(dm,m.dm,m.sz);
+	return true;
 }
 
-/*! \brief copy from memory
- *
- * copy from memory
+/*! \brief copy the memory
  *
  * \param m a memory interface
  *
  */
 bool HeapMemory::copy(memory & m)
 {
-	//! Here we try to cast memory into OpenFPMwdeviceCudaMemory
-	HeapMemory * ofpm = dynamic_cast<CudaMemory>(m);
+	//! Here we try to cast memory into HeapMemory
+	HeapMemory * ofpm = dynamic_cast<HeapMemory *>(&m);
 
 	//! if we fail we get the pointer and simply copy from the pointer
 
@@ -90,7 +119,7 @@ bool HeapMemory::copy(memory & m)
 	{
 		// copy the memory from device to host and from host to device
 
-		return copyFromPointer(m.getPointer());
+		return copyFromPointer(m.getPointer(),m.size());
 	}
 	else
 	{
@@ -126,18 +155,30 @@ size_t HeapMemory::size()
 
 bool HeapMemory::resize(size_t sz)
 {
+	// if the allocated memory is enough, do not resize
+	if (sz <= size())
+		return true;
+
 	//! Allocate the device memory if not done yet
 
 	if (size() == 0)
 		return allocate(sz);
 
 	//! Create a new buffer if sz is bigger than the actual size
-	void * tdm;
-	tdm = new byte[sz];
+	byte * tdm;
+	byte * tdmOrig;
+	tdmOrig = new byte[sz+alignement];
+	tdm = tdmOrig;
+
+	//! size plus alignment
+	size_t sz_a = sz+alignement;
+
+	//! align it
+	align(alignement,1,(void *&)tdm,sz_a);
 
 	//! copy from the old buffer to the new one
 
-	memcpy(dm,tdm,size());
+	memcpy(tdm,dm,size());
 
 	//! free the old buffer
 
@@ -146,7 +187,8 @@ bool HeapMemory::resize(size_t sz)
 	//! change to the new buffer
 
 	dm = tdm;
-	this->sz = sz;
+	dmOrig = tdmOrig;
+	this->sz = sz_a;
 
 	return true;
 }
