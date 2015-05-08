@@ -168,6 +168,16 @@ public:
 	{
 		return hp.copy(m);
 	}
+
+	/*! \brief Allocated Memory is never initialized
+	 *
+	 * \return false
+	 *
+	 */
+	bool isInitialized()
+	{
+		return false;
+	}
 };
 
 #endif /* PREALLOCHEAPMEMORY_HPP_ */

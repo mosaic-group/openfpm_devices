@@ -87,6 +87,16 @@ public:
 		return ref_cnt;
 	}
 
+	/*! \brief Allocated Memory is never initialized
+	 *
+	 * \return false
+	 *
+	 */
+	bool isInitialized()
+	{
+		return false;
+	}
+
 	//! Constructor, we choose a default alignment of 32 for avx
 	HeapMemory():alignement(MEM_ALIGNMENT),sz(0),dm(NULL),dmOrig(NULL),ref_cnt(0) {};
 

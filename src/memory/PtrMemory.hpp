@@ -91,6 +91,16 @@ public:
 		return ref_cnt;
 	}
 
+	/*! \brief Allocated Memory is already initialized
+	 *
+	 * \return true
+	 *
+	 */
+	bool isInitialized()
+	{
+		return true;
+	}
+
 	// Default constructor
 	PtrMemory():spm(0),dm(NULL),sz(0),ref_cnt(0)
 	{

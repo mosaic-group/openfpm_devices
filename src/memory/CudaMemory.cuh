@@ -90,6 +90,16 @@ class CudaMemory : public memory
 		return ref_cnt;
 	}
 	
+	/*! \brief Allocated Memory is never initialized
+	 *
+	 * \return false
+	 *
+	 */
+	bool isInitialized()
+	{
+		return false;
+	}
+	
 	//! Constructor
 	CudaMemory():is_hm_sync(false),sz(0),dm(0),hm(0),ref_cnt(0) {};
 	
