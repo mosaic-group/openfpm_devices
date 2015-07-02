@@ -12,6 +12,8 @@
  * External pre-allocated memory, is a class that preallocate memory and than it answer
  * to a particular allocation pattern
  *
+ * \warning zero sized allocation are removed from the request pattern
+ *
  * \tparam Base memory allocation class [Example] HeapMemory or CudaMemory
  *
  *
@@ -49,8 +51,6 @@ public:
 	ExtPreAlloc()
 	:a_seq(0),ref_cnt(0)
 	{
-		int debug = 0;
-		debug++;
 	}
 
 	/*! \brief Preallocated memory sequence
@@ -64,6 +64,15 @@ public:
 	{
 		size_t total_size = 0;
 
+		// remove zero size request
+		for (std::vector<size_t>::iterator it=seq.begin(); it!=seq.end(); )
+		{
+			if(*it == 0)
+				it = seq.erase(it);
+			else
+				++it;
+		}
+
 		// Resize the sequence
 		sequence.resize(seq.size());
 		sequence_c.resize(seq.size());
@@ -72,6 +81,7 @@ public:
 			sequence[i] = seq[i];
 			sequence_c[i] = total_size;
 			total_size += seq[i];
+
 		}
 
 		// Allocate the total size of memory
@@ -101,11 +111,15 @@ public:
 	 */
 	virtual bool allocate(size_t sz)
 	{
+		// Zero sized allocation are ignored
+		if (sz == 0)
+			return true;
+
 		// Check that the size match
 
 		if (sequence[a_seq] != sz)
 		{
-			std::cerr << "Error: " << __FILE__ << " " << __LINE__ << "expecting: " << sequence[a_seq] << " got: " << sz <<  " allocation failed \n";
+			std::cerr << "Error: " << __FILE__ << ":" << __LINE__ << " expecting: " << sequence[a_seq] << " got: " << sz <<  " allocation failed \n";
 			std::cerr << "NOTE: if you are using this structure with vector remember to use openfpm::vector<...>::calculateMem(...) to get the required allocation sequence\n";
 
 			return false;
