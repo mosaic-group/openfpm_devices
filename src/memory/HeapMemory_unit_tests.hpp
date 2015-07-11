@@ -8,8 +8,12 @@
 #ifndef HEAPMEMORY_UNIT_TESTS_HPP_
 #define HEAPMEMORY_UNIT_TESTS_HPP_
 
+#include "config.h"
+
 #include "memory/HeapMemory.hpp"
+#ifdef NVCC
 #include "memory/CudaMemory.cuh"
+#endif
 
 BOOST_AUTO_TEST_SUITE( HeapMemory_test )
 
@@ -79,7 +83,9 @@ template<typename T> void test()
 BOOST_AUTO_TEST_CASE( use )
 {
 	test<HeapMemory>();
+#ifdef NVCC
 	test<CudaMemory>();
+#endif
 }
 
 
