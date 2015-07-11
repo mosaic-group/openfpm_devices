@@ -1,5 +1,7 @@
 #! /bin/bash
 
+mkdir config
+
 sh ./autogen.sh
 if [ "$2" == "master" ]
 then
