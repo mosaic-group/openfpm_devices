@@ -1,6 +1,6 @@
 #! /bin/bash
 
-mkdir config
+mkdir src/config
 
 sh ./autogen.sh
 if [ "$2" == "master" ]
