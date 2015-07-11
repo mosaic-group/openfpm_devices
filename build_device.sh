@@ -1,6 +1,5 @@
 #! /bin/bash
 
-cd src
 sh ./autogen.sh
 if [ "$2" == "master" ]
 then
