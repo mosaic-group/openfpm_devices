@@ -50,6 +50,8 @@ class CudaMemory : public memory
 	//! Allocate an host buffer
 	void allocate_host(size_t sz);
 	
+public:
+	
 	//! allocate memory
 	virtual bool allocate(size_t sz);
 	//! destroy memory
@@ -101,7 +103,7 @@ class CudaMemory : public memory
 	}
 	
 	//! Constructor
-	CudaMemory():is_hm_sync(false),sz(0),dm(0),hm(0),ref_cnt(0) {};
+	CudaMemory():is_hm_sync(true),sz(0),dm(0),hm(0),ref_cnt(0) {};
 	
 	//! Destructor
 	~CudaMemory()	

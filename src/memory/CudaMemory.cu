@@ -4,7 +4,6 @@
 #include "CudaMemory.cuh"
 #include "cuda_macro.h"
 #include <cstring>
-#include "Memleak_check.hpp"
 
 /*! \brief Allocate a chunk of memory
  *
@@ -35,6 +34,7 @@ void CudaMemory::destroy()
 	{
 		//! Release the allocated memory
 		CUDA_SAFE_CALL(cudaFree(dm));
+		dm = NULL;
 	}
 
 	if (hm != NULL)
@@ -45,6 +45,7 @@ void CudaMemory::destroy()
 		//! remove hm
 		check_delete(hm);
 #endif
+		hm = NULL;
 	}
 }
 
@@ -178,22 +179,40 @@ bool CudaMemory::resize(size_t sz)
 		return allocate(sz);
 
 	//! Create a new buffer if sz is bigger than the actual size
+	void * thm;
+
+	//! Create a new buffer if sz is bigger than the actual size
 	void * tdm;
 
-	if (this->sz < sz)
-		CUDA_SAFE_CALL(cudaMalloc(&tdm,sz));
+	if (dm != NULL)
+	{
+		if (this->sz < sz)
+			CUDA_SAFE_CALL(cudaMalloc(&tdm,sz));
 
-	//! copy from the old buffer to the new one
+		//! copy from the old buffer to the new one
 
-	CUDA_SAFE_CALL(cudaMemcpy(dm,tdm,size(),cudaMemcpyDeviceToDevice));
+		CUDA_SAFE_CALL(cudaMemcpy(tdm,dm,size(),cudaMemcpyDeviceToDevice));
+	}
+
+	if (hm != NULL)
+	{
+		if (this->sz < sz)
+			CUDA_SAFE_CALL(cudaHostAlloc(&thm,sz,cudaHostAllocMapped));
+
+		//! copy from the old buffer to the new one
+
+		CUDA_SAFE_CALL(cudaMemcpy(thm,hm,size(),cudaMemcpyHostToHost));
+	}
 
 	//! free the old buffer
 
 	destroy();
 
+	dm = tdm;
+	hm = thm;
+
 	//! change to the new buffer
 
-	dm = tdm;
 	this->sz = sz;
 
 	return true;
@@ -207,21 +226,18 @@ bool CudaMemory::resize(size_t sz)
 
 void * CudaMemory::getPointer()
 {
+	//| allocate an host memory if not allocated
+	if (hm == NULL)
+		allocate_host(sz);
+
 	//! if the host buffer is synchronized with the device buffer return the host buffer
 
 	if (is_hm_sync)
 		return hm;
 
-	//! we have to synchronize
-
-
-	//| allocate an host mempory
-	if (hm == NULL)
-		allocate_host(sz);
-
 	//! copy from device to host memory
 
-	CUDA_SAFE_CALL(cudaMemcpy(dm,hm,sz,cudaMemcpyDeviceToHost));
+	CUDA_SAFE_CALL(cudaMemcpy(hm,dm,sz,cudaMemcpyDeviceToHost));
 
 	return hm;
 }

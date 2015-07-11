@@ -173,6 +173,8 @@ bool HeapMemory::resize(size_t sz)
 	//! size plus alignment
 	size_t sz_a = sz+alignement;
 
+	this->sz = sz;
+
 	//! align it
 	align(alignement,1,(void *&)tdm,sz_a);
 
@@ -188,7 +190,7 @@ bool HeapMemory::resize(size_t sz)
 
 	dm = tdm;
 	dmOrig = tdmOrig;
-	this->sz = sz_a;
+	this->sz = sz;
 
 	return true;
 }
