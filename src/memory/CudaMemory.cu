@@ -178,10 +178,10 @@ bool CudaMemory::resize(size_t sz)
 	if (size() == 0)
 		return allocate(sz);
 
-	//! Create a new buffer if sz is bigger than the actual size
+	//! Create a new buffer, if sz is bigger than the actual size
 	void * thm;
 
-	//! Create a new buffer if sz is bigger than the actual size
+	//! Create a new buffer, if sz is bigger than the actual size
 	void * tdm;
 
 	if (dm != NULL)

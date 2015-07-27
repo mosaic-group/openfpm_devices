@@ -7,6 +7,8 @@
 #ifndef EXTPREALLOC_HPP_
 #define EXTPREALLOC_HPP_
 
+#include <stddef.h>
+
 /*! Preallocated memory sequence
  *
  * External pre-allocated memory, is a class that preallocate memory and than it answer
@@ -37,6 +39,7 @@ class ExtPreAlloc : public memory
 	long int ref_cnt;
 
 	ExtPreAlloc(const ExtPreAlloc & ext)
+	:a_seq(0),mem(NULL),ref_cnt(0)
 	{}
 
 public:
@@ -49,7 +52,7 @@ public:
 
 	//! Default constructor
 	ExtPreAlloc()
-	:a_seq(0),ref_cnt(0)
+	:a_seq(0),mem(NULL),ref_cnt(0)
 	{
 	}
 
@@ -75,7 +78,7 @@ public:
 
 		// Resize the sequence
 		sequence.resize(seq.size());
-		sequence_c.resize(seq.size());
+		sequence_c.resize(seq.size()+1);
 		for (size_t i = 0 ; i < seq.size() ; i++)
 		{
 			sequence[i] = seq[i];
@@ -83,6 +86,7 @@ public:
 			total_size += seq[i];
 
 		}
+		sequence_c[seq.size()] = total_size;
 
 		// Allocate the total size of memory
 		mem.allocate(total_size);
@@ -143,6 +147,16 @@ public:
 		return (((unsigned char *)mem->getPointer()) +  sequence_c[a_seq-1]);
 	}
 
+	/*! \brief Return a readable pointer with your data
+	 *
+	 * \param ip index of the pointer in the sequence
+	 *
+	 */
+	virtual void * getPointer(size_t ip)
+	{
+		return (((unsigned char *)mem->getPointer()) +  sequence_c[ip]);
+	}
+
 	/*! \brief Allocate or resize the allocated memory
 	 *
 	 * Resize the allocated memory, if request is smaller than the allocated, memory
@@ -200,6 +214,21 @@ public:
 	bool isInitialized()
 	{
 		return false;
+	}
+
+	/*! \brief Calculate the total memory required to pack the message
+	 *
+	 * \return the total required memory
+	 *
+	 */
+	static size_t calculateMem(std::vector<size_t> & mm)
+	{
+		size_t s = 0;
+
+		for (size_t i = 0 ; i < mm.size() ; i++)
+			s += mm[i];
+
+		return s;
 	}
 };
 
