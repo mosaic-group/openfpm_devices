@@ -134,9 +134,9 @@ public:
 		return true;
 	}
 
-	/*! \brief Return a readable pointer with your data
+	/*! \brief Return the pointer of the last allocation
 	 *
-	 * Return a readable pointer with your data
+	 * \return the pointer
 	 *
 	 */
 	virtual void * getPointer()
@@ -144,17 +144,29 @@ public:
 		if (a_seq == 0)
 			return NULL;
 
-		return (((unsigned char *)mem->getPointer()) +  sequence_c[a_seq-1]);
+		return (((unsigned char *)mem->getPointer()) + sequence_c[a_seq-1]);
 	}
 
-	/*! \brief Return a readable pointer with your data
+	/*! \brief Return the pointer you will get when you do the allocation ip
+	 *
+	 * This particular function exist because the allocation sequence is fixed a priori
 	 *
 	 * \param ip index of the pointer in the sequence
 	 *
 	 */
-	virtual void * getPointer(size_t ip)
+	void * getPointer(size_t ip)
 	{
-		return (((unsigned char *)mem->getPointer()) +  sequence_c[ip]);
+		return (((unsigned char *)mem->getPointer()) + sequence_c[ip]);
+	}
+
+	/*! \brief Get the base memory pointer increased with an offset
+	 *
+	 * \param offset memory offset
+	 *
+	 */
+	void * getPointerOffset(size_t offset)
+	{
+		return (((unsigned char *)mem->getPointer()) + offset);
 	}
 
 	/*! \brief Allocate or resize the allocated memory
