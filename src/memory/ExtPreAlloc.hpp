@@ -62,31 +62,36 @@ public:
 	 * \param mem external memory, used if you want to keep the memory
 	 *
 	 */
-	ExtPreAlloc(std::vector<size_t> & seq, Mem & mem)
+	ExtPreAlloc(const std::vector<size_t> & seq, Mem & mem)
 	:a_seq(0),mem(&mem),ref_cnt(0)
 	{
 		size_t total_size = 0;
 
+		// number of non zero
+		size_t n_zero = 0;
+
 		// remove zero size request
-		for (std::vector<size_t>::iterator it=seq.begin(); it!=seq.end(); )
+		for (size_t i = 0 ; i < seq.size(); i++)
 		{
-			if(*it == 0)
-				it = seq.erase(it);
-			else
-				++it;
+			if (seq[i] != 0)
+				n_zero++;
 		}
 
 		// Resize the sequence
-		sequence.resize(seq.size());
-		sequence_c.resize(seq.size()+1);
+		sequence.resize(n_zero);
+		sequence_c.resize(n_zero+1);
+		size_t j = 0;
 		for (size_t i = 0 ; i < seq.size() ; i++)
 		{
-			sequence[i] = seq[i];
-			sequence_c[i] = total_size;
-			total_size += seq[i];
-
+			if (seq[i] != 0)
+			{
+				sequence[j] = seq[i];
+				sequence_c[j] = total_size;
+				total_size += seq[i];
+				j++;
+			}
 		}
-		sequence_c[seq.size()] = total_size;
+		sequence_c[j] = total_size;
 
 		// Allocate the total size of memory
 		mem.allocate(total_size);
