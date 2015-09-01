@@ -35,7 +35,7 @@
 #include <cstdint>
 #include <iostream>
 
-#ifdef MEMLEAK_CHECK
+#ifdef SE_CLASS2
 #include "Memleak_check.hpp"
 #endif
 
@@ -104,7 +104,7 @@ public:
 	// Default constructor
 	PtrMemory():spm(0),dm(NULL),sz(0),ref_cnt(0)
 	{
-#ifdef MEMLEAK_CHECK
+#ifdef SE_CLASS2
 		if (process_to_print == process_v_cl)
 			std::cout << "Creating PtrMemory: " << this << "\n";
 #endif
@@ -113,7 +113,7 @@ public:
 	//! Constructor, we choose a default alignment of 32 for avx
 	PtrMemory(void * ptr, size_t sz):spm(sz),dm(ptr),sz(0),ref_cnt(0)
 	{
-#ifdef MEMLEAK_CHECK
+#ifdef SE_CLASS2
 		if (process_to_print == process_v_cl)
 			std::cout << "Creating PtrMemory: " << this << "\n";
 #endif
@@ -121,7 +121,7 @@ public:
 
 	~PtrMemory()
 	{
-#ifdef MEMLEAK_CHECK
+#ifdef SE_CLASS2
 		if (process_to_print == process_v_cl)
 			std::cout << "Delete PtrMemory: " << this << "\n";
 #endif

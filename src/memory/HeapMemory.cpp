@@ -12,7 +12,7 @@
 #include <cstdint>
 
 // If debugging mode include memory leak check
-#ifdef MEMLEAK_CHECK
+#ifdef SE_CLASS2
 #include "Memleak_check.hpp"
 #endif
 
@@ -29,7 +29,7 @@ bool HeapMemory::allocate(size_t sz)
 		dmOrig = new byte[sz+alignement];
 	dm = dmOrig;
 
-#ifdef MEMLEAK_CHECK
+#ifdef SE_CLASS2
 	check_new(dmOrig,sz+alignement);
 #endif
 
@@ -61,7 +61,7 @@ void HeapMemory::destroy()
 	if (dmOrig != NULL)
 		delete [] dmOrig;
 
-#ifdef MEMLEAK_CHECK
+#ifdef SE_CLASS2
 	check_delete(dmOrig);
 #endif
 }
@@ -168,6 +168,9 @@ bool HeapMemory::resize(size_t sz)
 	byte * tdm;
 	byte * tdmOrig;
 	tdmOrig = new byte[sz+alignement];
+#ifdef SE_CLASS2
+	check_new(tdmOrig,sz+alignement);
+#endif
 	tdm = tdmOrig;
 
 	//! size plus alignment

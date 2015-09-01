@@ -15,7 +15,7 @@
 #include <cstdint>
 
 // If debugging mode include memory leak check
-#ifdef MEMLEAK_CHECK
+#ifdef SE_CLASS2
 #include "Memleak_check.hpp"
 #endif
 
