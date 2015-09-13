@@ -27,8 +27,12 @@
 #ifndef CUDA_MEMORY_CUH_
 #define CUDA_MEMORY_CUH_
 
+#include "config.h"
 #include "memory.hpp"
 #include <iostream>
+#ifdef SE_CLASS2
+#include "Memleak_check.hpp"
+#endif
 
 class CudaMemory : public memory
 {
