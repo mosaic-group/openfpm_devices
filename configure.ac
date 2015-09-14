@@ -18,6 +18,13 @@ CXXFLAGS+=" --std=c++11 -march=native -mtune=native -Wno-unused-local-typedefs -
 NVCCFLAGS=" "
 INCLUDES_PATH=" -Iconfig "
 
+# Add openfpm_pdata to prefix forlder
+prefix="$prefix/openfpm_devices"
+echo "Installation dir is: $prefix"
+
+AC_PROG_RANLIB
+AM_PROG_AR
+
 # Checks for programs.
 AC_PROG_CXX
 
