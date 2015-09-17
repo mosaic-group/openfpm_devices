@@ -9,7 +9,7 @@ endif
 
 noinst_PROGRAMS = mem
 mem_SOURCES = main.cpp memory/HeapMemory.cpp $(CUDA_SOURCES)
-mem_CXXFLAGS = $(INCLUDES_PATH) -I/usr/local/include
+mem_CXXFLAGS = $(INCLUDES_PATH) $(BOOST_CPPFLAGS) -I/usr/local/include
 mem_CFLAGS = 
 mem_LDADD = $(LINKLIBS) -L/usr/lib64/nvidia-bumblebee/
 
