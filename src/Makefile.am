@@ -15,7 +15,7 @@ mem_LDADD = $(LINKLIBS) -L/usr/lib64/nvidia-bumblebee/
 
 lib_LIBRARIES = libofpmmemory.a
 libofpmmemory_a_SOURCES = memory/HeapMemory.cpp $(CUDA_SOURCES) memory/PtrMemory.cpp
-libofpmmemory_a_CXXFLAGS = $(INCLUDES_PATH) -I/usr/local/include
+libofpmmemory_a_CXXFLAGS = $(INCLUDES_PATH) $(BOOST_CPPFLAGS) -I/usr/local/include
 libofpmmemory_a_CFLAGS =
 
 nobase_include_HEADERS = memory/ExtPreAlloc.hpp memory/HeapMemory.hpp memory/memory.hpp memory/PreAllocHeapMemory.hpp memory/PtrMemory.hpp
