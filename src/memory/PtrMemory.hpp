@@ -104,28 +104,15 @@ public:
 	// Default constructor
 	PtrMemory():spm(0),dm(NULL),sz(0),ref_cnt(0)
 	{
-#ifdef SE_CLASS2
-		if (process_to_print == process_v_cl)
-			std::cout << "Creating PtrMemory: " << this << "\n";
-#endif
 	};
 
 	//! Constructor, we choose a default alignment of 32 for avx
 	PtrMemory(void * ptr, size_t sz):spm(sz),dm(ptr),sz(0),ref_cnt(0)
 	{
-#ifdef SE_CLASS2
-		if (process_to_print == process_v_cl)
-			std::cout << "Creating PtrMemory: " << this << "\n";
-#endif
 	};
 
 	~PtrMemory()
 	{
-#ifdef SE_CLASS2
-		if (process_to_print == process_v_cl)
-			std::cout << "Delete PtrMemory: " << this << "\n";
-#endif
-
 		if(ref_cnt == 0)
 			destroy();
 		else
