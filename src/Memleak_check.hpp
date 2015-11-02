@@ -120,14 +120,25 @@ static bool check_delete(const void * data)
  */
 static bool check_valid(const void * ptr, size_t size_access)
 {
-	// get the lower bound
-
-	std::map<byte_ptr, size_t>::iterator l_b = active_ptr.upper_bound((byte_ptr)ptr);
-
 	if (active_ptr.size() == 0)
 	{
 		std::cout << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  " << ptr << "\n";
 		ACTION_ON_ERROR(MEM_ERROR);
+		return false;
+	}
+
+	// get the upper bound
+
+	std::map<byte_ptr, size_t>::iterator l_b = active_ptr.upper_bound((byte_ptr)ptr);
+
+	// if there is no memory that satisfy the request
+	if (l_b == active_ptr.begin())
+	{
+		if (process_to_print < 0 || process_to_print == process_v_cl)
+		{
+			std::cout << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  " << ptr << "\n";
+			ACTION_ON_ERROR(MEM_ERROR);
+		}
 		return false;
 	}
 
