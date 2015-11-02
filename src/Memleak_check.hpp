@@ -38,7 +38,7 @@ static bool remove_ptr(const void * ptr)
 	// if the element does not exist, print that something wrong happened and return
 	if ( it == active_ptr.end() )
 	{
-		std::cout << "Error pointer not found " << ptr << "\n";
+		std::cout << "Error " << __FILE__ << ":" << __LINE__ << " pointer not found " << ptr << "\n";
 		ACTION_ON_ERROR(MEM_ERROR);
 		return false;
 	}
