@@ -11,10 +11,13 @@
 // Macro that decide what to do in case of error
 #ifdef STOP_ON_ERROR
 #define ACTION_ON_ERROR(error) exit(1);
+#define THROW noexcept(true)
 #elif defined(THROW_ON_ERROR)
 #define ACTION_ON_ERROR(error) if (!std::uncaught_exception()) throw error;
+#define THROW noexcept(false)
 #else
 #define ACTION_ON_ERROR(error)
+#define THROW noexcept(true)
 #endif
 
 
