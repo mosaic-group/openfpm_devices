@@ -30,7 +30,7 @@ bool HeapMemory::allocate(size_t sz)
 	dm = dmOrig;
 
 #ifdef SE_CLASS2
-	check_new(dmOrig,sz+alignement);
+	check_new(dmOrig,sz+alignement,HEAPMEMORY_EVENT,0);
 #endif
 
 	// align it, we do not know the size of the element we put 1
@@ -169,7 +169,8 @@ bool HeapMemory::resize(size_t sz)
 	byte * tdmOrig;
 	tdmOrig = new byte[sz+alignement];
 #ifdef SE_CLASS2
-	check_new(tdmOrig,sz+alignement);
+	std::cout << "DIOCANE\n";
+	check_new(tdmOrig,sz+alignement,HEAPMEMORY_EVENT,0);
 #endif
 	tdm = tdmOrig;
 
