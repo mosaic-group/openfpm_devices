@@ -129,6 +129,12 @@ inline static void get_color(size_t project_id, size_t size, std::string & col)
 	}
 }
 
+/*! \brief Given the structure id it convert to a human readable structure string
+ *
+ * \param project_id id of the project
+ * \param prj string that identify the project
+ *
+ */
 inline static void get_structure(size_t struct_id, std::string & str)
 {
 	switch (struct_id)
@@ -162,6 +168,13 @@ inline static void get_structure(size_t struct_id, std::string & str)
 	}
 }
 
+
+/*! \brief Given the project id it convert to a human readable project string
+ *
+ * \param project_id id of the project
+ * \param prj string that identify the project
+ *
+ */
 inline static void get_project(size_t project_id, std::string & prj)
 {
 	switch (project_id)
@@ -184,9 +197,9 @@ inline static void get_project(size_t project_id, std::string & prj)
 	}
 }
 
-/*! \brief Print all active pointer
+/*! \brief Print all active structures
  *
- * Print all active pointer
+ * Print all active structures
  *
  */
 static void print_alloc()
@@ -250,6 +263,9 @@ static bool check_new(const void * data, size_t sz, size_t struct_id, size_t pro
 
 	if  (msg_on_alloc == new_data)
 		std::cout << "Detected allocation: " << __FILE__ << ":" << __LINE__ << " id=" << msg_on_alloc << "\n";
+
+	if (thr_on_alloc == new_data)
+		throw MEM_ERROR;
 
 	return true;
 }
