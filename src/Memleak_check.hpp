@@ -34,7 +34,7 @@ typedef unsigned char * byte_ptr;
 extern long int msg_on_alloc;
 extern long int thr_on_alloc;
 extern std::string col_stop;
-extern size_t new_data;
+extern long int new_data;
 extern size_t delete_data;
 
 extern std::map<byte_ptr,ptr_info> active_ptr;
@@ -307,7 +307,7 @@ static bool check_valid(const void * ptr, size_t size_access)
 {
 	if (active_ptr.size() == 0)
 	{
-		std::cout << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  " << ptr << "\n";
+		std::cerr << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  " << ptr << "\n";
 		ACTION_ON_ERROR(MEM_ERROR);
 		return false;
 	}
@@ -321,7 +321,7 @@ static bool check_valid(const void * ptr, size_t size_access)
 	{
 		if (process_to_print < 0 || process_to_print == process_v_cl)
 		{
-			std::cout << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  " << ptr << "   base allocation id=" << l_b->second.id << "\n";
+			std::cerr << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  " << ptr << "   base allocation id=" << l_b->second.id << "\n";
 			ACTION_ON_ERROR(MEM_ERROR);
 		}
 		return false;
@@ -335,7 +335,7 @@ static bool check_valid(const void * ptr, size_t size_access)
 	{
 		if (process_to_print < 0 || process_to_print == process_v_cl)
 		{
-			std::cout << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  " << ptr << "   base allocation id=" << l_b->second.id  << "\n";
+			std::cerr << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  " << ptr << "   base allocation id=" << l_b->second.id  << "\n";
 			ACTION_ON_ERROR(MEM_ERROR);
 		}
 		return false;
@@ -349,7 +349,7 @@ static bool check_valid(const void * ptr, size_t size_access)
 	{
 		if (process_to_print < 0 || process_to_print == process_v_cl)
 		{
-			std::cout << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  "  << ptr << "   base allocation id=" << l_b->second.id << "\n";
+			std::cerr << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  "  << ptr << "   base allocation id=" << l_b->second.id << "\n";
 			ACTION_ON_ERROR(MEM_ERROR);
 		}
 		return false;

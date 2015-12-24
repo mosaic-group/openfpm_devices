@@ -169,7 +169,6 @@ bool HeapMemory::resize(size_t sz)
 	byte * tdmOrig;
 	tdmOrig = new byte[sz+alignement];
 #ifdef SE_CLASS2
-	std::cout << "DIOCANE\n";
 	check_new(tdmOrig,sz+alignement,HEAPMEMORY_EVENT,0);
 #endif
 	tdm = tdmOrig;

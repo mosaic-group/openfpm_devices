@@ -3,7 +3,7 @@
 #include "ptr_info.hpp"
 
 // counter for allocation of new memory
-size_t new_data;
+long int new_data;
 
 // counter to delete memory
 size_t delete_data;
