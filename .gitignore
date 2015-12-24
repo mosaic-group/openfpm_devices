@@ -62,4 +62,4 @@ aclocal.m4
 compile
 depcomp
 missing
-src/mem_map
+src/mem
