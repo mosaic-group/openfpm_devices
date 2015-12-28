@@ -44,7 +44,7 @@ class ExtPreAlloc : public memory
 
 public:
 
-	~ExtPreAlloc()
+	virtual ~ExtPreAlloc()
 	{
 		if (ref_cnt != 0)
 			std::cerr << "Error: " << __FILE__ << " " << __LINE__ << " destroying a live object" << "\n";
@@ -94,7 +94,7 @@ public:
 		sequence_c[j] = total_size;
 
 		// Allocate the total size of memory
-		mem.allocate(total_size);
+		mem.resize(total_size);
 	}
 
 	//! Increment the reference counter
