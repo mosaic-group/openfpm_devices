@@ -202,7 +202,7 @@ inline static void get_project(size_t project_id, std::string & prj)
  * Print all active structures
  *
  */
-static void print_alloc()
+inline static void print_alloc()
 {
 	std::string col;
 	std::string sid;
@@ -223,7 +223,7 @@ static void print_alloc()
  * \param break_id
  *
  */
-static void message_on_alloc(long int break_id)
+inline static void message_on_alloc(long int break_id)
 {
 	msg_on_alloc = break_id;
 }
@@ -233,7 +233,7 @@ static void message_on_alloc(long int break_id)
  * \param throw_id
  *
  */
-static void throw_on_alloc(long int throw_id)
+inline static void throw_on_alloc(long int throw_id)
 {
 	thr_on_alloc = throw_id;
 }
@@ -246,7 +246,7 @@ static void throw_on_alloc(long int throw_id)
  * \param sz size of the new allocated memory
  *
  */
-static bool check_new(const void * data, size_t sz, size_t struct_id, size_t project_id)
+inline static bool check_new(const void * data, size_t sz, size_t struct_id, size_t project_id)
 {
 	// Add a new pointer
 	new_data++;
@@ -278,7 +278,7 @@ static bool check_new(const void * data, size_t sz, size_t struct_id, size_t pro
  * \return true if the operation to delete succeed
  *
  */
-static bool check_delete(const void * data)
+inline static bool check_delete(const void * data)
 {
 	if (data == NULL)	return true;
 	// Delete the pointer
@@ -303,7 +303,7 @@ static bool check_delete(const void * data)
  * \return true if the pointer is valid
  *
  */
-static bool check_valid(const void * ptr, size_t size_access)
+inline static bool check_valid(const void * ptr, size_t size_access)
 {
 	if (active_ptr.size() == 0)
 	{
@@ -369,7 +369,7 @@ static bool check_valid(const void * ptr, size_t size_access)
  * \return true if the pointer is valid
  *
  */
-static long int check_whoami(const void * ptr, size_t size_access)
+inline static long int check_whoami(const void * ptr, size_t size_access)
 {
 	if (active_ptr.size() == 0)
 		return -1;
@@ -404,7 +404,7 @@ static long int check_whoami(const void * ptr, size_t size_access)
  * \param p_to_print is < 0 (Mean all)
  *
  */
-static void set_process_to_print(long int p_to_print)
+inline static void set_process_to_print(long int p_to_print)
 {
 	process_to_print = p_to_print;
 }
