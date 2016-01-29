@@ -18,8 +18,8 @@
 BOOST_AUTO_TEST_SUITE( HeapMemory_test )
 
 //! [Memory test constants]
-#define FIRST_ALLOCATION 1024
-#define SECOND_ALLOCATION 4096
+#define FIRST_ALLOCATION 1024ul
+#define SECOND_ALLOCATION 4096ul
 //! [Memory test constants]
 
 template<typename T> void test()

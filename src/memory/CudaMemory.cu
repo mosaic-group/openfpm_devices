@@ -62,7 +62,7 @@ void CudaMemory::allocate_host(size_t sz)
 		CUDA_SAFE_CALL(cudaHostAlloc(&hm,sz,cudaHostAllocMapped))
 #ifdef SE_CLASS2
 		//! add hm to the list of allocated memory
-		check_new(hm,sz);
+		check_new(hm,sz,CUDA_EVENT,0);
 #endif
 	}
 }

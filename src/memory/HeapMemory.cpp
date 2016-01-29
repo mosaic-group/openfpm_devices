@@ -27,10 +27,13 @@ bool HeapMemory::allocate(size_t sz)
 	//! Allocate the device memory
 	if (dm == NULL)
 		dmOrig = new byte[sz+alignement];
+	else
+		std::cerr << "Error memory already allocated\n";
+
 	dm = dmOrig;
 
 #ifdef SE_CLASS2
-	check_new(dmOrig,sz+alignement);
+	check_new(dmOrig,sz+alignement,HEAPMEMORY_EVENT,0);
 #endif
 
 	// align it, we do not know the size of the element we put 1
@@ -58,12 +61,12 @@ void HeapMemory::setAlignment(size_t align)
  */
 void HeapMemory::destroy()
 {
-	if (dmOrig != NULL)
-		delete [] dmOrig;
-
 #ifdef SE_CLASS2
 	check_delete(dmOrig);
 #endif
+
+	if (dmOrig != NULL)
+		delete [] dmOrig;
 }
 
 
@@ -76,6 +79,10 @@ bool HeapMemory::copyFromPointer(void * ptr,size_t sz)
 {
 	// memory copy
 
+#ifdef SE_CLASS2
+	check_valid(dm,sz);
+	check_valid(ptr,sz);
+#endif
 	memcpy(dm,ptr,sz);
 
 	return true;
@@ -98,6 +105,10 @@ bool HeapMemory::copyDeviceToDevice(HeapMemory & m)
 		return false;
 	}
 
+#ifdef SE_CLASS2
+	check_valid(dm,sz);
+	check_valid(m.dm,sz);
+#endif
 	// Copy the memory from m
 	memcpy(dm,m.dm,m.sz);
 	return true;
@@ -169,21 +180,25 @@ bool HeapMemory::resize(size_t sz)
 	byte * tdmOrig;
 	tdmOrig = new byte[sz+alignement];
 #ifdef SE_CLASS2
-	check_new(tdmOrig,sz+alignement);
+	check_new(tdmOrig,sz+alignement,HEAPMEMORY_EVENT,0);
 #endif
 	tdm = tdmOrig;
 
 	//! size plus alignment
 	size_t sz_a = sz+alignement;
 
-	this->sz = sz;
-
 	//! align it
 	align(alignement,1,(void *&)tdm,sz_a);
 
 	//! copy from the old buffer to the new one
 
+#ifdef SE_CLASS2
+	check_valid(tdm,size());
+	check_valid(dm,size());
+#endif
 	memcpy(tdm,dm,size());
+
+	this->sz = sz;
 
 	//! free the old buffer
 
