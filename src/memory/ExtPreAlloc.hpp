@@ -97,6 +97,19 @@ public:
 		mem.allocate(total_size);
 	}
 
+	/*! \brief Preallocated memory sequence
+	 *
+	 * \param size number of bytes
+	 * \param mem external memory, used if you want to keep the memory
+	 *
+	 */
+	ExtPreAlloc(size_t size, Mem & mem)
+	:a_seq(0),mem(&mem),ref_cnt(0)
+	{
+		// Allocate the total size of memory
+		mem.allocate(size);
+	}
+
 	//! Increment the reference counter
 	virtual void incRef()
 	{ref_cnt++;}
@@ -120,6 +133,7 @@ public:
 	 */
 	virtual bool allocate(size_t sz)
 	{
+
 		// Zero sized allocation are ignored
 		if (sz == 0)
 			return true;
@@ -189,7 +203,7 @@ public:
 		return allocate(sz);
 	}
 
-	/*! \brief Get the size of the allocated memory
+	/*! \brief Get the size of the LAST allocated memory
 	 *
 	 * Get the size of the allocated memory
 	 *
