@@ -83,7 +83,7 @@ template<typename T> void test()
 BOOST_AUTO_TEST_CASE( use )
 {
 	test<HeapMemory>();
-#ifdef NVCC
+#ifdef CUDA_GPU
 	test<CudaMemory>();
 #endif
 }
