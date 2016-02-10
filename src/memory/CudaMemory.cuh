@@ -61,7 +61,7 @@ public:
 	//! destroy memory
 	virtual void destroy();
 	//! copy from a General device
-	virtual bool copy(memory & m);
+	virtual bool copy(const memory & m);
 	//! the the size of the allocated memory
 	virtual size_t size();
 	//! resize the momory allocated

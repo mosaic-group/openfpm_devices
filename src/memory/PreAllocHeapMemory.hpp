@@ -120,6 +120,19 @@ public:
 		return (((unsigned char *)hp.getPointer()) +  sequence_c[a_seq-1]);
 	}
 
+	/*! \brief Return a readable pointer with your data
+	 *
+	 * Return a readable pointer with your data
+	 *
+	 */
+	const virtual void * getPointer() const
+	{
+		if (a_seq == 0)
+			return NULL;
+
+		return (((unsigned char *)hp.getPointer()) +  sequence_c[a_seq-1]);
+	}
+
 	/*! \brief Allocate or resize the allocated memory
 	 *
 	 * Resize the allocated memory, if request is smaller than the allocated, memory
@@ -143,7 +156,7 @@ public:
 	 *
 	 */
 
-	virtual size_t size()
+	virtual size_t size() const
 	{
 		if (a_seq == 0)
 			return 0;
@@ -164,7 +177,7 @@ public:
 	 *
 	 */
 
-	virtual bool copy(memory & m)
+	virtual bool copy(const memory & m)
 	{
 		return hp.copy(m);
 	}

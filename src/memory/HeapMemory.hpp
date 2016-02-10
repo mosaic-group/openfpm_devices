@@ -50,10 +50,10 @@ class HeapMemory : public memory
 	long int ref_cnt;
 
 	//! copy from same Heap to Heap
-	bool copyDeviceToDevice(HeapMemory & m);
+	bool copyDeviceToDevice(const HeapMemory & m);
 
 	//! copy from Pointer to Heap
-	bool copyFromPointer(void * ptr, size_t sz);
+	bool copyFromPointer(const void * ptr, size_t sz);
 
 	//! Set alignment the memory will be aligned with this number
 	void setAlignment(size_t align);
@@ -65,13 +65,16 @@ public:
 	//! destroy memory
 	virtual void destroy();
 	//! copy memory
-	virtual bool copy(memory & m);
+	virtual bool copy(const memory & m);
 	//! the the size of the allocated memory
-	virtual size_t size();
+	virtual size_t size() const;
 	//! resize the memory allocated
 	virtual bool resize(size_t sz);
 	//! get a readable pointer with the data
 	virtual void * getPointer();
+
+	//! get a readable pointer with the data
+	virtual const void * getPointer() const;
 
 	//! Increment the reference counter
 	virtual void incRef()
@@ -95,6 +98,38 @@ public:
 	bool isInitialized()
 	{
 		return false;
+	}
+
+	// Copy the Heap memory
+	HeapMemory & operator=(const HeapMemory & mem)
+	{
+		copy(mem);
+		return *this;
+	}
+
+	// Copy the Heap memory
+	HeapMemory(const HeapMemory & mem)
+	:HeapMemory()
+	{
+		allocate(mem.size());
+		copy(mem);
+	}
+
+	HeapMemory(HeapMemory && mem) noexcept
+	{
+		//! swap
+		alignement = mem.alignement;
+		sz = mem.sz;
+		dm = mem.dm;
+		dmOrig = mem.dmOrig;
+		ref_cnt = mem.ref_cnt;
+
+		// reset mem
+		mem.alignement = MEM_ALIGNMENT;
+		mem.sz = 0;
+		mem.dm = NULL;
+		mem.dmOrig = NULL;
+		mem.ref_cnt = 0;
 	}
 
 	//! Constructor, we choose a default alignment of 32 for avx

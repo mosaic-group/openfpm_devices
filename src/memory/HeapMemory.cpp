@@ -75,7 +75,7 @@ void HeapMemory::destroy()
  *
  *	\param ptr
  */
-bool HeapMemory::copyFromPointer(void * ptr,size_t sz)
+bool HeapMemory::copyFromPointer(const void * ptr,size_t sz)
 {
 	// memory copy
 
@@ -95,7 +95,7 @@ bool HeapMemory::copyFromPointer(void * ptr,size_t sz)
  * \param CudaMemory from where to copy
  *
  */
-bool HeapMemory::copyDeviceToDevice(HeapMemory & m)
+bool HeapMemory::copyDeviceToDevice(const HeapMemory & m)
 {
 	//! The source buffer is too big to copy it
 
@@ -119,10 +119,10 @@ bool HeapMemory::copyDeviceToDevice(HeapMemory & m)
  * \param m a memory interface
  *
  */
-bool HeapMemory::copy(memory & m)
+bool HeapMemory::copy(const memory & m)
 {
 	//! Here we try to cast memory into HeapMemory
-	HeapMemory * ofpm = dynamic_cast<HeapMemory *>(&m);
+	const HeapMemory * ofpm = dynamic_cast<const HeapMemory *>(&m);
 
 	//! if we fail we get the pointer and simply copy from the pointer
 
@@ -149,7 +149,7 @@ bool HeapMemory::copy(memory & m)
  *
  */
 
-size_t HeapMemory::size()
+size_t HeapMemory::size() const
 {
 	return sz;
 }
@@ -220,6 +220,17 @@ bool HeapMemory::resize(size_t sz)
  */
 
 void * HeapMemory::getPointer()
+{
+	return dm;
+}
+
+/*! \brief Return a readable pointer with your data
+ *
+ * Return a readable pointer with your data
+ *
+ */
+
+const void * HeapMemory::getPointer() const
 {
 	return dm;
 }

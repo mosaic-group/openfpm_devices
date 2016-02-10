@@ -78,6 +78,27 @@ template<typename T> void test()
 
 	//! [Copy Memory]
 	}
+
+	{
+	T src;
+	src.allocate(FIRST_ALLOCATION);
+
+	unsigned char * ptr = (unsigned char *)src.getPointer();
+	for (size_t i = 0 ; i < src.size() ; i++)
+		ptr[i] = i;
+
+	T dst = src;
+
+	unsigned char * ptr2 = (unsigned char *)dst.getPointer();
+
+	BOOST_REQUIRE(src.getPointer() != dst.getPointer());
+	for (size_t i = 0 ; i < FIRST_ALLOCATION ; i++)
+	{
+		unsigned char c=i;
+		BOOST_REQUIRE_EQUAL(ptr2[i],c);
+	}
+
+	}
 }
 
 BOOST_AUTO_TEST_CASE( use )

@@ -166,6 +166,19 @@ public:
 		return (((unsigned char *)mem->getPointer()) + sequence_c[a_seq-1]);
 	}
 
+	/*! \brief Return the pointer of the last allocation
+	 *
+	 * \return the pointer
+	 *
+	 */
+	virtual const void * getPointer() const
+	{
+		if (a_seq == 0)
+			return NULL;
+
+		return (((unsigned char *)mem->getPointer()) + sequence_c[a_seq-1]);
+	}
+
 	/*! \brief Return the pointer you will get when you do the allocation ip
 	 *
 	 * This particular function exist because the allocation sequence is fixed a priori
@@ -211,7 +224,7 @@ public:
 	 *
 	 */
 
-	virtual size_t size()
+	virtual size_t size() const
 	{
 		if (a_seq == 0)
 			return 0;
@@ -232,7 +245,7 @@ public:
 	 *
 	 */
 
-	virtual bool copy(memory & m)
+	virtual bool copy(const memory & m)
 	{
 		return mem->copy(m);
 	}

@@ -46,7 +46,7 @@ void PtrMemory::destroy()
  *
  *	\param ptr
  */
-bool PtrMemory::copyFromPointer(void * ptr,size_t sz)
+bool PtrMemory::copyFromPointer(const void * ptr,size_t sz)
 {
 	// memory copy
 
@@ -62,7 +62,7 @@ bool PtrMemory::copyFromPointer(void * ptr,size_t sz)
  * \param PtrMemory from where to copy
  *
  */
-bool PtrMemory::copyDeviceToDevice(PtrMemory & m)
+bool PtrMemory::copyDeviceToDevice(const PtrMemory & m)
 {
 	//! The source buffer is too big to copy it
 
@@ -82,10 +82,10 @@ bool PtrMemory::copyDeviceToDevice(PtrMemory & m)
  * \param m a memory interface
  *
  */
-bool PtrMemory::copy(memory & m)
+bool PtrMemory::copy(const memory & m)
 {
 	//! Here we try to cast memory into PtrMemory
-	PtrMemory * ofpm = dynamic_cast<PtrMemory *>(&m);
+	const PtrMemory * ofpm = dynamic_cast<const PtrMemory *>(&m);
 
 	//! if we fail we get the pointer and simply copy from the pointer
 
@@ -112,9 +112,9 @@ bool PtrMemory::copy(memory & m)
  *
  */
 
-size_t PtrMemory::size()
+size_t PtrMemory::size() const
 {
-	return sz;
+	return spm;
 }
 
 /*! \brief Resize the allocated memory
@@ -132,7 +132,7 @@ bool PtrMemory::resize(size_t sz)
 	// if the allocated memory is enough, do not resize
 	if (sz <= spm)
 	{
-		this->sz = sz;
+		this->spm = sz;
 		return true;
 	}
 
@@ -142,6 +142,7 @@ bool PtrMemory::resize(size_t sz)
 
 /*! \brief Return a pointer to the allocated memory
  *
+ * \return the pointer
  *
  */
 
@@ -150,6 +151,16 @@ void * PtrMemory::getPointer()
 	return dm;
 }
 
+/*! \brief Return a pointer to the allocated memory
+ *
+ * \return the pointer
+ *
+ */
+
+const void * PtrMemory::getPointer() const
+{
+	return dm;
+}
 
 
 #endif /* PTRMEMORY_CPP_ */

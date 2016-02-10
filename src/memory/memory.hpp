@@ -55,13 +55,13 @@ class memory
 	 * \param m from where to copy
 	 *
 	 */
-	virtual bool copy(memory & m) = 0;
+	virtual bool copy(const memory & m) = 0;
 
 	/*! \brief get the size of the buffer
 	 *
 	 */
 
-	virtual size_t size() = 0;
+	virtual size_t size() const = 0;
 
 	/*! \brief return a data pointer
 	 *
@@ -70,6 +70,14 @@ class memory
 	 */
 
 	virtual void * getPointer() = 0;
+
+	/*! \brief return a data pointer
+	 *
+	 * return readable pointer with the data stored
+	 *
+	 */
+
+	virtual const void * getPointer() const = 0;
 
 	/*! \brief destructor
 	 *

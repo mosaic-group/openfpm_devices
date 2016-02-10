@@ -47,17 +47,14 @@ class PtrMemory : public memory
 	//! Pointed memory
 	void * dm;
 
-	//! Size of the memory
-	size_t sz;
-
 	//! Reference counter
 	long int ref_cnt;
 
 	//! copy from same Heap to Heap
-	bool copyDeviceToDevice(PtrMemory & m);
+	bool copyDeviceToDevice(const PtrMemory & m);
 
 	//! copy from Pointer to Heap
-	bool copyFromPointer(void * ptr, size_t sz);
+	bool copyFromPointer(const void * ptr, size_t sz);
 
 	//! Set alignment the memory will be aligned with this number
 	void setAlignment(size_t align);
@@ -69,13 +66,16 @@ public:
 	//! destroy memory
 	virtual void destroy();
 	//! copy memory
-	virtual bool copy(memory & m);
+	virtual bool copy(const memory & m);
 	//! the the size of the allocated memory
-	virtual size_t size();
+	virtual size_t size() const;
 	//! resize the memory allocated
 	virtual bool resize(size_t sz);
 	//! get a readable pointer with the data
 	virtual void * getPointer();
+
+	//! get a readable pointer with the data
+	virtual const void * getPointer() const;
 
 	//! Increment the reference counter
 	virtual void incRef()
@@ -102,12 +102,12 @@ public:
 	}
 
 	// Default constructor
-	PtrMemory():spm(0),dm(NULL),sz(0),ref_cnt(0)
+	PtrMemory():spm(0),dm(NULL),ref_cnt(0)
 	{
 	};
 
 	//! Constructor, we choose a default alignment of 32 for avx
-	PtrMemory(void * ptr, size_t sz):spm(sz),dm(ptr),sz(0),ref_cnt(0)
+	PtrMemory(void * ptr, size_t sz):spm(sz),dm(ptr),ref_cnt(0)
 	{
 	};
 
