@@ -17,7 +17,18 @@ m4_ifdef([AX_BOOST_IOSTREAMS],,[m4_include([m4/ax_boost_iostreams.m4])])
 m4_ifdef([AX_BOOST_PROGRAM_OPTIONS],,[m4_include([m4/ax_boost_program_options.m4])])
 m4_ifdef([AX_BOOST_UNIT_TEST_FRAMEWORK],,[m4_include([m4/ax_boost_unit_test_framework.m4])])
 
-CXXFLAGS+=" --std=c++11 -march=native -mtune=native -Wno-unused-local-typedefs -Wextra -Wno-unused-parameter "
+case $host_os in
+   *cygwin*)
+        # Do something specific for cygwin
+        CXXFLAGS+=" --std=gnu++11 "
+        ;;
+    *)
+        #Default Case
+        CXXFLAGS+=" --std=c++11 "
+        ;;
+esac
+
+CXXFLAGS+=" -march=native -mtune=native -Wno-unused-local-typedefs -Wextra -Wno-unused-parameter "
 NVCCFLAGS=" "
 INCLUDES_PATH=" -Iconfig "
 
