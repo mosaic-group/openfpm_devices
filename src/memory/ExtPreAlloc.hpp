@@ -107,7 +107,7 @@ public:
 	:a_seq(0),mem(&mem),ref_cnt(0)
 	{
 		// Allocate the total size of memory
-		mem.allocate(size);
+		mem.resize(size);
 	}
 
 	//! Increment the reference counter

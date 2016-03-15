@@ -28,7 +28,7 @@ bool HeapMemory::allocate(size_t sz)
 	if (dm == NULL)
 		dmOrig = new byte[sz+alignement];
 	else
-		std::cerr << "Error memory already allocated\n";
+		std::cerr << __FILE__ << ":" << __LINE__ << " error memory already allocated\n";
 
 	dm = dmOrig;
 
