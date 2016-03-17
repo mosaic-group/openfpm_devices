@@ -48,6 +48,18 @@ public:
 	{
 		if (ref_cnt != 0)
 			std::cerr << "Error: " << __FILE__ << " " << __LINE__ << " destroying a live object" << "\n";
+
+#ifdef SE_CLASS2
+		// Eliminate all the old pointers
+
+		// Eliminate all the old pointers (only if has been used)
+		if (a_seq != 0)
+		{
+			for (size_t i = 0 ; i < sequence.size() ; i++)
+				check_delete(getPointer(i));
+		}
+
+#endif
 	}
 
 	//! Default constructor
@@ -133,7 +145,6 @@ public:
 	 */
 	virtual bool allocate(size_t sz)
 	{
-
 		// Zero sized allocation are ignored
 		if (sz == 0)
 			return true;
@@ -149,6 +160,12 @@ public:
 		}
 
 		a_seq++;
+
+#ifdef SE_CLASS2
+
+		check_new(getPointer(),sz,HEAPMEMORY_EVENT,0);
+
+#endif
 
 		return true;
 	}
@@ -239,6 +256,17 @@ public:
 	void destroy()
 	{
 		mem->destroy();
+
+#ifdef SE_CLASS2
+
+		// Eliminate all the old pointers (only if has been used)
+		if (a_seq != 0)
+		{
+			for (size_t i = 0 ; i < sequence.size() ; i++)
+				check_delete(getPointer(i));
+		}
+
+#endif
 	}
 
 	/*! \brief Copy memory

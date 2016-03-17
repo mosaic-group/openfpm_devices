@@ -32,6 +32,7 @@ typedef unsigned char * byte_ptr;
 #define MEM_ERROR 1300lu
 
 extern long int msg_on_alloc;
+extern long int msg_on_dealloc;
 extern long int thr_on_alloc;
 extern std::string col_stop;
 extern long int new_data;
@@ -64,8 +65,11 @@ static bool remove_ptr(const void * ptr)
 		return false;
 	}
 
+	it->second.ref_id--;
+
 	// erase the pointer
-	active_ptr.erase((byte_ptr)ptr);
+	if (it->second.ref_id == 0)
+		active_ptr.erase((byte_ptr)ptr);
 
 	return true;
 }
@@ -228,6 +232,16 @@ inline static void message_on_alloc(long int break_id)
 	msg_on_alloc = break_id;
 }
 
+/* \brief When the de-allocation id==break_id is performed, print a message
+ *
+ * \param break_id
+ *
+ */
+inline static void message_on_dealloc(long int break_id)
+{
+	msg_on_dealloc = break_id;
+}
+
 /* \brief When the allocation id==break_id is performed, throw
  *
  * \param throw_id
@@ -251,14 +265,20 @@ inline static bool check_new(const void * data, size_t sz, size_t struct_id, siz
 	// Add a new pointer
 	new_data++;
 	ptr_info & ptr = active_ptr[(byte_ptr)data];
-	ptr.size = sz;
+	if (ptr.ref_id >= 1)
+	{
+		if (sz > ptr.size)	ptr.size = sz;
+	}
+	else
+		ptr.size = sz;
 	ptr.id = new_data;
 	ptr.struct_id = struct_id;
 	ptr.project_id = project_id;
+	ptr.ref_id++;
 
 #ifdef SE_CLASS2_VERBOSE
 	if (process_to_print < 0 || process_to_print == process_v_cl)
-		std::cout << "New data: " << new_data << "   " << data << "\n";
+		std::cout << "New data: " << new_data << "   " << data << "  " << ptr.size << "\n";
 #endif
 
 	if  (msg_on_alloc == new_data)
@@ -283,6 +303,10 @@ inline static bool check_delete(const void * data)
 	if (data == NULL)	return true;
 	// Delete the pointer
 	delete_data++;
+
+	if (msg_on_dealloc == (long int)delete_data)
+		std::cout << "Detected destruction: " << __FILE__ << ":" << __LINE__ << " id=" << msg_on_alloc << "\n";
+
 	bool result = remove_ptr(data);
 
 #ifdef SE_CLASS2_VERBOSE
@@ -347,12 +371,28 @@ inline static bool check_valid(const void * ptr, size_t size_access)
 
 	if (((unsigned char *)l_b->first) + sz < ((unsigned char *)ptr) + size_access)
 	{
-		if (process_to_print < 0 || process_to_print == process_v_cl)
+		bool found = false;
+
+		// Here we do a full search across all the registered pointers
+
+		std::map<byte_ptr, ptr_info>::iterator fit = active_ptr.begin();
+		for(; fit != active_ptr.end(); fit++)
 		{
-			std::cerr << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  "  << ptr << "   base allocation id=" << l_b->second.id << "\n";
-			ACTION_ON_ERROR(MEM_ERROR);
+			if (ptr >= fit->first  && (((unsigned char *)ptr) + size_access) <= (((unsigned char *)fit->first) + fit->second.size) )
+			{
+				found = true;
+				break;
+			}
 		}
-		return false;
+
+		if (found == false)
+		{
+			if (process_to_print < 0 || process_to_print == process_v_cl)
+			{
+				std::cerr << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  "  << ptr << "base  allocation id=" << l_b->second.id << "\n";
+				ACTION_ON_ERROR(MEM_ERROR);
+			}
+		}
 	}
 
 	return true;

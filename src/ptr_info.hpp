@@ -11,10 +11,11 @@
 
 struct ptr_info
 {
-	size_t id;
-	size_t struct_id;
-	size_t project_id;
-	size_t size;
+	size_t id = 0;
+	size_t struct_id = 0;
+	size_t project_id = 0;
+	size_t size = 0;
+	size_t ref_id = 0;
 };
 
 

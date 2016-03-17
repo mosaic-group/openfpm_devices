@@ -22,6 +22,7 @@ std::string col_stop("\e[0m");
 
 // Print a message when allocation with id==msg_on_alloc is performed
 long int msg_on_alloc = -1;
+long int msg_on_dealloc = -1;
 
 // throw when allocation with id==throw_on_alloc is performed
 long int thr_on_alloc = -1;
