@@ -5,21 +5,6 @@
  *      Author: Pietro Incardona
  */
 
-/**
- * \brief This class allocate, and destroy CPU memory
- *
- * Usage:
- *
- * HeapMemory m = new HeapMemory();
- *
- * m.allocate(1000*sizeof(int));
- * int * ptr = m.getPointer();
- * ptr[999] = 1000;
- * ....
- *
- *
- */
-
 #ifndef HEAP_MEMORY_HPP
 #define HEAP_MEMORY_HPP
 
@@ -34,6 +19,23 @@ typedef unsigned char byte;
 #define MEM_ALIGNMENT 32
 
 
+/**
+ * \brief This class allocate, and destroy CPU memory
+ *
+ *
+ * ### Allocate memory
+ *
+ * \snippet HeapMemory_unit_tests.hpp Allocate some memory and fill with data
+ *
+ * ### Resize memory
+ *
+ * \snippet HeapMemory_unit_tests.hpp Resize the memory
+ *
+ * ### Shrink memory
+ *
+ * \snippet HeapMemory_unit_tests.hpp Shrink memory
+ *
+ */
 class HeapMemory : public memory
 {
 	//! memory alignment

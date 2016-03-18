@@ -11,6 +11,7 @@
 #include "config.h"
 
 #include "memory/HeapMemory.hpp"
+#include "memory/BHeapMemory.hpp"
 #ifdef NVCC
 #include "memory/CudaMemory.cuh"
 #endif
@@ -55,6 +56,14 @@ template<typename T> void test()
 		unsigned char c = i;
 		BOOST_REQUIRE_EQUAL(ptr2[i],c);
 	}
+
+	//! [Shrink memory]
+
+	mem.resize(1);
+	BOOST_REQUIRE_EQUAL(mem.size(),SECOND_ALLOCATION);
+
+	//! [Shrink memory]
+
 
 	{
 	//! [Copy memory]
@@ -101,7 +110,49 @@ template<typename T> void test()
 	}
 }
 
-BOOST_AUTO_TEST_CASE( use )
+template<typename T> void Btest()
+{
+	//! [BAllocate some memory and fill with data]
+	T mem;
+
+	mem.allocate(FIRST_ALLOCATION);
+
+	BOOST_REQUIRE_EQUAL(mem.size(),FIRST_ALLOCATION);
+
+	// get the pointer of the allocated memory and fill
+
+	unsigned char * ptr = (unsigned char *)mem.getPointer();
+	for (size_t i = 0 ; i < mem.size() ; i++)
+		ptr[i] = i;
+
+	//! [BAllocate some memory and fill with data]
+
+	//! [BResize the memory]
+	mem.resize(SECOND_ALLOCATION);
+
+	unsigned char * ptr2 = (unsigned char *)mem.getPointer();
+
+	BOOST_REQUIRE_EQUAL(mem.size(),SECOND_ALLOCATION);
+	BOOST_REQUIRE_EQUAL(mem.isInitialized(),false);
+
+	//! [BResize the memory]
+
+	// check that the data are retained
+	for (size_t i = 0 ; i < FIRST_ALLOCATION ; i++)
+	{
+		unsigned char c = i;
+		BOOST_REQUIRE_EQUAL(ptr2[i],c);
+	}
+
+	//! [BShrink memory]
+
+	mem.resize(1);
+	BOOST_REQUIRE_EQUAL(mem.size(),1ul);
+
+	//! [BShrink memory]
+}
+
+BOOST_AUTO_TEST_CASE( use_heap_memory )
 {
 	test<HeapMemory>();
 #ifdef CUDA_GPU
@@ -109,6 +160,18 @@ BOOST_AUTO_TEST_CASE( use )
 #endif
 }
 
+BOOST_AUTO_TEST_CASE( use_cuda_memory )
+{
+	test<HeapMemory>();
+#ifdef CUDA_GPU
+	test<CudaMemory>();
+#endif
+}
+
+BOOST_AUTO_TEST_CASE( use_bheap_memory )
+{
+	Btest<BHeapMemory>();
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 

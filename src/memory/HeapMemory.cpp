@@ -163,7 +163,6 @@ size_t HeapMemory::size() const
  * \return true if the resize operation complete correctly
  *
  */
-
 bool HeapMemory::resize(size_t sz)
 {
 	// if the allocated memory is enough, do not resize
