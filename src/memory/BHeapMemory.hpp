@@ -64,7 +64,7 @@ public:
 
 	//! Constructor, we choose a default alignment of 32 for avx
 	BHeapMemory()
-	:HeapMemory()
+	:HeapMemory(),buf_sz(0)
 	{};
 
 	virtual ~BHeapMemory()
@@ -118,7 +118,7 @@ public:
 	 * \return true if the resize operation complete correctly
 	 *
 	 */
-	virtual size_t size()
+	virtual size_t size() const
 	{
 		return buf_sz;
 	}

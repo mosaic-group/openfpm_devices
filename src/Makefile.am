@@ -22,7 +22,7 @@ libofpmmemory_se2_a_SOURCES = memory/HeapMemory.cpp $(CUDA_SOURCES) memory/PtrMe
 libofpmmemory_se2_a_CXXFLAGS = $(INCLUDES_PATH) $(BOOST_CPPFLAGS) -I/usr/local/include -DSE_CLASS2
 libofpmmemory_se2_a_CFLAGS = 
 
-nobase_include_HEADERS = memory/ExtPreAlloc.hpp memory/HeapMemory.hpp memory/memory.hpp memory/PreAllocHeapMemory.hpp memory/PtrMemory.hpp \
+nobase_include_HEADERS = memory/ExtPreAlloc.hpp memory/BHeapMemory.hpp  memory/HeapMemory.hpp memory/memory.hpp memory/PreAllocHeapMemory.hpp memory/PtrMemory.hpp \
 Memleak_check.hpp ptr_info.hpp \
 util/se_util.hpp
 

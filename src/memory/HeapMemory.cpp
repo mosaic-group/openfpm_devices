@@ -67,6 +67,10 @@ void HeapMemory::destroy()
 
 	if (dmOrig != NULL)
 		delete [] dmOrig;
+
+	sz = 0;
+	dm = NULL;
+	dmOrig = NULL;
 }
 
 
@@ -166,13 +170,13 @@ size_t HeapMemory::size() const
 bool HeapMemory::resize(size_t sz)
 {
 	// if the allocated memory is enough, do not resize
-	if (sz <= size())
+	if (sz <= HeapMemory::size())
 		return true;
 
 	//! Allocate the device memory if not done yet
 
-	if (size() == 0)
-		return allocate(sz);
+	if (HeapMemory::size() == 0)
+		return HeapMemory::allocate(sz);
 
 	//! Create a new buffer if sz is bigger than the actual size
 	byte * tdm;
@@ -192,16 +196,16 @@ bool HeapMemory::resize(size_t sz)
 	//! copy from the old buffer to the new one
 
 #ifdef SE_CLASS2
-	check_valid(tdm,size());
-	check_valid(dm,size());
+	check_valid(tdm,HeapMemory::size());
+	check_valid(dm,HeapMemory::size());
 #endif
-	memcpy(tdm,dm,size());
+	memcpy(tdm,dm,HeapMemory::size());
 
 	this->sz = sz;
 
 	//! free the old buffer
 
-	destroy();
+	HeapMemory::destroy();
 
 	//! change to the new buffer
 

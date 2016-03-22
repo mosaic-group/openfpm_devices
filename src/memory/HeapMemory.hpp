@@ -140,7 +140,7 @@ public:
 	virtual ~HeapMemory()
 	{
 		if(ref_cnt == 0)
-			destroy();
+			HeapMemory::destroy();
 		else
 			std::cerr << "Error: " << __FILE__ << " " << __LINE__ << " destroying a live object" << "\n";
 	};
