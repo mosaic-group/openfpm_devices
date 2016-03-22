@@ -28,6 +28,8 @@ template<typename T> void test()
 	//! [Allocate some memory and fill with data]
 	T mem;
 
+	BOOST_REQUIRE_EQUAL(mem.size(),0ul);
+
 	mem.allocate(FIRST_ALLOCATION);
 
 	BOOST_REQUIRE_EQUAL(mem.size(),FIRST_ALLOCATION);
@@ -107,6 +109,14 @@ template<typename T> void test()
 		BOOST_REQUIRE_EQUAL(ptr2[i],c);
 	}
 
+	mem.destroy();
+
+	BOOST_REQUIRE_EQUAL(mem.size(),0ul);
+
+	mem.allocate(FIRST_ALLOCATION);
+
+	BOOST_REQUIRE_EQUAL(mem.size(),FIRST_ALLOCATION);
+
 	}
 }
 
@@ -150,6 +160,14 @@ template<typename T> void Btest()
 	BOOST_REQUIRE_EQUAL(mem.size(),1ul);
 
 	//! [BShrink memory]
+
+	mem.destroy();
+
+	BOOST_REQUIRE_EQUAL(mem.size(),0ul);
+
+	mem.allocate(FIRST_ALLOCATION);
+
+	BOOST_REQUIRE_EQUAL(mem.size(),FIRST_ALLOCATION);
 }
 
 BOOST_AUTO_TEST_CASE( use_heap_memory )

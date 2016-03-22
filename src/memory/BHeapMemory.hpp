@@ -133,6 +133,16 @@ public:
 	{
 		return HeapMemory::size();
 	}
+
+	/*! \brief Destroy the internal memory
+	 *
+	 *
+	 */
+	void destroy()
+	{
+		HeapMemory::destroy();
+		buf_sz = 0;
+	}
 };
 
 

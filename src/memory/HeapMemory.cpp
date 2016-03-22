@@ -54,9 +54,8 @@ void HeapMemory::setAlignment(size_t align)
 	this->alignement = align;
 }
 
-/*! \brief destroy a chunk of memory
+/*! \brief Destroy the internal memory
  *
- * Destroy a chunk of memory
  *
  */
 void HeapMemory::destroy()
