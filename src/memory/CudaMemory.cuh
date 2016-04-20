@@ -46,13 +46,19 @@ class CudaMemory : public memory
 	void * dm;
 	
 	//! host memory
-	void * hm;
+	mutable void * hm;
 
 	//! Reference counter
 	size_t ref_cnt;
 	
 	//! Allocate an host buffer
-	void allocate_host(size_t sz);
+	void allocate_host(size_t sz) const;
+	
+	//! copy from GPU to GPU buffer directly
+	bool copyDeviceToDevice(const CudaMemory & m);
+	
+	//! copy from Pointer to GPU
+	bool copyFromPointer(const void * ptr);
 	
 public:
 	
@@ -63,17 +69,14 @@ public:
 	//! copy from a General device
 	virtual bool copy(const memory & m);
 	//! the the size of the allocated memory
-	virtual size_t size();
+	virtual size_t size() const;
 	//! resize the momory allocated
 	virtual bool resize(size_t sz);
 	//! get a readable pointer with the data
 	void * getPointer();
 	
-	//! copy from GPU to GPU buffer directly
-	bool copyDeviceToDevice(CudaMemory & m);
-	
-	//! copy from Pointer to GPU
-	bool copyFromPointer(void * ptr);
+	//! get a readable pointer with the data
+	virtual const void * getPointer() const;
 	
 	//! This function notify that the device memory is not sync with
 	//! the host memory, is called when a task is performed that write

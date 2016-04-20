@@ -55,7 +55,7 @@ void CudaMemory::destroy()
  *
  */
 
-void CudaMemory::allocate_host(size_t sz)
+void CudaMemory::allocate_host(size_t sz) const
 {
 	if (hm == NULL)
 	{
@@ -74,7 +74,7 @@ void CudaMemory::allocate_host(size_t sz)
  *	\param ptr
  *	\return true if success
  */
-bool CudaMemory::copyFromPointer(void * ptr)
+bool CudaMemory::copyFromPointer(const void * ptr)
 {
 	// check if we have a host buffer, if not allocate it
 
@@ -87,7 +87,7 @@ bool CudaMemory::copyFromPointer(void * ptr)
 
 	// memory copy
 
-	memcpy(ptr,dvp,sz);
+	memcpy(dvp,ptr,sz);
 
 	return true;
 }
@@ -100,7 +100,7 @@ bool CudaMemory::copyFromPointer(void * ptr)
  *
  * \return true is success
  */
-bool CudaMemory::copyDeviceToDevice(CudaMemory & m)
+bool CudaMemory::copyDeviceToDevice(const CudaMemory & m)
 {
 	//! The source buffer is too big to copy it
 
@@ -123,10 +123,10 @@ bool CudaMemory::copyDeviceToDevice(CudaMemory & m)
  * \param m a memory interface
  *
  */
-bool CudaMemory::copy(memory & m)
+bool CudaMemory::copy(const memory & m)
 {
 	//! Here we try to cast memory into OpenFPMwdeviceCudaMemory
-	CudaMemory * ofpm = dynamic_cast<CudaMemory *>(&m);
+	const CudaMemory * ofpm = dynamic_cast<const CudaMemory *>(&m);
 
 	//! if we fail we get the pointer and simply copy from the pointer
 
@@ -152,10 +152,11 @@ bool CudaMemory::copy(memory & m)
  *
  */
 
-size_t CudaMemory::size()
+size_t CudaMemory::size() const
 {
 	return sz;
 }
+
 
 /*! \brief Resize the allocated memory
  *
@@ -225,6 +226,31 @@ bool CudaMemory::resize(size_t sz)
  */
 
 void * CudaMemory::getPointer()
+{
+	//| allocate an host memory if not allocated
+	if (hm == NULL)
+		allocate_host(sz);
+
+	//! if the host buffer is synchronized with the device buffer return the host buffer
+
+	if (is_hm_sync)
+		return hm;
+
+	//! copy from device to host memory
+
+	CUDA_SAFE_CALL(cudaMemcpy(hm,dm,sz,cudaMemcpyDeviceToHost));
+
+	return hm;
+}
+
+
+/*! \brief Return a readable pointer with your data
+ *
+ * Return a readable pointer with your data
+ *
+ */
+
+const void * CudaMemory::getPointer() const
 {
 	//| allocate an host memory if not allocated
 	if (hm == NULL)
