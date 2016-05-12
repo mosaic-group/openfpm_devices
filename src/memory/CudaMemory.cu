@@ -5,6 +5,8 @@
 #include "cuda_macro.h"
 #include <cstring>
 
+#define CUDA_EVENT 0x1201
+
 /*! \brief Allocate a chunk of memory
  *
  * Allocate a chunk of memory
