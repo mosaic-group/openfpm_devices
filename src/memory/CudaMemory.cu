@@ -7,6 +7,23 @@
 
 #define CUDA_EVENT 0x1201
 
+/*! \brief Move the memory into device
+ *
+ * \return true if the memory is correctly flushed
+ *
+ */
+bool CudaMemory::flush()
+{
+	if (hm != NULL && dm != NULL)
+	{
+		//! copy from host to device memory
+
+		CUDA_SAFE_CALL(cudaMemcpy(dm,hm,sz,cudaMemcpyHostToDevice));		
+	}
+	
+	return true;
+}
+
 /*! \brief Allocate a chunk of memory
  *
  * Allocate a chunk of memory
@@ -21,6 +38,9 @@ bool CudaMemory::allocate(size_t sz)
 	{CUDA_SAFE_CALL(cudaMalloc(&dm,sz));}
 
 	this->sz = sz;
+
+	// after allocation we canno ensure that hm is sync
+	is_hm_sync = false;
 
 	return true;
 }
@@ -49,6 +69,8 @@ void CudaMemory::destroy()
 #endif
 		hm = NULL;
 	}
+	
+	sz = 0;
 }
 
 /*! \brief Allocate the host buffer
@@ -113,7 +135,7 @@ bool CudaMemory::copyDeviceToDevice(const CudaMemory & m)
 	}
 
 	//! Copy the memory
-	CUDA_SAFE_CALL(cudaMemcpy(m.dm,dm,m.sz,cudaMemcpyDeviceToDevice));
+	CUDA_SAFE_CALL(cudaMemcpy(dm,m.dm,m.sz,cudaMemcpyDeviceToDevice));
 
 	return true;
 }

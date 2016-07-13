@@ -61,6 +61,8 @@ class PtrMemory : public memory
 
 public:
 
+	//! flush the memory
+	virtual bool flush() {return true;};
 	//! allocate memory
 	virtual bool allocate(size_t sz);
 	//! destroy memory

@@ -62,6 +62,8 @@ class HeapMemory : public memory
 
 public:
 
+	//! flush the memory
+	virtual bool flush() {return true;};
 	//! allocate memory
 	virtual bool allocate(size_t sz);
 	//! destroy memory
@@ -119,14 +121,13 @@ public:
 
 	HeapMemory(HeapMemory && mem) noexcept
 	{
-		//! swap
+		//! move
 		alignement = mem.alignement;
 		sz = mem.sz;
 		dm = mem.dm;
 		dmOrig = mem.dmOrig;
 		ref_cnt = mem.ref_cnt;
 
-		// reset mem
 		mem.alignement = MEM_ALIGNMENT;
 		mem.sz = 0;
 		mem.dm = NULL;

@@ -62,6 +62,8 @@ class CudaMemory : public memory
 	
 public:
 	
+	//! flush the memory
+	virtual bool flush();
 	//! allocate memory
 	virtual bool allocate(size_t sz);
 	//! destroy memory
@@ -107,6 +109,43 @@ public:
 	bool isInitialized()
 	{
 		return false;
+	}
+	
+	// Copy the Heap memory
+	CudaMemory & operator=(const CudaMemory & mem)
+	{
+		copy(mem);
+		return *this;
+	}
+
+	// Copy the Cuda memory
+	CudaMemory(const CudaMemory & mem)
+	:CudaMemory()
+	{
+		allocate(mem.size());
+		copy(mem);
+	}
+
+	CudaMemory(CudaMemory && mem) noexcept
+	{
+
+		bool t_is_hm_sync = is_hm_sync;
+		size_t t_sz = sz;
+		void * t_dm = dm;
+		void * t_hm = hm;
+		long int t_ref_cnt = ref_cnt;
+
+		is_hm_sync = mem.is_hm_sync;
+		sz = mem.sz;
+		dm = mem.dm;
+		hm = mem.hm;
+
+		// reset mem
+		mem.is_hm_sync = t_is_hm_sync;
+		mem.sz = t_sz;
+		mem.dm = t_dm;
+		mem.hm = t_hm;
+		mem.ref_cnt = t_ref_cnt;
 	}
 	
 	//! Constructor

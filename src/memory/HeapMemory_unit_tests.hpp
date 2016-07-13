@@ -40,6 +40,8 @@ template<typename T> void test()
 	for (size_t i = 0 ; i < mem.size() ; i++)
 		ptr[i] = i;
 
+	mem.flush();
+
 	//! [Allocate some memory and fill with data]
 
 	//! [Resize the memory]
@@ -97,6 +99,8 @@ template<typename T> void test()
 	unsigned char * ptr = (unsigned char *)src.getPointer();
 	for (size_t i = 0 ; i < src.size() ; i++)
 		ptr[i] = i;
+
+	src.flush();
 
 	T dst = src;
 
