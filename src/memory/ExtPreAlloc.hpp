@@ -26,21 +26,14 @@ class ExtPreAlloc : public memory
 {
 	// Actual allocation pointer
 	size_t a_seq ;
-	// List of allowed allocation
-	std::vector<size_t> sequence;
-	// starting from 0 is the cumulative buffer of sequence
-	// Example sequence   = 2,6,3,6
-	//         sequence_c = 0,2,8,11
-	std::vector<size_t> sequence_c;
+
+	// Last allocation size
+	size_t l_size;
 
 	// Main class for memory allocation
 	Mem * mem;
 	//! Reference counter
 	long int ref_cnt;
-
-	ExtPreAlloc(const ExtPreAlloc & ext)
-	:a_seq(0),mem(NULL),ref_cnt(0)
-	{}
 
 public:
 
@@ -64,49 +57,8 @@ public:
 
 	//! Default constructor
 	ExtPreAlloc()
-	:a_seq(0),mem(NULL),ref_cnt(0)
+	:a_seq(0),l_size(0),mem(NULL),ref_cnt(0)
 	{
-	}
-
-	/*! \brief Preallocated memory sequence
-	 *
-	 * \param sequence of allocation size
-	 * \param mem external memory, used if you want to keep the memory
-	 *
-	 */
-	ExtPreAlloc(const std::vector<size_t> & seq, Mem & mem)
-	:a_seq(0),mem(&mem),ref_cnt(0)
-	{
-		size_t total_size = 0;
-
-		// number of non zero
-		size_t n_zero = 0;
-
-		// remove zero size request
-		for (size_t i = 0 ; i < seq.size(); i++)
-		{
-			if (seq[i] != 0)
-				n_zero++;
-		}
-
-		// Resize the sequence
-		sequence.resize(n_zero);
-		sequence_c.resize(n_zero+1);
-		size_t j = 0;
-		for (size_t i = 0 ; i < seq.size() ; i++)
-		{
-			if (seq[i] != 0)
-			{
-				sequence[j] = seq[i];
-				sequence_c[j] = total_size;
-				total_size += seq[i];
-				j++;
-			}
-		}
-		sequence_c[j] = total_size;
-
-		// Allocate the total size of memory
-		mem.resize(total_size);
 	}
 
 	/*! \brief Preallocated memory sequence
@@ -116,7 +68,7 @@ public:
 	 *
 	 */
 	ExtPreAlloc(size_t size, Mem & mem)
-	:a_seq(0),mem(&mem),ref_cnt(0)
+	:a_seq(0),l_size(0),mem(&mem),ref_cnt(0)
 	{
 		// Allocate the total size of memory
 		mem.resize(size);
@@ -151,15 +103,8 @@ public:
 
 		// Check that the size match
 
-		if (sequence[a_seq] != sz)
-		{
-			std::cerr << "Error: " << __FILE__ << ":" << __LINE__ << " expecting: " << sequence[a_seq] << " got: " << sz <<  " allocation failed \n";
-			std::cerr << "NOTE: if you are using this structure with vector remember to use openfpm::vector<...>::calculateMem(...) to get the required allocation sequence\n";
-
-			return false;
-		}
-
-		a_seq++;
+		a_seq = l_size;
+		l_size += sz;
 
 #ifdef SE_CLASS2
 
@@ -170,6 +115,26 @@ public:
 		return true;
 	}
 
+	/*! \brief Return the end pointer of the previous allocated memory
+	 *
+	 * \return the pointer
+	 *
+	 */
+	void * getPointerEnd()
+	{
+		return (char *)mem->getPointer() + l_size;
+	}
+
+	/*! \brief The the base pointer of the preallocate memory
+	 *
+	 * \return the base pointer
+	 *
+	 */
+	void * getPointerBase()
+	{
+		return mem->getPointer();
+	}
+
 	/*! \brief Return the pointer of the last allocation
 	 *
 	 * \return the pointer
@@ -177,10 +142,7 @@ public:
 	 */
 	virtual void * getPointer()
 	{
-		if (a_seq == 0)
-			return NULL;
-
-		return (((unsigned char *)mem->getPointer()) + sequence_c[a_seq-1]);
+		return (((unsigned char *)mem->getPointer()) + a_seq );
 	}
 
 	/*! \brief Return the pointer of the last allocation
@@ -190,22 +152,7 @@ public:
 	 */
 	virtual const void * getPointer() const
 	{
-		if (a_seq == 0)
-			return NULL;
-
-		return (((unsigned char *)mem->getPointer()) + sequence_c[a_seq-1]);
-	}
-
-	/*! \brief Return the pointer you will get when you do the allocation ip
-	 *
-	 * This particular function exist because the allocation sequence is fixed a priori
-	 *
-	 * \param ip index of the pointer in the sequence
-	 *
-	 */
-	void * getPointer(size_t ip)
-	{
-		return (((unsigned char *)mem->getPointer()) + sequence_c[ip]);
+		return (((unsigned char *)mem->getPointer()) + a_seq);
 	}
 
 	/*! \brief Get the base memory pointer increased with an offset
@@ -243,10 +190,7 @@ public:
 
 	virtual size_t size() const
 	{
-		if (a_seq == 0)
-			return 0;
-
-		return sequence[a_seq-1];
+		return l_size;
 	}
 
 	/*! \brief Destroy memory
