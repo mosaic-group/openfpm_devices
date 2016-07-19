@@ -28,6 +28,7 @@ typedef unsigned char * byte_ptr;
 
 #include "util/se_util.hpp"
 #include "ptr_info.hpp"
+#include <string>
 
 #define MEM_ERROR 1300lu
 

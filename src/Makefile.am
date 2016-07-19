@@ -27,4 +27,8 @@ Memleak_check.hpp ptr_info.hpp \
 util/se_util.hpp
 
 .cu.o :
-	$(NVCC) $(NVCCFLAGS) -I. $(INCLUDES_PATH) -o $@ -c $<
+	$(NVCC) $(NVCCFLAGS) -std=c++11  -I. $(INCLUDES_PATH) -o $@ -c $<
+
+test: mem
+	source $(HOME)/openfpm_vars && cd .. && ./src/mem
+

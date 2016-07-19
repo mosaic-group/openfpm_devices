@@ -23,6 +23,12 @@ class memory
 {
 	public:
 
+	/*! \brief Flush the memory into the device
+	 *
+	 *
+	 */
+	virtual bool flush() = 0;
+
 	/*! \brief allocate on device a buffer of
 	 *
 	 * Allocate on the device a buffer of memory
@@ -111,7 +117,6 @@ class memory
 	 *
 	 */
 	virtual bool isInitialized() = 0;
-
 
 };
 

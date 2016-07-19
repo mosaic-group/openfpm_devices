@@ -88,6 +88,9 @@ public:
 		return ref_cnt;
 	}
 
+	//! flush the memory
+	virtual bool flush() {return mem->flush();};
+
 	/*! \brief Allocate a chunk of memory
 	 *
 	 * Allocate a chunk of memory
