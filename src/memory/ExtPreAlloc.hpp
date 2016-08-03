@@ -41,18 +41,6 @@ public:
 	{
 		if (ref_cnt != 0)
 			std::cerr << "Error: " << __FILE__ << " " << __LINE__ << " destroying a live object" << "\n";
-
-#ifdef SE_CLASS2
-		// Eliminate all the old pointers
-
-		// Eliminate all the old pointers (only if has been used)
-		if (a_seq != 0)
-		{
-			for (size_t i = 0 ; i < sequence.size() ; i++)
-				check_delete(getPointer(i));
-		}
-
-#endif
 	}
 
 	//! Default constructor
@@ -109,9 +97,10 @@ public:
 		a_seq = l_size;
 		l_size += sz;
 
-#ifdef SE_CLASS2
+#ifdef SE_CLASS1
 
-		check_new(getPointer(),sz,HEAPMEMORY_EVENT,0);
+		if (l_size > mem->size())
+			std::cerr << __FILE__ << ":" << __LINE__ << " Error requesting more memory than the allocated one" << std::endl;
 
 #endif
 
@@ -203,17 +192,6 @@ public:
 	void destroy()
 	{
 		mem->destroy();
-
-#ifdef SE_CLASS2
-
-		// Eliminate all the old pointers (only if has been used)
-		if (a_seq != 0)
-		{
-			for (size_t i = 0 ; i < sequence.size() ; i++)
-				check_delete(getPointer(i));
-		}
-
-#endif
 	}
 
 	/*! \brief Copy memory
