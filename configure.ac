@@ -202,12 +202,8 @@ AC_SUBST(BOOST_CPPFLAGS)
 
 ####### Checking for GPU support
 
-AX_CUDA
-
-if test x"$NVCC_EXIST" = x"yes"; then
-  AC_MSG_CHECKING(whether to build with GPU support)
-  gpu_support=yes
-  AC_ARG_ENABLE(gpu,
+gpu_support=yes
+AC_ARG_ENABLE(gpu,
         AC_HELP_STRING(
             [--enable-gpu],
             [enable gpu support]
@@ -215,14 +211,17 @@ if test x"$NVCC_EXIST" = x"yes"; then
         gpu_support="$enableval"
   )
 
-  AC_MSG_RESULT($gpu_support)
-  if test x"$gpu_support" = x"yes"; then
-        AC_DEFINE([CUDA_GPU],[],[CUDA GPU support])
-  fi
-else
-  gpu_support=no
-fi
+AC_MSG_RESULT($gpu_support)
 
+if test x"$gpu_support" = x"yes"; then
+  AX_CUDA
+
+  if test x"$NVCC_EXIST" = x"yes"; then
+    AC_DEFINE([CUDA_GPU],[],[CUDA GPU support])
+  else
+    gpu_support=no
+  fi
+fi
 
 # Set this conditional if cuda is wanted
 

@@ -134,6 +134,30 @@ public:
 		return HeapMemory::size();
 	}
 
+	/*! \brief Copy the memory
+	 *
+	 *
+	 */
+	BHeapMemory & operator=(const BHeapMemory & mem)
+	{
+		buf_sz = mem.buf_sz;
+		static_cast<HeapMemory *>(this)->operator=(mem);
+
+		return *this;
+	}
+
+	/*! \brief Copy the memory
+	 *
+	 *
+	 */
+	BHeapMemory & operator=(BHeapMemory && mem)
+	{
+		buf_sz = mem.buf_sz;
+		static_cast<HeapMemory *>(this)->operator=(mem);
+
+		return *this;
+	}
+
 	/*! \brief Destroy the internal memory
 	 *
 	 *
