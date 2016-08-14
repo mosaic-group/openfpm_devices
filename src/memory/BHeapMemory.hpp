@@ -52,14 +52,13 @@ public:
 
 	// Copy the Heap memory
 	BHeapMemory(const BHeapMemory & mem)
-	:HeapMemory(mem)
+	:HeapMemory(mem),buf_sz(mem.size())
 	{
 	}
 
 	BHeapMemory(BHeapMemory && mem) noexcept
-	:HeapMemory((HeapMemory &&)mem)
+	:HeapMemory((HeapMemory &&)mem),buf_sz(mem.size())
 	{
-		buf_sz = mem.buf_sz;
 	}
 
 	//! Constructor, we choose a default alignment of 32 for avx
