@@ -145,6 +145,38 @@ public:
 		else
 			std::cerr << "Error: " << __FILE__ << " " << __LINE__ << " destroying a live object" << "\n";
 	};
+
+	/*! \brief Swap the memory
+	 *
+	 * \param mem memory to swap
+	 *
+	 */
+	void swap(HeapMemory & mem)
+	{
+		size_t alignement_tmp;
+		size_t sz_tmp;
+		byte * dm_tmp;
+		byte * dmOrig_tmp;
+		long int ref_cnt_tmp;
+
+		alignement_tmp = alignement;
+		sz_tmp = sz;
+		dm_tmp = dm;
+		dmOrig_tmp = dmOrig;
+		ref_cnt_tmp = ref_cnt;
+
+		alignement = mem.alignement;
+		sz = mem.sz;
+		dm = mem.dm;
+		dmOrig = mem.dmOrig;
+		ref_cnt = mem.ref_cnt;
+
+		mem.alignement = alignement_tmp;
+		mem.sz = sz_tmp;
+		mem.dm = dm_tmp;
+		mem.dmOrig = dmOrig_tmp;
+		mem.ref_cnt = ref_cnt_tmp;
+	}
 };
 
 

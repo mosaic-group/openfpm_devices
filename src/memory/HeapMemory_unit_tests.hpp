@@ -174,6 +174,45 @@ template<typename T> void Btest()
 	BOOST_REQUIRE_EQUAL(mem.size(),FIRST_ALLOCATION);
 }
 
+
+template<typename T> void Stest()
+{
+	T mem1;
+	T mem2;
+
+	mem1.allocate(5*sizeof(size_t));
+	mem2.allocate(6*sizeof(size_t));
+
+	BOOST_REQUIRE_EQUAL(mem1.size(),5*sizeof(size_t));
+	BOOST_REQUIRE_EQUAL(mem2.size(),6*sizeof(size_t));
+
+	// get the pointer of the allocated memory and fill
+
+	size_t * ptr1 = (size_t *)mem1.getPointer();
+	size_t * ptr2 = (size_t *)mem2.getPointer();
+	for (size_t i = 0 ; i < 5 ; i++)
+		ptr1[i] = i;
+
+	for (size_t i = 0 ; i < 6 ; i++)
+		ptr2[i] = i+100;
+
+	mem1.swap(mem2);
+
+	bool ret = true;
+	ptr1 = (size_t *)mem2.getPointer();
+	ptr2 = (size_t *)mem1.getPointer();
+	for (size_t i = 0 ; i < 5 ; i++)
+		ret &= ptr1[i] == i;
+
+	for (size_t i = 0 ; i < 6 ; i++)
+		ret &= ptr2[i] == i+100;
+
+	BOOST_REQUIRE_EQUAL(ret,true);
+
+	BOOST_REQUIRE_EQUAL(mem1.size(),6*sizeof(size_t));
+	BOOST_REQUIRE_EQUAL(mem2.size(),5*sizeof(size_t));
+}
+
 BOOST_AUTO_TEST_CASE( use_heap_memory )
 {
 	test<HeapMemory>();
@@ -193,6 +232,11 @@ BOOST_AUTO_TEST_CASE( use_cuda_memory )
 BOOST_AUTO_TEST_CASE( use_bheap_memory )
 {
 	Btest<BHeapMemory>();
+}
+
+BOOST_AUTO_TEST_CASE( swap_heap_memory )
+{
+	Stest<HeapMemory>();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

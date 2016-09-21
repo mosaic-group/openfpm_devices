@@ -166,6 +166,20 @@ public:
 		HeapMemory::destroy();
 		buf_sz = 0;
 	}
+
+	/*! \brief swap the two mwmory object
+	 *
+	 * \param mem Memory to swap with
+	 *
+	 */
+	void swap(BHeapMemory & mem)
+	{
+		HeapMemory::swap(mem);
+
+		size_t buf_sz_t = mem.buf_sz;
+		mem.buf_sz = buf_sz;
+		buf_sz = buf_sz_t;
+	}
 };
 
 
