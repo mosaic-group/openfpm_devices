@@ -6,6 +6,7 @@ parallel (
   {
     stage ('gin_build')
     {
+      deleteDir()
       checkout scm
       sh "./build.sh $WORKSPACE $NODE_NAME"
     }
@@ -20,6 +21,7 @@ parallel (
   {
     stage ('nyu_build')
     {
+      deleteDir()
       checkout scm
       sh "./build.sh $WORKSPACE $NODE_NAME"
     }
@@ -35,6 +37,7 @@ parallel (
     env.PATH = "/usr/local/bin:${env.PATH}"
     stage ('sb15_build')
     {
+      deleteDir()
       checkout scm
       sh "./build.sh $WORKSPACE $NODE_NAME"
     }
