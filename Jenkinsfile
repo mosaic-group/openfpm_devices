@@ -14,6 +14,7 @@ parallel (
     stage ('gin_run')
     {
       sh "./src/mem"
+      sh "./success.sh 2 gin openfpm_devices"
     }
   }},
 
@@ -29,6 +30,7 @@ parallel (
     stage ('nyu_run')
     {
       sh "./src/mem"
+      sh "./success.sh 2 nyu openfpm_devices"
     }
   }},
 
@@ -45,6 +47,7 @@ parallel (
     stage ('sb15_run')
     {
       sh "./src/mem"
+      sh "./success.sh 2 sbalzarini-mac-15 openfpm_devices"
     }
   }}
 
