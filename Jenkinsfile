@@ -7,7 +7,21 @@ parallel (
     stage ('gin_build')
     {
       deleteDir()
-      checkout scm
+
+      int ntry = 5
+      while (ntry != 0)
+      {
+        try {
+          checkout scm
+          ntry = 0
+        }
+        catch (IOException e)
+        {
+          ntry--
+          sleep(5000)
+        }
+      }
+
       sh "./build.sh $WORKSPACE $NODE_NAME"
     }
 
@@ -23,7 +37,21 @@ parallel (
     stage ('nyu_build')
     {
       deleteDir()
-      checkout scm
+
+      int ntry = 5
+      while (ntry != 0)
+      {
+        try {
+          checkout scm
+          ntry = 0
+        }
+        catch (IOException e)
+        {
+          ntry--
+          sleep(5000)
+        }
+      }
+
       sh "./build.sh $WORKSPACE $NODE_NAME"
     }
 
@@ -40,7 +68,21 @@ parallel (
     stage ('sb15_build')
     {
       deleteDir()
-      checkout scm
+
+      int ntry = 5
+      while (ntry != 0)
+      {
+        try {
+          checkout scm
+          ntry = 0
+        }
+        catch (IOException e)
+        {
+          ntry--
+          sleep(5000)
+        }
+      }
+
       sh "./build.sh $WORKSPACE $NODE_NAME"
     }
 
