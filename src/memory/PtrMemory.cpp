@@ -59,7 +59,9 @@ bool PtrMemory::copyFromPointer(const void * ptr,size_t sz)
  *
  * copy a piece of memory from device to device
  *
- * \param PtrMemory from where to copy
+ * \param m PtrMemory from where to copy
+ *
+ * \return true if the memory is successful copy
  *
  */
 bool PtrMemory::copyDeviceToDevice(const PtrMemory & m)

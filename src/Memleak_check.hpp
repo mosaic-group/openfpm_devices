@@ -30,7 +30,7 @@ typedef unsigned char * byte_ptr;
 #include "ptr_info.hpp"
 #include <string>
 
-#define MEM_ERROR 1300lu
+#define MEM_ERROR_OBJECT std::runtime_error("Runtime memory error")
 
 extern long int msg_on_alloc;
 extern long int msg_on_dealloc;
@@ -62,7 +62,7 @@ static bool remove_ptr(const void * ptr)
 	if ( it == active_ptr.end() )
 	{
 		std::cout << "Error " << __FILE__ << ":" << __LINE__ << " pointer not found " << ptr << "\n";
-		ACTION_ON_ERROR(MEM_ERROR);
+		ACTION_ON_ERROR(MEM_ERROR_OBJECT);
 		return false;
 	}
 
@@ -286,7 +286,7 @@ inline static bool check_new(const void * data, size_t sz, size_t struct_id, siz
 		std::cout << "Detected allocation: " << __FILE__ << ":" << __LINE__ << " id=" << msg_on_alloc << "\n";
 
 	if (thr_on_alloc == new_data)
-		throw MEM_ERROR;
+		throw MEM_ERROR_OBJECT;
 
 	return true;
 }
@@ -333,7 +333,7 @@ inline static bool check_valid(const void * ptr, size_t size_access)
 	if (active_ptr.size() == 0)
 	{
 		std::cerr << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  " << ptr << "\n";
-		ACTION_ON_ERROR(MEM_ERROR);
+		ACTION_ON_ERROR(MEM_ERROR_OBJECT);
 		return false;
 	}
 
@@ -347,7 +347,7 @@ inline static bool check_valid(const void * ptr, size_t size_access)
 		if (process_to_print < 0 || process_to_print == process_v_cl)
 		{
 			std::cerr << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  " << ptr << "   base allocation id=" << l_b->second.id << "\n";
-			ACTION_ON_ERROR(MEM_ERROR);
+			ACTION_ON_ERROR(MEM_ERROR_OBJECT);
 		}
 		return false;
 	}
@@ -361,7 +361,7 @@ inline static bool check_valid(const void * ptr, size_t size_access)
 		if (process_to_print < 0 || process_to_print == process_v_cl)
 		{
 			std::cerr << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  " << ptr << "   base allocation id=" << l_b->second.id  << "\n";
-			ACTION_ON_ERROR(MEM_ERROR);
+			ACTION_ON_ERROR(MEM_ERROR_OBJECT);
 		}
 		return false;
 	}
@@ -390,8 +390,8 @@ inline static bool check_valid(const void * ptr, size_t size_access)
 		{
 			if (process_to_print < 0 || process_to_print == process_v_cl)
 			{
-				std::cerr << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  "  << ptr << "base  allocation id=" << l_b->second.id << "\n";
-				ACTION_ON_ERROR(MEM_ERROR);
+				std::cerr << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  "  << ptr << " base  allocation id=" << l_b->second.id << "\n";
+				ACTION_ON_ERROR(MEM_ERROR_OBJECT);
 			}
 		}
 	}

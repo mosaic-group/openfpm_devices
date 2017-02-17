@@ -95,7 +95,7 @@ bool HeapMemory::copyFromPointer(const void * ptr,size_t sz)
  *
  * copy a piece of memory from device to device
  *
- * \param CudaMemory from where to copy
+ * \param m from where to copy
  *
  */
 bool HeapMemory::copyDeviceToDevice(const HeapMemory & m)
