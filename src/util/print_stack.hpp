@@ -61,15 +61,60 @@ static inline void print_stack()
 			     "in your code, follow from top to bottom the list of calls until you find " <<
 				 "a source code familiar to you.\033[0m" << std::endl;
 
-	for (int i = 0 ; i < ncall ; i++)
-	{
-		str << "STACK TRACE Address: " << trace[i] << "   " << messages[i] << "   source:";
+	std::string translators[]={"eu-addr2line","addr2line"};
+	std::string translator;
 
+	for (size_t i = 0 ; i < sizeof(translators)/sizeof(std::string) ; i++)
+	{
+		// for for the best address to source code translator
 		char syscom[256];
-		sprintf(syscom,"addr2line %p -e %s", trace[i],program_name.c_str()); //last parameter is the name of this app
+		sprintf(syscom,"%s --version",translators[i].c_str());
 
 		std::string ss = exec(syscom);
-		str << std::endl << "\033[1;31m" << ss << "\033[0m";
+		size_t found = ss.find("command not found");
+		if (found == std::string::npos)
+		{
+			// command exist
+			translator = translators[i];
+			str << "Using translator: " << translator << std::endl;
+			break;
+		}
+	}
+
+	if (translator.size() == 0)
+	{
+		str << "In order to have a more detailed stack-trace with function name and precise location in the source code" <<
+			"Please install one of the following utils: ";
+
+		str << translators[0];
+
+		for (size_t i = 1 ; i < sizeof(translators)/sizeof(std::string) ; i++)
+			str << "," << translators[i];
+	}
+
+	for (int i = 0 ; i < ncall ; i++)
+	{
+		str << "\033[1m" << "CALL(" << i << ")" << "\033[0m" <<  " Address: " << trace[i] << "   " << messages[i] << "   ";
+
+		if (translator.size() != 0)
+		{
+			char syscom[256];
+			sprintf(syscom,"%s %p -f --demangle -e %s",translator.c_str(), trace[i],program_name.c_str()); //last parameter is the name of this app
+
+			std::string ss = exec(syscom);
+			std::stringstream sss(ss);
+			std::string sfunc;
+			std::string sloc;
+			std::getline(sss,sfunc,'\n');
+			std::getline(sss,sloc,'\n');
+			str << std::endl;
+			str << "\033[35m" << "Function:" << std::endl << sfunc << "\033[0m" << std::endl;
+			str << "\033[1;31m" << "Location:" << std::endl << sloc << "\033[0m" << std::endl;
+		}
+		else
+		{
+			str << std::endl;
+		}
 	}
 
 	std::cerr << str.str() << std::endl;

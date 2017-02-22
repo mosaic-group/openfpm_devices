@@ -23,7 +23,7 @@ libofpmmemory_se2_a_CXXFLAGS = $(INCLUDES_PATH) $(BOOST_CPPFLAGS) -I/usr/local/i
 libofpmmemory_se2_a_CFLAGS = 
 
 nobase_include_HEADERS = memory/ExtPreAlloc.hpp memory/BHeapMemory.hpp  memory/HeapMemory.hpp memory/memory.hpp memory/PtrMemory.hpp \
-Memleak_check.hpp ptr_info.hpp \
+Memleak_check.hpp util/print_stack.hpp ptr_info.hpp \
 util/se_util.hpp
 
 .cu.o :
