@@ -32,6 +32,9 @@ typedef unsigned char * byte_ptr;
 
 #define MEM_ERROR_OBJECT std::runtime_error("Runtime memory error")
 
+// to remove
+#define MEM_ERROR 600000
+
 extern long int msg_on_alloc;
 extern long int msg_on_dealloc;
 extern long int thr_on_alloc;
