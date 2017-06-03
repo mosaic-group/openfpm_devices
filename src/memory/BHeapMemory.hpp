@@ -26,10 +26,10 @@ typedef unsigned char byte;
  *
  * It differs from HeapMemory in resize behavior.
  *
- * In the case of HeapMemory if you try to shrink the memory nothing happen to the allocated memory.
+ * In the case of BHeapMemory if you try to shrink the memory nothing happen to the allocated memory.
  * To destroy the internal memory you must use destroy.
  *
- * BHeapMemory does not shrink the memory, but it shrink the buffer size. size will always return the buffer size
+ * BHeapMemory does not shrink the memory, but it shrink the buffer size. size() always return the buffer size
  *
  * ### Allocate memory
  *
@@ -66,7 +66,7 @@ public:
 	:HeapMemory(),buf_sz(0)
 	{};
 
-	virtual ~BHeapMemory()
+	virtual ~BHeapMemory() noexcept
 	{
 	};
 

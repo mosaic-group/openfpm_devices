@@ -119,6 +119,10 @@ static inline void print_stack()
 
 	std::cerr << str.str() << std::endl;
 
+#else
+
+	std::cerr << "Stack trace deactivated" << std::endl;
+
 #endif
 }
 
