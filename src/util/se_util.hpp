@@ -12,7 +12,7 @@
 
 // Macro that decide what to do in case of error
 #ifdef STOP_ON_ERROR
-#define ACTION_ON_ERROR(error) print_stack();exit(1);
+#define ACTION_ON_ERROR(error) print_stack();abort();
 #define THROW noexcept(true)
 #elif defined(THROW_ON_ERROR)
 #define ACTION_ON_ERROR(error) if (!std::uncaught_exception()) {print_stack();throw error;}
