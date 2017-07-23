@@ -15,7 +15,9 @@
 #include <stdexcept>
 #include <string>
 #include <array>
+#ifndef __CYGWIN__ 
 #include <execinfo.h>
+#endif
 
 extern std::string program_name;
 
@@ -43,7 +45,7 @@ static inline std::string exec(const char* cmd)
  */
 static inline void print_stack()
 {
-#ifdef PRINT_STACKTRACE
+#if defined(PRINT_STACKTRACE) && !defined(__CYGWIN__)
 
 	void *trace[256];
 
