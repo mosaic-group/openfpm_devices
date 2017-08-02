@@ -18,7 +18,7 @@ parallel (
         catch (IOException e)
         {
           ntry--
-          sleep(5000)
+          sleep(50)
         }
       }
 
@@ -48,7 +48,7 @@ parallel (
         catch (IOException e)
         {
           ntry--
-          sleep(5000)
+          sleep(50)
         }
       }
 
@@ -79,7 +79,7 @@ parallel (
         catch (IOException e)
         {
           ntry--
-          sleep(5000)
+          sleep(50)
         }
       }
 
