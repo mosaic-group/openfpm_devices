@@ -46,16 +46,26 @@ typedef unsigned char byte;
  */
 class BHeapMemory : public HeapMemory
 {
+	//! size of the memory
 	size_t buf_sz;
 
 public:
 
-	// Copy the Heap memory
+	/*! \brief Copy the Heap memory
+	 *
+	 * \param mem memory to copy
+	 *
+	 */
 	BHeapMemory(const BHeapMemory & mem)
 	:HeapMemory(mem),buf_sz(mem.size())
 	{
 	}
 
+	/*! \brief Copy the Heap memory
+	 *
+	 * \param mem memory to copy
+	 *
+	 */
 	BHeapMemory(BHeapMemory && mem) noexcept
 	:HeapMemory((HeapMemory &&)mem),buf_sz(mem.size())
 	{
@@ -66,6 +76,7 @@ public:
 	:HeapMemory(),buf_sz(0)
 	{};
 
+	//! Destructor
 	virtual ~BHeapMemory() noexcept
 	{
 	};
@@ -111,10 +122,7 @@ public:
 
 	/*! \brief Resize the buffer size
 	 *
-	 * Resize the buffer size,
-	 *
-	 * \param sz size
-	 * \return true if the resize operation complete correctly
+	 * \return the buffer size
 	 *
 	 */
 	virtual size_t size() const
@@ -135,6 +143,9 @@ public:
 
 	/*! \brief Copy the memory
 	 *
+	 * \param mem memory to copy
+	 *
+	 * \return itself
 	 *
 	 */
 	BHeapMemory & operator=(const BHeapMemory & mem)
@@ -147,6 +158,9 @@ public:
 
 	/*! \brief Copy the memory
 	 *
+	 * \param mem memory to copy
+	 *
+	 * \return itself
 	 *
 	 */
 	BHeapMemory & operator=(BHeapMemory && mem)
