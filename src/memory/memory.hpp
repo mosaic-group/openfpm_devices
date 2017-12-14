@@ -118,6 +118,19 @@ class memory
 	 */
 	virtual bool isInitialized() = 0;
 
+	/*! \brief Return the device pointer of the memory
+	 *
+	 * \return the device pointer
+	 *
+	 */
+	virtual void * getDevicePointer() = 0;
+
+	/*! \brief Copy the memory from device to host
+	 *
+	 *
+	 */
+	virtual void deviceToHost() = 0;
+
 };
 
 #endif

@@ -24,14 +24,15 @@
 template<typename Mem>
 class ExtPreAlloc : public memory
 {
-	// Actual allocation pointer
+	//! Actual allocation pointer
 	size_t a_seq ;
 
-	// Last allocation size
+	//! Last allocation size
 	size_t l_size;
 
-	// Main class for memory allocation
+	//! Main class for memory allocation
 	Mem * mem;
+
 	//! Reference counter
 	long int ref_cnt;
 
@@ -92,11 +93,10 @@ public:
 		if (sz == 0)
 			return true;
 
-		// Check that the size match
-
 		a_seq = l_size;
 		l_size += sz;
 
+		// Check we do not overflow the allocated memory
 #ifdef SE_CLASS1
 
 		if (l_size > mem->size())
@@ -126,6 +126,19 @@ public:
 	{
 		return mem->getPointer();
 	}
+
+	/*! \brief Return the pointer of the last allocation
+	 *
+	 * \return the pointer
+	 *
+	 */
+	virtual void * getDevicePointer()
+	{
+		return getPointer();
+	}
+
+	//! Do nothing
+	virtual void deviceToHost(){};
 
 	/*! \brief Return the pointer of the last allocation
 	 *
@@ -226,6 +239,63 @@ public:
 			s += mm[i];
 
 		return s;
+	}
+
+	/*! \brief shift the pointer backward
+	 *
+	 * \warning when you shift backward the pointer, the last allocation is lost
+	 * 			this mean that you have to do again an allocation.
+	 *
+	 * This function is useful to go ahead in memory and fill the memory later on
+	 *
+	 * \code
+
+	  mem.allocate(16); <------ Here we allocate 16 byte but we do not fill it because
+	  	  	  	  	  	  	    subsequently we do another allocation without using mem
+	  unsigned char * start = (unsigned char *)mem.getPointer()
+	  mem.allocate(100)
+
+	  // ...
+	  // ...
+	  // Code that fill mem in some way and do other mem.allocate(...)
+	  // ...
+	  // ...
+
+	  unsigned char * final = (unsigned char *)mem.getPointer()
+	  mem.shift_backward(final - start);
+	  mem.allocate(16);  <------ Here I am getting the same memory that I request for the
+	  	  	  	  	  	  	  	 first allocate
+
+	  // we now fill the memory
+
+	  \endcode
+	 *
+	 *
+	 *
+	 * \param how many byte to shift
+	 *
+	 */
+	void shift_backward(size_t sz)
+	{
+		a_seq -= sz;
+		l_size = a_seq;
+	}
+
+	/*! \brief shift the pointer forward
+	 *
+	 * The same as shift backward, but in this case it move the pointer forward
+	 *
+	 * In general you use this function after the you went back with shift_backward
+	 * and you have to move forward again
+	 *
+	 * \warning when you shift forward the pointer, the last allocation is lost
+	 * 			this mean that you have to do again an allocation.
+	 *
+	 */
+	void shift_forward(size_t sz)
+	{
+		a_seq += sz;
+		l_size = a_seq;
 	}
 };
 

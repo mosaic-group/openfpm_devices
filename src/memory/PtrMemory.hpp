@@ -79,6 +79,12 @@ public:
 	//! get a readable pointer with the data
 	virtual const void * getPointer() const;
 
+	//! get a readable pointer with the data
+	virtual void * getDevicePointer();
+
+	//! Do nothing
+	virtual void deviceToHost(){};
+
 	//! Increment the reference counter
 	virtual void incRef()
 	{ref_cnt++;}
