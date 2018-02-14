@@ -47,9 +47,6 @@ fi
 prefix="$prefix/openfpm_devices"
 echo "Installation dir is: $prefix"
 
-AC_PROG_RANLIB
-AM_PROG_AR
-
 LT_INIT
 AC_SUBST([LIBTOOL_DEPS])
 
