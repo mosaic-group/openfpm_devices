@@ -39,9 +39,6 @@ bool CudaMemory::allocate(size_t sz)
 
 	this->sz = sz;
 
-	// after allocation we canno ensure that hm is sync
-	is_hm_sync = false;
-
 	return true;
 }
 
@@ -245,45 +242,52 @@ bool CudaMemory::resize(size_t sz)
 
 /*! \brief Return a readable pointer with your data
  *
- * Return a readable pointer with your data
+ * \return a readable pointer with your data
  *
  */
 
 void * CudaMemory::getPointer()
 {
-	//| allocate an host memory if not allocated
+	// allocate an host memory if not allocated
 	if (hm == NULL)
 		allocate_host(sz);
-
-	//! if the host buffer is synchronized with the device buffer return the host buffer
-
-	if (is_hm_sync)
-		return hm;
 
 	//! copy from device to host memory
 
 	CUDA_SAFE_CALL(cudaMemcpy(hm,dm,sz,cudaMemcpyDeviceToHost));
 
 	return hm;
+}
+
+/*! \brief Return a readable pointer with your data
+ *
+ * \return a readable pointer with your data
+ *
+ */
+
+void CudaMemory::deviceToHost()
+{
+	// allocate an host memory if not allocated
+	if (hm == NULL)
+		allocate_host(sz);
+
+	//! copy from device to host memory
+
+	CUDA_SAFE_CALL(cudaMemcpy(hm,dm,sz,cudaMemcpyDeviceToHost));
 }
 
 
 /*! \brief Return a readable pointer with your data
  *
- * Return a readable pointer with your data
+ * \return a readable pointer with your data
  *
  */
 
 const void * CudaMemory::getPointer() const
 {
-	//| allocate an host memory if not allocated
+	// allocate an host memory if not allocated
 	if (hm == NULL)
 		allocate_host(sz);
-
-	//! if the host buffer is synchronized with the device buffer return the host buffer
-
-	if (is_hm_sync)
-		return hm;
 
 	//! copy from device to host memory
 
@@ -291,3 +295,23 @@ const void * CudaMemory::getPointer() const
 
 	return hm;
 }
+
+/*! \brief Return the CUDA device pointer
+ *
+ * \return CUDA device pointer
+ *
+ */
+void * CudaMemory::getDevicePointer()
+{
+	// allocate an host memory if not allocated
+	if (hm == NULL)
+		allocate_host(sz);
+
+	//! copy from device to host memory
+
+	CUDA_SAFE_CALL(cudaMemcpy(dm,hm,sz,cudaMemcpyHostToDevice));
+
+	return dm;
+}
+
+

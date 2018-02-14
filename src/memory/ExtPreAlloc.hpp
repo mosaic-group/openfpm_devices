@@ -8,6 +8,8 @@
 #define EXTPREALLOC_HPP_
 
 #include <stddef.h>
+#include "memory.hpp"
+#include <iostream>
 
 /*! Preallocated memory sequence
  *
@@ -126,6 +128,19 @@ public:
 	{
 		return mem->getPointer();
 	}
+
+	/*! \brief Return the pointer of the last allocation
+	 *
+	 * \return the pointer
+	 *
+	 */
+	virtual void * getDevicePointer()
+	{
+		return getPointer();
+	}
+
+	//! Do nothing
+	virtual void deviceToHost(){};
 
 	/*! \brief Return the pointer of the last allocation
 	 *
