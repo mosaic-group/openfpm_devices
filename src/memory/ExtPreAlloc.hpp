@@ -107,6 +107,25 @@ public:
 		return true;
 	}
 
+	/*! \brief Allocate a chunk of memory
+	 *
+	 * Allocate a chunk of memory
+	 *
+	 * \param sz size of the chunk of memory to allocate in byte
+	 *
+	 */
+	bool allocate_nocheck(size_t sz)
+	{
+		// Zero sized allocation are ignored
+		if (sz == 0)
+			return true;
+
+		a_seq = l_size;
+		l_size += sz;
+
+		return true;
+	}
+
 	/*! \brief Return the end pointer of the previous allocated memory
 	 *
 	 * \return the pointer
