@@ -8,6 +8,8 @@
 #define EXTPREALLOC_HPP_
 
 #include <stddef.h>
+#include "memory.hpp"
+#include <iostream>
 
 /*! Preallocated memory sequence
  *
