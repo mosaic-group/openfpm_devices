@@ -27,6 +27,12 @@
 #ifndef CUDA_MEMORY_CUH_
 #define CUDA_MEMORY_CUH_
 
+#if __CUDACC_VER_MAJOR__ < 9
+#define EXCEPT_MC
+#else
+#define EXCEPT_MC noexcept
+#endif
+
 #include "config.h"
 #include "memory.hpp"
 #include <iostream>
@@ -75,11 +81,20 @@ public:
 	//! resize the momory allocated
 	virtual bool resize(size_t sz);
 	//! get a readable pointer with the data
-	void * getPointer();
+	virtual void * getPointer();
 	
 	//! get a readable pointer with the data
 	virtual const void * getPointer() const;
 	
+	//! get a readable pointer with the data
+	virtual void * getDevicePointer();
+
+	//! Move memory from device to host
+	virtual void deviceToHost();
+
+	//! get the device pointer, but do not copy the memory from host to device
+	virtual void * getDevicePointerNoCopy();
+
 	//! This function notify that the device memory is not sync with
 	//! the host memory, is called when a task is performed that write
 	//! on the buffer
@@ -126,7 +141,7 @@ public:
 		copy(mem);
 	}
 
-	CudaMemory(CudaMemory && mem) noexcept
+	CudaMemory(CudaMemory && mem) EXCEPT_MC
 	{
 
 		bool t_is_hm_sync = is_hm_sync;

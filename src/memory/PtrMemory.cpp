@@ -159,6 +159,28 @@ void * PtrMemory::getPointer()
  *
  */
 
+void * PtrMemory::getDevicePointer()
+{
+	return dm;
+}
+
+/*! \brief Return a pointer to the allocated memory
+ *
+ * \return the pointer
+ *
+ */
+
+void * PtrMemory::getDevicePointerNoCopy()
+{
+	return dm;
+}
+
+/*! \brief Return a pointer to the allocated memory
+ *
+ * \return the pointer
+ *
+ */
+
 const void * PtrMemory::getPointer() const
 {
 	return dm;

@@ -132,6 +132,29 @@ public:
 	 * \return the pointer
 	 *
 	 */
+	virtual void * getDevicePointer()
+	{
+		return getDevicePointer();
+	}
+
+	/*! \brief Return the pointer of the last allocation
+	 *
+	 * \return the pointer
+	 *
+	 */
+	virtual void * getDevicePointerNoCopy()
+	{
+		return getDevicePointerNoCopy();
+	}
+
+	//! Do nothing
+	virtual void deviceToHost(){};
+
+	/*! \brief Return the pointer of the last allocation
+	 *
+	 * \return the pointer
+	 *
+	 */
 	virtual void * getPointer()
 	{
 		return (((unsigned char *)mem->getPointer()) + a_seq );

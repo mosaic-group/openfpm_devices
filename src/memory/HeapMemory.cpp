@@ -221,6 +221,28 @@ bool HeapMemory::resize(size_t sz)
  *
  */
 
+void * HeapMemory::getDevicePointer()
+{
+	return dm;
+}
+
+/*! \brief Return a readable pointer with your data
+ *
+ * Return a readable pointer with your data
+ *
+ */
+
+void * HeapMemory::getDevicePointerNoCopy()
+{
+	return dm;
+}
+
+/*! \brief Return a readable pointer with your data
+ *
+ * Return a readable pointer with your data
+ *
+ */
+
 void * HeapMemory::getPointer()
 {
 	return dm;

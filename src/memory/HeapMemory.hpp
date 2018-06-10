@@ -80,6 +80,16 @@ public:
 	//! get a readable pointer with the data
 	virtual const void * getPointer() const;
 
+	//! get a device pointer for HeapMemory getPointer and getDevicePointer are equivalents
+	virtual void * getDevicePointer();
+
+	//! Get a device pointer for HeapMemory (avoid to copy from Host to device) for HeapMemory
+	//! getPointer() getDevicePointer and getDevicePointerNoCopy() are equivalents
+	virtual void * getDevicePointerNoCopy();
+
+	//! Do nothing
+	virtual void deviceToHost(){};
+
 	//! Increment the reference counter
 	virtual void incRef()
 	{ref_cnt++;}

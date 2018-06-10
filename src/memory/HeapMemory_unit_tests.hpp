@@ -38,7 +38,7 @@ template<typename T> void test()
 
 	unsigned char * ptr = (unsigned char *)mem.getPointer();
 	for (size_t i = 0 ; i < mem.size() ; i++)
-		ptr[i] = i;
+	{ptr[i] = i;}
 
 	mem.flush();
 
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE( use_heap_memory )
 #endif
 }
 
-BOOST_AUTO_TEST_CASE( use_cuda_memory )
+BOOST_AUTO_TEST_CASE( use_memory )
 {
 	test<HeapMemory>();
 #ifdef CUDA_GPU
