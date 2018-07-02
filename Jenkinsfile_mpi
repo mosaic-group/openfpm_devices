@@ -1,0 +1,98 @@
+#!groovy
+
+parallel (
+
+"centos" : {node ('cifarm-centos-node') 
+  {
+    stage ('centos_build')
+    {
+      deleteDir()
+
+      int ntry = 5
+      while (ntry != 0)
+      {
+        try {
+          checkout scm
+          ntry = 0
+        }
+        catch (IOException e)
+        {
+          ntry--
+          sleep(50)
+        }
+      }
+
+      sh "./build.sh $WORKSPACE $NODE_NAME"
+    }
+
+    stage ('centos_run')
+    {
+      sh "./src/mem"
+      sh "./success.sh 2 centos openfpm_devices"
+    }
+  }},
+
+"ubuntu" : {node ('cifarm-ubuntu-node')
+  {
+    stage ('ubuntu_build')
+    {
+      deleteDir()
+
+      int ntry = 5
+      while (ntry != 0)
+      {
+        try {
+          checkout scm
+          ntry = 0
+        }
+        catch (IOException e)
+        {
+          ntry--
+          sleep(50)
+        }
+      }
+
+      sh "./build.sh $WORKSPACE $NODE_NAME"
+    }
+
+    stage ('ubuntu_run')
+    {
+      sh "./src/mem"
+      sh "./success.sh 2 ubuntu openfpm_devices"
+    }
+  }},
+
+"macos" : {node ('cifarm-mac-node')
+  {
+    env.PATH = "/usr/local/bin:${env.PATH}"
+    stage ('mac_build')
+    {
+      deleteDir()
+
+      int ntry = 5
+      while (ntry != 0)
+      {
+        try {
+          checkout scm
+          ntry = 0
+        }
+        catch (IOException e)
+        {
+          ntry--
+          sleep(50)
+        }
+      }
+
+      sh "./build.sh $WORKSPACE $NODE_NAME"
+    }
+
+    stage ('mac_run')
+    {
+      sh "./src/mem"
+      sh "./success.sh 2 macos openfpm_devices"
+    }
+  }}
+
+
+)
+
