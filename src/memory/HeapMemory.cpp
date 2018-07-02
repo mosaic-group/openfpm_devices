@@ -11,6 +11,8 @@
 #include <iostream>
 #include <cstdint>
 
+static const int extra_pad = 512;
+
 // If debugging mode include memory leak check
 #ifdef SE_CLASS2
 #include "Memleak_check.hpp"
@@ -26,7 +28,7 @@ bool HeapMemory::allocate(size_t sz)
 {
 	//! Allocate the device memory
 	if (dm == NULL)
-		dmOrig = new byte[sz+alignement];
+		dmOrig = new byte[sz+alignement+extra_pad];
 	else
 		std::cerr << __FILE__ << ":" << __LINE__ << " error memory already allocated\n";
 
@@ -180,7 +182,7 @@ bool HeapMemory::resize(size_t sz)
 	//! Create a new buffer if sz is bigger than the actual size
 	byte * tdm;
 	byte * tdmOrig;
-	tdmOrig = new byte[sz+alignement];
+	tdmOrig = new byte[sz+alignement+extra_pad];
 #ifdef SE_CLASS2
 	check_new(tdmOrig,sz+alignement,HEAPMEMORY_EVENT,0);
 #endif
@@ -242,7 +244,6 @@ void * HeapMemory::getDevicePointerNoCopy()
  * Return a readable pointer with your data
  *
  */
-
 void * HeapMemory::getPointer()
 {
 	return dm;
