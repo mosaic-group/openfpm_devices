@@ -88,6 +88,12 @@ public:
 	//! Do nothing
 	virtual void deviceToHost(){};
 
+	/*! \brief fill memory with the selected byte
+	 *
+	 *
+	 */
+	virtual void fill(unsigned char c);
+
 	//! Increment the reference counter
 	virtual void incRef()
 	{ref_cnt++;}

@@ -95,6 +95,9 @@ public:
 	//! get the device pointer, but do not copy the memory from host to device
 	virtual void * getDevicePointerNoCopy();
 
+	//! fill the buffer with a byte
+	virtual void fill(unsigned char c);
+
 	//! This function notify that the device memory is not sync with
 	//! the host memory, is called when a task is performed that write
 	//! on the buffer
@@ -115,7 +118,7 @@ public:
 	{
 		return ref_cnt;
 	}
-	
+
 	/*! \brief Allocated Memory is never initialized
 	 *
 	 * \return false

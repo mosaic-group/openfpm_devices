@@ -18,6 +18,16 @@ static const int extra_pad = 512;
 #include "Memleak_check.hpp"
 #endif
 
+/*! \brief fill host and device memory with the selected byte
+ *
+ * \param byte to fill
+ *
+ */
+void HeapMemory::fill(unsigned char c)
+{
+	memset(dm,c,size());
+}
+
 /*! \brief Allocate a chunk of memory
  *
  * \param sz size of the chunk of memory to allocate in byte

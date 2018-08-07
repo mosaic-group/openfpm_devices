@@ -87,6 +87,12 @@ public:
 	//! getPointer() getDevicePointer and getDevicePointerNoCopy() are equivalents
 	virtual void * getDevicePointerNoCopy();
 
+	/*! \brief fill host and device memory with the selected byte
+	 *
+	 *
+	 */
+	virtual void fill(unsigned char c);
+
 	//! Do nothing
 	virtual void deviceToHost(){};
 

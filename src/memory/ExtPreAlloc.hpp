@@ -82,6 +82,15 @@ public:
 	//! flush the memory
 	virtual bool flush() {return mem->flush();};
 
+	/*! \brief fill host and device memory with the selected byte
+	 *
+	 *
+	 */
+	virtual void fill(unsigned char c)
+	{
+		mem->fill(c);
+	}
+
 	/*! \brief Allocate a chunk of memory
 	 *
 	 * Allocate a chunk of memory

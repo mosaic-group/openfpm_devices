@@ -137,6 +137,11 @@ class memory
 	 */
 	virtual void * getDevicePointerNoCopy() = 0;
 
+	/*! \brief Fill the buffer with a particular byte
+	 *
+	 *
+	 */
+	virtual void fill(unsigned char c) = 0;
 };
 
 #endif

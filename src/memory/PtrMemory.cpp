@@ -19,6 +19,16 @@
 #include "Memleak_check.hpp"
 #endif
 
+/*! \brief fill memory with the selected byte
+ *
+ * \param byte to fill
+ *
+ */
+void PtrMemory::fill(unsigned char c)
+{
+	memset(dm,c,this->size());
+}
+
 /*! \brief Allocate a chunk of memory
  *
  * \param sz size of the chunk of memory to allocate in byte

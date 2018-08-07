@@ -275,13 +275,7 @@ void CudaMemory::deviceToHost()
 
 	CUDA_SAFE_CALL(cudaMemcpy(hm,dm,sz,cudaMemcpyDeviceToHost));
 }
-<<<<<<< HEAD
 
-
-=======
-
-
->>>>>>> 98033dea8fd01877d50de6bb96078f8b373a4c5a
 /*! \brief Return a readable pointer with your data
  *
  * \return a readable pointer with your data
@@ -299,6 +293,16 @@ const void * CudaMemory::getPointer() const
 	CUDA_SAFE_CALL(cudaMemcpy(hm,dm,sz,cudaMemcpyDeviceToHost));
 
 	return hm;
+}
+
+/*! \brief fill host and device memory with the selected byte
+ *
+ *
+ */
+void CudaMemory::fill(unsigned char c)
+{
+	CUDA_SAFE_CALL(cudaMemset(dm,c,size()));
+	memset(hm,c,size());
 }
 
 /*! \brief Return the CUDA device pointer
@@ -319,7 +323,6 @@ void * CudaMemory::getDevicePointer()
 	return dm;
 }
 
-<<<<<<< HEAD
 /*! \brief Return the CUDA device pointer (Do not copy to device)
  *
  * \return CUDA device pointer
@@ -329,6 +332,4 @@ void * CudaMemory::getDevicePointerNoCopy()
 {
 	return dm;
 }
-=======
->>>>>>> 98033dea8fd01877d50de6bb96078f8b373a4c5a
 
