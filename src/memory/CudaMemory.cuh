@@ -92,6 +92,9 @@ public:
 	//! Move memory from device to host
 	virtual void deviceToHost();
 
+	//! Move memory from device to host, just one chunk
+	virtual void deviceToHost(size_t start, size_t stop);
+
 	//! get the device pointer, but do not copy the memory from host to device
 	virtual void * getDevicePointerNoCopy();
 

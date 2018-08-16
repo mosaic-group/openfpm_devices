@@ -180,6 +180,9 @@ public:
 	//! Do nothing
 	virtual void deviceToHost(){};
 
+	//! Do nothing
+	virtual void deviceToHost(size_t start, size_t stop) {};
+
 	/*! \brief Return the pointer of the last allocation
 	 *
 	 * \return the pointer

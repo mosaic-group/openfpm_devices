@@ -131,6 +131,14 @@ class memory
 	 */
 	virtual void deviceToHost() = 0;
 
+	/*! \brief Copy the memory from device to host
+	 *
+	 * \param start from start
+	 * \param stop to stop
+	 *
+	 */
+	virtual void deviceToHost(size_t start, size_t stop) = 0;
+
 	/*! \brief Get the device pointer (Do not copy from host to device)
 	 *
 	 *

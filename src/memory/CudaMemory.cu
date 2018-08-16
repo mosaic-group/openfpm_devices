@@ -282,6 +282,25 @@ void CudaMemory::deviceToHost()
  *
  */
 
+void CudaMemory::deviceToHost(size_t start, size_t stop)
+{
+	// allocate an host memory if not allocated
+	if (hm == NULL)
+		allocate_host(sz);
+
+	//! copy from device to host memory
+
+	CUDA_SAFE_CALL(cudaMemcpy(((unsigned char *)hm)+start,((unsigned char *)dm)+start,(stop-start),cudaMemcpyDeviceToHost));
+}
+
+
+
+/*! \brief Return a readable pointer with your data
+ *
+ * \return a readable pointer with your data
+ *
+ */
+
 const void * CudaMemory::getPointer() const
 {
 	// allocate an host memory if not allocated
@@ -302,7 +321,8 @@ const void * CudaMemory::getPointer() const
 void CudaMemory::fill(unsigned char c)
 {
 	CUDA_SAFE_CALL(cudaMemset(dm,c,size()));
-	memset(hm,c,size());
+	if (hm != NULL)
+	{memset(hm,c,size());}
 }
 
 /*! \brief Return the CUDA device pointer

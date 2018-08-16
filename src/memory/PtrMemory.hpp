@@ -88,6 +88,9 @@ public:
 	//! Do nothing
 	virtual void deviceToHost(){};
 
+	//! Do nothing
+	virtual void deviceToHost(size_t start, size_t stop) {};
+
 	/*! \brief fill memory with the selected byte
 	 *
 	 *

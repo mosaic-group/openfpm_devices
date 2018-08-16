@@ -96,6 +96,9 @@ public:
 	//! Do nothing
 	virtual void deviceToHost(){};
 
+	//! Do nothing
+	virtual void deviceToHost(size_t start, size_t stop) {};
+
 	//! Increment the reference counter
 	virtual void incRef()
 	{ref_cnt++;}

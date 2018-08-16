@@ -18,6 +18,7 @@ static const int extra_pad = 512;
 #include "Memleak_check.hpp"
 #endif
 
+
 /*! \brief fill host and device memory with the selected byte
  *
  * \param byte to fill
