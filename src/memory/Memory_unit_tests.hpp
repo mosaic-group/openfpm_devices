@@ -275,7 +275,9 @@ BOOST_AUTO_TEST_CASE( swap_heap_memory )
 BOOST_AUTO_TEST_CASE( copy_device_host_test_use )
 {
 	copy_device_host_test<HeapMemory>();
+#ifdef CUDA_GPU
 	copy_device_host_test<CudaMemory>();
+#endif
 }
 
 BOOST_AUTO_TEST_SUITE_END()
