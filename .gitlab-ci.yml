@@ -3,6 +3,7 @@ centos_build:
   tags:
     - centos
   script:
+    - ls
     - sh "./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME"
 
 centos_run:
@@ -18,6 +19,7 @@ mac_build:
   tags:
     - mac
   script:
+    - ls
     - sh "./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME"
 
 mac_run:
@@ -33,6 +35,7 @@ ubuntu_build:
   tags:
     - ubuntu
   script:
+    - ls
     - sh "./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME"
 
 ubuntu_run:
