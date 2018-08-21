@@ -4,7 +4,7 @@ centos_build:
     - centos
   script:
     - ls
-    - sh "./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME"
+    - ./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME
 
 centos_run:
   stage: test
