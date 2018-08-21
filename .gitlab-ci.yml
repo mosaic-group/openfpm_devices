@@ -9,6 +9,8 @@ centos_run:
   stage: test
   tags:
     - centos
+  dependencies:
+    - centos_build
   script:
     - ./src/mem
     - ./success.sh 2 centos openfpm_devices
@@ -24,6 +26,8 @@ mac_run:
   stage: test
   tags:
     - mac
+  dependencies:
+    - mac_build
   script:
     - ./src/mem
     - ./success.sh 2 mac openfpm_devices
@@ -39,6 +43,8 @@ ubuntu_run:
   stage: test
   tags:
     - ubuntu
+  dependencies:
+    - ubuntu_build
   script:
     - ./src/mem
     - ./success.sh 2 ubuntu openfpm_devices
