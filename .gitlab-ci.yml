@@ -2,6 +2,9 @@ centos_build:
   stage: build
   tags:
     - centos
+  artifacts:
+    paths:
+      - ./src/mem
   script:
     - ./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME
 
@@ -19,6 +22,9 @@ mac_build:
   stage: build
   tags:
     - mac
+  artifacts:
+    paths:
+      - ./src/mem
   script:
     - ./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME
 
@@ -36,6 +42,9 @@ ubuntu_build:
   stage: build
   tags:
     - ubuntu
+  artifacts:
+    paths:
+      - ./src/mem
   script:
     - ./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME
 
