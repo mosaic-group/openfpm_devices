@@ -44,7 +44,8 @@ typedef unsigned char byte;
  * \snippet HeapMemory_unit_tests.hpp BShrink memory
  *
  */
-class BHeapMemory : public HeapMemory
+template<typename Memory>
+class BMemory : public Memory
 {
 	//! size of the memory
 	size_t buf_sz;
@@ -56,7 +57,7 @@ public:
 	 * \param mem memory to copy
 	 *
 	 */
-	BHeapMemory(const BHeapMemory & mem)
+	BMemory(const BMemory<Memory> & mem)
 	:HeapMemory(mem),buf_sz(mem.size())
 	{
 	}
@@ -66,18 +67,18 @@ public:
 	 * \param mem memory to copy
 	 *
 	 */
-	BHeapMemory(BHeapMemory && mem) noexcept
-	:HeapMemory((HeapMemory &&)mem),buf_sz(mem.size())
+	BMemory(BMemory<Memory> && mem) noexcept
+	:Memory((Memory &&)mem),buf_sz(mem.size())
 	{
 	}
 
 	//! Constructor, we choose a default alignment of 32 for avx
-	BHeapMemory()
-	:HeapMemory(),buf_sz(0)
+	BMemory()
+	:Memory(),buf_sz(0)
 	{};
 
 	//! Destructor
-	virtual ~BHeapMemory() noexcept
+	virtual ~BMemory() noexcept
 	{
 	};
 
@@ -92,7 +93,7 @@ public:
 	 */
 	virtual bool allocate(size_t sz)
 	{
-		bool ret = HeapMemory::allocate(sz);
+		bool ret = Memory::allocate(sz);
 
 		if (ret == true)
 			buf_sz = sz;
@@ -111,7 +112,7 @@ public:
 	 */
 	virtual bool resize(size_t sz)
 	{
-		bool ret = HeapMemory::resize(sz);
+		bool ret = Memory::resize(sz);
 
 		// if the allocated memory is enough, do not resize
 		if (ret == true)
@@ -138,7 +139,7 @@ public:
 	 */
 	size_t msize()
 	{
-		return HeapMemory::size();
+		return Memory::size();
 	}
 
 	/*! \brief Copy the memory
@@ -148,10 +149,10 @@ public:
 	 * \return itself
 	 *
 	 */
-	BHeapMemory & operator=(const BHeapMemory & mem)
+	BMemory & operator=(const BMemory<Memory> & mem)
 	{
 		buf_sz = mem.buf_sz;
-		static_cast<HeapMemory *>(this)->operator=(mem);
+		static_cast<Memory *>(this)->operator=(mem);
 
 		return *this;
 	}
@@ -163,10 +164,10 @@ public:
 	 * \return itself
 	 *
 	 */
-	BHeapMemory & operator=(BHeapMemory && mem)
+	BMemory & operator=(BMemory<Memory> && mem)
 	{
 		buf_sz = mem.buf_sz;
-		static_cast<HeapMemory *>(this)->operator=(mem);
+		static_cast<Memory *>(this)->operator=(mem);
 
 		return *this;
 	}
@@ -177,7 +178,7 @@ public:
 	 */
 	void destroy()
 	{
-		HeapMemory::destroy();
+		Memory::destroy();
 		buf_sz = 0;
 	}
 
@@ -186,9 +187,9 @@ public:
 	 * \param mem Memory to swap with
 	 *
 	 */
-	void swap(BHeapMemory & mem)
+	void swap(BMemory<Memory> & mem)
 	{
-		HeapMemory::swap(mem);
+		Memory::swap(mem);
 
 		size_t buf_sz_t = mem.buf_sz;
 		mem.buf_sz = buf_sz;

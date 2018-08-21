@@ -60,14 +60,14 @@ class CudaMemory : public memory
 	//! Allocate an host buffer
 	void allocate_host(size_t sz) const;
 	
-	//! copy from GPU to GPU buffer directly
-	bool copyDeviceToDevice(const CudaMemory & m);
-	
 	//! copy from Pointer to GPU
 	bool copyFromPointer(const void * ptr);
 	
 public:
 	
+	//! copy from GPU to GPU buffer directly
+	bool copyDeviceToDevice(const CudaMemory & m);
+
 	//! flush the memory
 	virtual bool flush();
 	//! allocate memory
@@ -180,6 +180,18 @@ public:
 		else
 			std::cerr << "Error: " << __FILE__ << " " << __LINE__ << " destroying a live object" << "\n"; 
 	};
+
+	void swap(CudaMemory & mem);
+
+	/*! \brief Return true if the device and the host pointer are the same
+	 *
+	 * \return true if they are the same
+	 *
+	 */
+	static bool isDeviceHostSame()
+	{
+		return false;
+	}
 };
 
 #endif

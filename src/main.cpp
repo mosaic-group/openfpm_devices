@@ -3,5 +3,5 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "config.h"
-#include "memory/HeapMemory_unit_tests.hpp"
+#include "memory/Memory_unit_tests.hpp"
 

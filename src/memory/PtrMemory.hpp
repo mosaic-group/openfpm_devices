@@ -50,9 +50,6 @@ class PtrMemory : public memory
 	//! Reference counter
 	long int ref_cnt;
 
-	//! copy from same Heap to Heap
-	bool copyDeviceToDevice(const PtrMemory & m);
-
 	//! copy from Pointer to Heap
 	bool copyFromPointer(const void * ptr, size_t sz);
 
@@ -60,6 +57,9 @@ class PtrMemory : public memory
 	void setAlignment(size_t align);
 
 public:
+
+	//! copy from same Heap to Heap
+	bool copyDeviceToDevice(const PtrMemory & m);
 
 	//! flush the memory
 	virtual bool flush() {return true;};
@@ -109,6 +109,16 @@ public:
 	virtual long int ref()
 	{
 		return ref_cnt;
+	}
+
+	/*! \brief Return true if the device and the host pointer are the same
+	 *
+	 * \return true if they are the same
+	 *
+	 */
+	static bool isDeviceHostSame()
+	{
+		return true;
 	}
 
 	/*! \brief Allocated Memory is already initialized

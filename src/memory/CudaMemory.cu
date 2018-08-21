@@ -353,3 +353,34 @@ void * CudaMemory::getDevicePointerNoCopy()
 	return dm;
 }
 
+/*! \brief Swap the memory
+ *
+ * \param mem memory to swap
+ *
+ */
+void CudaMemory::swap(CudaMemory & mem)
+{
+	size_t sz_tmp;
+	void * dm_tmp;
+	long int ref_cnt_tmp;
+	bool is_hm_sync_tmp;
+	void * hm_tmp;
+
+	hm_tmp = hm;
+	is_hm_sync_tmp = is_hm_sync;
+	sz_tmp = sz;
+	dm_tmp = dm;
+	ref_cnt_tmp = ref_cnt;
+
+	hm = mem.hm;
+	is_hm_sync = mem.is_hm_sync;
+	sz = mem.sz;
+	dm = mem.dm;
+	ref_cnt = mem.ref_cnt;
+
+	mem.hm = hm_tmp;
+	mem.is_hm_sync = is_hm_sync_tmp;
+	mem.sz = sz_tmp;
+	mem.dm = dm_tmp;
+	mem.ref_cnt = ref_cnt_tmp;
+}

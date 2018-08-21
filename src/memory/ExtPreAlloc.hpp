@@ -65,6 +65,21 @@ public:
 		mem.resize(size);
 	}
 
+	/*! \brief Copy the memory from device to device
+	 *
+	 * \param m memory from where to copy
+	 *
+	 */
+	bool copyDeviceToDevice(const ExtPreAlloc<Mem> & m)
+	{
+		return mem->copyDeviceToDevice(*m.mem);
+	}
+
+	static bool isDeviceHostSame()
+	{
+		return Mem::isDeviceHostSame();
+	}
+
 	//! Increment the reference counter
 	virtual void incRef()
 	{ref_cnt++;}
@@ -164,7 +179,7 @@ public:
 	 */
 	virtual void * getDevicePointer()
 	{
-		return getDevicePointer();
+		return mem->getDevicePointer();
 	}
 
 	/*! \brief Return the pointer of the last allocation
@@ -174,7 +189,7 @@ public:
 	 */
 	virtual void * getDevicePointerNoCopy()
 	{
-		return getDevicePointerNoCopy();
+		return mem->getDevicePointerNoCopy();
 	}
 
 	//! Do nothing

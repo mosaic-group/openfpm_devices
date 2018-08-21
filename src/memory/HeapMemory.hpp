@@ -51,9 +51,6 @@ class HeapMemory : public memory
 	//! Reference counter
 	long int ref_cnt;
 
-	//! copy from same Heap to Heap
-	bool copyDeviceToDevice(const HeapMemory & m);
-
 	//! copy from Pointer to Heap
 	bool copyFromPointer(const void * ptr, size_t sz);
 
@@ -61,6 +58,9 @@ class HeapMemory : public memory
 	void setAlignment(size_t align);
 
 public:
+
+	//! copy from same Heap to Heap
+	bool copyDeviceToDevice(const HeapMemory & m);
 
 	//! flush the memory
 	virtual bool flush() {return true;};
@@ -195,6 +195,16 @@ public:
 		mem.dm = dm_tmp;
 		mem.dmOrig = dmOrig_tmp;
 		mem.ref_cnt = ref_cnt_tmp;
+	}
+
+	/*! \brief Return true if the device and the host pointer are the same
+	 *
+	 * \return true if they are the same
+	 *
+	 */
+	static bool isDeviceHostSame()
+	{
+		return true;
 	}
 };
 

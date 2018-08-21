@@ -1,0 +1,45 @@
+centos_build:
+  stage: build
+  tags:
+    - centos
+  script:
+    - sh "./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME"
+
+centos_run:
+  stage: run
+  tags:
+    - centos
+  script:
+    - sh "./src/mem"
+    - sh "./success.sh 2 centos openfpm_devices"
+
+mac_build:
+  stage: build
+  tags:
+    - mac
+  script:
+    - sh "./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME"
+
+mac_run:
+  stage: run
+  tags:
+    - mac
+  script:
+    - sh "./src/mem"
+    - sh "./success.sh 2 mac openfpm_devices"
+
+ubuntu_build:
+  stage: build
+  tags:
+    - ubuntu
+  script:
+    - sh "./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME"
+
+ubuntu_run:
+  stage: run
+  tags:
+    - ubuntu
+  script:
+    - sh "./src/mem"
+    - sh "./success.sh 2 ubuntu openfpm_devices"
+
