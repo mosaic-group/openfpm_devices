@@ -6,7 +6,7 @@ centos_build:
     - sh "./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME"
 
 centos_run:
-  stage: run
+  stage: test
   tags:
     - centos
   script:
@@ -21,7 +21,7 @@ mac_build:
     - sh "./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME"
 
 mac_run:
-  stage: run
+  stage: test
   tags:
     - mac
   script:
@@ -36,7 +36,7 @@ ubuntu_build:
     - sh "./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME"
 
 ubuntu_run:
-  stage: run
+  stage: test
   tags:
     - ubuntu
   script:
