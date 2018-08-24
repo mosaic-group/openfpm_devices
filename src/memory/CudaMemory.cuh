@@ -132,7 +132,7 @@ public:
 		return false;
 	}
 	
-	// Copy the Heap memory
+	// Copy the memory (device and host)
 	CudaMemory & operator=(const CudaMemory & mem)
 	{
 		copy(mem);
@@ -149,24 +149,18 @@ public:
 
 	CudaMemory(CudaMemory && mem) EXCEPT_MC
 	{
-
-		bool t_is_hm_sync = is_hm_sync;
-		size_t t_sz = sz;
-		void * t_dm = dm;
-		void * t_hm = hm;
-		long int t_ref_cnt = ref_cnt;
-
 		is_hm_sync = mem.is_hm_sync;
 		sz = mem.sz;
 		dm = mem.dm;
 		hm = mem.hm;
+		ref_cnt = mem.ref_cnt;
 
 		// reset mem
-		mem.is_hm_sync = t_is_hm_sync;
-		mem.sz = t_sz;
-		mem.dm = t_dm;
-		mem.hm = t_hm;
-		mem.ref_cnt = t_ref_cnt;
+		mem.is_hm_sync = false;
+		mem.sz = 0;
+		mem.dm = NULL;
+		mem.hm = NULL;
+		mem.ref_cnt = 0;
 	}
 	
 	//! Constructor
