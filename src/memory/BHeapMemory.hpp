@@ -20,16 +20,14 @@ typedef unsigned char byte;
 #define MEM_ALIGNMENT 32
 
 /**
- * \brief It is like HeapMemory but buffered
+ * \brief It override the behavior if size()
  *
- * The concept of buffer is different from allocated memory. The buffer size can be <= the allocated memory
+ * On normal memory like HeapMemory if you try to use resize to shrink the memory, nothing happen and size() return the old size.
+ * In case of BMemory<HeapMemory> if you try to shrink still the memory is not shrinked, but size() return the shrinked size.
+ * This gives a "feeling" of shrinkage. The real internal size can be retrieved with msize(). When we use resize to increase
+ * the memory size the behaviour remain the same as normal HeapMemory.
  *
- * It differs from HeapMemory in resize behavior.
- *
- * In the case of BHeapMemory if you try to shrink the memory nothing happen to the allocated memory.
- * To destroy the internal memory you must use destroy.
- *
- * BHeapMemory does not shrink the memory, but it shrink the buffer size. size() always return the buffer size
+ * \note this wrapper can be used in combination also with CudaMemory
  *
  * ### Allocate memory
  *
@@ -58,7 +56,7 @@ public:
 	 *
 	 */
 	BMemory(const BMemory<Memory> & mem)
-	:HeapMemory(mem),buf_sz(mem.size())
+	:Memory(mem),buf_sz(mem.size())
 	{
 	}
 
@@ -182,7 +180,7 @@ public:
 		buf_sz = 0;
 	}
 
-	/*! \brief swap the two mwmory object
+	/*! \brief swap the two memory object
 	 *
 	 * \param mem Memory to swap with
 	 *

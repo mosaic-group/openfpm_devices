@@ -82,14 +82,18 @@ public:
 	//! get a readable pointer with the data
 	virtual void * getDevicePointer();
 
-	//! get a readable pointer with the data
-	virtual void * getDevicePointerNoCopy();
 
 	//! Do nothing
 	virtual void deviceToHost(){};
 
 	//! Do nothing
+	virtual void hostToDevice(){};
+
+	//! Do nothing
 	virtual void deviceToHost(size_t start, size_t stop) {};
+
+	//! Do nothing
+	virtual void hostToDevice(size_t start, size_t top) {};
 
 	/*! \brief fill memory with the selected byte
 	 *

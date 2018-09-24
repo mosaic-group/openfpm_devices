@@ -83,10 +83,6 @@ public:
 	//! get a device pointer for HeapMemory getPointer and getDevicePointer are equivalents
 	virtual void * getDevicePointer();
 
-	//! Get a device pointer for HeapMemory (avoid to copy from Host to device) for HeapMemory
-	//! getPointer() getDevicePointer and getDevicePointerNoCopy() are equivalents
-	virtual void * getDevicePointerNoCopy();
-
 	/*! \brief fill host and device memory with the selected byte
 	 *
 	 *
@@ -94,10 +90,16 @@ public:
 	virtual void fill(unsigned char c);
 
 	//! Do nothing
+	virtual void hostToDevice(){};
+
+	//! Do nothing
 	virtual void deviceToHost(){};
 
 	//! Do nothing
 	virtual void deviceToHost(size_t start, size_t stop) {};
+
+	//! Do nothing
+	virtual void hostToDevice(size_t start, size_t stop) {};
 
 	//! Increment the reference counter
 	virtual void incRef()

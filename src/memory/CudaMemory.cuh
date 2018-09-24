@@ -89,14 +89,19 @@ public:
 	//! get a readable pointer with the data
 	virtual void * getDevicePointer();
 
+	//! Move memory from host to device
+	virtual void hostToDevice();
+
 	//! Move memory from device to host
 	virtual void deviceToHost();
 
-	//! Move memory from device to host, just one chunk
+	//! Move memory from device to host, just the selected chunk
 	virtual void deviceToHost(size_t start, size_t stop);
 
-	//! get the device pointer, but do not copy the memory from host to device
-	virtual void * getDevicePointerNoCopy();
+	//! Move memory from host to device, just the selected chunk
+	virtual void hostToDevice(size_t start, size_t top);
+
+	void hostToDevice(CudaMemory & mem);
 
 	//! fill the buffer with a byte
 	virtual void fill(unsigned char c);

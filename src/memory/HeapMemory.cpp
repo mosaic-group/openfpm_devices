@@ -39,9 +39,12 @@ bool HeapMemory::allocate(size_t sz)
 {
 	//! Allocate the device memory
 	if (dm == NULL)
-		dmOrig = new byte[sz+alignement+extra_pad];
+	{dmOrig = new byte[sz+alignement+extra_pad];}
 	else
+	{
 		std::cerr << __FILE__ << ":" << __LINE__ << " error memory already allocated\n";
+		return false;
+	}
 
 	dm = dmOrig;
 
@@ -238,17 +241,6 @@ void * HeapMemory::getDevicePointer()
 {
 	std::cout << __FILE__ << ":" << __LINE__ << " Warning: you are trying to use this buffer on device (example GPU). The most probable cause to produce this message is that you are trying to offload a data-structure on device (example: GPU), but the data-structure is not supposed to work on device" << std::endl;
 
-	return dm;
-}
-
-/*! \brief Return a readable pointer with your data
- *
- * Return a readable pointer with your data
- *
- */
-
-void * HeapMemory::getDevicePointerNoCopy()
-{
 	return dm;
 }
 

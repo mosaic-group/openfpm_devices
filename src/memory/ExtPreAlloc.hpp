@@ -187,16 +187,32 @@ public:
 	 * \return the pointer
 	 *
 	 */
-	virtual void * getDevicePointerNoCopy()
+	virtual void hostToDevice()
 	{
-		return mem->getDevicePointerNoCopy();
+		mem->hostToDevice();
+	}
+
+	/*! \brief Return the pointer of the last allocation
+	 *
+	 * \return the pointer
+	 *
+	 */
+	virtual void hostToDevice(size_t start, size_t stop)
+	{
+		mem->hostToDevice(start,stop);
 	}
 
 	//! Do nothing
-	virtual void deviceToHost(){};
+	virtual void deviceToHost()
+	{
+		mem->deviceToHost();
+	};
 
 	//! Do nothing
-	virtual void deviceToHost(size_t start, size_t stop) {};
+	virtual void deviceToHost(size_t start, size_t stop)
+	{
+		mem->deviceToHost(start,stop);
+	};
 
 	/*! \brief Return the pointer of the last allocation
 	 *

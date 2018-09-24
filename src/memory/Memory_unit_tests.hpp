@@ -12,7 +12,7 @@
 
 #include "memory/HeapMemory.hpp"
 #include "memory/BHeapMemory.hpp"
-#ifdef NVCC
+#ifdef CUDA_GPU
 #include "memory/CudaMemory.cuh"
 #endif
 
@@ -137,7 +137,12 @@ template<typename T> void Btest()
 
 	unsigned char * ptr = (unsigned char *)mem.getPointer();
 	for (size_t i = 0 ; i < mem.size() ; i++)
-		ptr[i] = i;
+	{ptr[i] = i;}
+	mem.hostToDevice();
+
+	mem.resize(0);
+	BOOST_REQUIRE_EQUAL(mem.size(),0);
+	BOOST_REQUIRE_EQUAL(mem.msize(),FIRST_ALLOCATION);
 
 	//! [BAllocate some memory and fill with data]
 
@@ -152,6 +157,15 @@ template<typename T> void Btest()
 	//! [BResize the memory]
 
 	// check that the data are retained
+	for (size_t i = 0 ; i < FIRST_ALLOCATION ; i++)
+	{
+		unsigned char c = i;
+		BOOST_REQUIRE_EQUAL(ptr2[i],c);
+	}
+
+	// check that the data are retained on device
+
+	mem.deviceToHost();
 	for (size_t i = 0 ; i < FIRST_ALLOCATION ; i++)
 	{
 		unsigned char c = i;
@@ -238,7 +252,7 @@ void copy_device_host_test()
 	{ptr1[i] = i;}
 
 	// force to move the memory from host to device
-	mem1.getDevicePointer();
+	mem1.hostToDevice();
 	mem2.copyDeviceToDevice(mem1);
 	mem2.deviceToHost();
 
@@ -265,6 +279,11 @@ BOOST_AUTO_TEST_CASE( use_memory )
 BOOST_AUTO_TEST_CASE( use_bheap_memory )
 {
 	Btest<BMemory<HeapMemory>>();
+}
+
+BOOST_AUTO_TEST_CASE( use_bcuda_memory )
+{
+	Btest<BMemory<CudaMemory>>();
 }
 
 BOOST_AUTO_TEST_CASE( swap_heap_memory )

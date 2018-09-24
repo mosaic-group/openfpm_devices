@@ -36,6 +36,14 @@ bool CudaMemory::allocate(size_t sz)
 	//! Allocate the device memory
 	if (dm == NULL)
 	{CUDA_SAFE_CALL(cudaMalloc(&dm,sz));}
+	else
+	{
+		if (sz != this->sz)
+		{
+			std::cout << __FILE__ << ":" << __LINE__ << " error FATAL: using allocate to resize the memory, please use resize." << std::endl;
+			return false;
+		}
+	}
 
 	this->sz = sz;
 
@@ -192,19 +200,19 @@ size_t CudaMemory::size() const
 bool CudaMemory::resize(size_t sz)
 {
 	// if the allocated memory is enough, do not resize
-	if (sz <= size())
+	if (sz <= CudaMemory::size())
 		return true;
 
 	//! Allocate the device memory if not done yet
 
-	if (size() == 0)
-		return allocate(sz);
+	if (CudaMemory::size() == 0)
+	{return allocate(sz);}
 
 	//! Create a new buffer, if sz is bigger than the actual size
-	void * thm;
+	void * thm = NULL;
 
 	//! Create a new buffer, if sz is bigger than the actual size
-	void * tdm;
+	void * tdm = NULL;
 
 	if (dm != NULL)
 	{
@@ -213,7 +221,7 @@ bool CudaMemory::resize(size_t sz)
 
 		//! copy from the old buffer to the new one
 
-		CUDA_SAFE_CALL(cudaMemcpy(tdm,dm,size(),cudaMemcpyDeviceToDevice));
+		CUDA_SAFE_CALL(cudaMemcpy(tdm,dm,CudaMemory::size(),cudaMemcpyDeviceToDevice));
 	}
 
 	if (hm != NULL)
@@ -223,7 +231,7 @@ bool CudaMemory::resize(size_t sz)
 
 		//! copy from the old buffer to the new one
 
-		CUDA_SAFE_CALL(cudaMemcpy(thm,hm,size(),cudaMemcpyHostToHost));
+		CUDA_SAFE_CALL(cudaMemcpy(thm,hm,CudaMemory::size(),cudaMemcpyHostToHost));
 	}
 
 	//! free the old buffer
@@ -252,10 +260,6 @@ void * CudaMemory::getPointer()
 	if (hm == NULL)
 		allocate_host(sz);
 
-	//! copy from device to host memory
-
-	CUDA_SAFE_CALL(cudaMemcpy(hm,dm,sz,cudaMemcpyDeviceToHost));
-
 	return hm;
 }
 
@@ -276,12 +280,40 @@ void CudaMemory::deviceToHost()
 	CUDA_SAFE_CALL(cudaMemcpy(hm,dm,sz,cudaMemcpyDeviceToHost));
 }
 
+/*! \brief It transfer to device memory from the host of another memory
+ *
+ * \param mem the other memory object
+ *
+ */
+void CudaMemory::hostToDevice(CudaMemory & mem)
+{
+	// allocate an host memory if not allocated
+	if (mem.hm == NULL)
+		mem.allocate_host(sz);
+
+	if (mem.sz > sz)
+	{resize(mem.sz);}
+
+	//! copy from device to host memory
+	CUDA_SAFE_CALL(cudaMemcpy(dm,mem.hm,mem.sz,cudaMemcpyHostToDevice));
+}
+
+void CudaMemory::hostToDevice(size_t start, size_t stop)
+{
+	// allocate an host memory if not allocated
+	if (hm == NULL)
+		allocate_host(sz);
+
+	//! copy from device to host memory
+
+	CUDA_SAFE_CALL(cudaMemcpy(((unsigned char *)dm)+start,((unsigned char *)hm)+start,(stop-start),cudaMemcpyHostToDevice));
+}
+
 /*! \brief Return a readable pointer with your data
  *
  * \return a readable pointer with your data
  *
  */
-
 void CudaMemory::deviceToHost(size_t start, size_t stop)
 {
 	// allocate an host memory if not allocated
@@ -307,10 +339,6 @@ const void * CudaMemory::getPointer() const
 	if (hm == NULL)
 		allocate_host(sz);
 
-	//! copy from device to host memory
-
-	CUDA_SAFE_CALL(cudaMemcpy(hm,dm,sz,cudaMemcpyDeviceToHost));
-
 	return hm;
 }
 
@@ -332,6 +360,17 @@ void CudaMemory::fill(unsigned char c)
  */
 void * CudaMemory::getDevicePointer()
 {
+	return dm;
+}
+
+/*! \brief Return a readable pointer with your data
+ *
+ * \return a readable pointer with your data
+ *
+ */
+
+void CudaMemory::hostToDevice()
+{
 	// allocate an host memory if not allocated
 	if (hm == NULL)
 		allocate_host(sz);
@@ -339,19 +378,8 @@ void * CudaMemory::getDevicePointer()
 	//! copy from device to host memory
 
 	CUDA_SAFE_CALL(cudaMemcpy(dm,hm,sz,cudaMemcpyHostToDevice));
-
-	return dm;
 }
 
-/*! \brief Return the CUDA device pointer (Do not copy to device)
- *
- * \return CUDA device pointer
- *
- */
-void * CudaMemory::getDevicePointerNoCopy()
-{
-	return dm;
-}
 
 /*! \brief Swap the memory
  *
