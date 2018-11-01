@@ -171,6 +171,12 @@ public:
 	//! Constructor
 	CudaMemory():is_hm_sync(true),sz(0),dm(0),hm(0),ref_cnt(0) {};
 	
+	//! Constructor
+	CudaMemory(size_t sz):is_hm_sync(true),sz(0),dm(0),hm(0),ref_cnt(0)
+	{
+		allocate(sz);
+	};
+
 	//! Destructor
 	~CudaMemory()	
 	{
@@ -190,6 +196,16 @@ public:
 	static bool isDeviceHostSame()
 	{
 		return false;
+	}
+
+	/*! \brief return the device memory
+	 *
+	 * \see equivalent to getDevicePointer()
+	 *
+	 */
+	void * toKernel()
+	{
+		return getDevicePointer();
 	}
 };
 
