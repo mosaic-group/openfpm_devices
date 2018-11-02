@@ -40,7 +40,7 @@ template<typename T> void test()
 	for (size_t i = 0 ; i < mem.size() ; i++)
 	{ptr[i] = i;}
 
-	mem.flush();
+	mem.hostToDevice();
 
 	//! [Allocate some memory and fill with data]
 
@@ -79,9 +79,11 @@ template<typename T> void test()
 
 	unsigned char * ptr = (unsigned char *)src.getPointer();
 	for (size_t i = 0 ; i < src.size() ; i++)
-		ptr[i] = i;
+	{ptr[i] = i;}
 
+	src.hostToDevice();
 	dst.copy(src);
+	dst.deviceToHost();
 
 	for (size_t i = 0 ; i < FIRST_ALLOCATION ; i++)
 	{
@@ -98,11 +100,11 @@ template<typename T> void test()
 
 	unsigned char * ptr = (unsigned char *)src.getPointer();
 	for (size_t i = 0 ; i < src.size() ; i++)
-		ptr[i] = i;
+	{ptr[i] = i;}
 
-	src.flush();
-
+	src.hostToDevice();
 	T dst = src;
+	dst.deviceToHost();
 
 	unsigned char * ptr2 = (unsigned char *)dst.getPointer();
 
@@ -236,11 +238,7 @@ void copy_device_host_test()
 	mem1.allocate(300);
 	mem2.allocate(500);
 
-	if (mem1.isDeviceHostSame() == true)
-	{
-		BOOST_REQUIRE_EQUAL(mem1.getPointer(),mem1.getDevicePointer());
-	}
-	else
+	if (mem1.isDeviceHostSame() == false)
 	{
 		BOOST_REQUIRE(mem1.getPointer() != mem2.getDevicePointer());
 	}
