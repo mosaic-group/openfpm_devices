@@ -4,6 +4,8 @@ project(openfpm_devices LANGUAGES CXX)
 
 set(BOOST_INCLUDE ${Boost_INCLUDE_DIR} CACHE PATH "Include directory for BOOST")
 
+set (CMAKE_CXX_STANDARD 11)
+
 find_package(Boost 1.52.0 REQUIRED unit_test_framework iostreams program_options)
 
 
