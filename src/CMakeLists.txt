@@ -11,7 +11,9 @@ add_library(ofpmmemory_se2 STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Mem
 
 target_compile_definitions(ofpmmemory_se2 PUBLIC SE_CLASS2)
 
-target_compile_options(mem PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe "--display_error_number --diag_suppress=2885 --diag_suppress=2887  --diag_suppress=2888 --diag_suppress=186 --diag_suppress=111" --expt-extended-lambda>)
+if (CUDA_FOUND)
+	target_compile_options(mem PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe "--display_error_number --diag_suppress=2885 --diag_suppress=2887  --diag_suppress=2888 --diag_suppress=186 --diag_suppress=111" --expt-extended-lambda>)
+endif()
 
 target_include_directories (mem PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (mem PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
