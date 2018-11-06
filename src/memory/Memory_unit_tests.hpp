@@ -283,7 +283,9 @@ BOOST_AUTO_TEST_CASE( use_bheap_memory )
 
 BOOST_AUTO_TEST_CASE( use_bcuda_memory )
 {
+#ifdef CUDA_GPU
 	Btest<BMemory<CudaMemory>>();
+#endif
 }
 
 BOOST_AUTO_TEST_CASE( swap_heap_memory )
