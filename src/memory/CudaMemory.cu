@@ -47,6 +47,10 @@ bool CudaMemory::allocate(size_t sz)
 
 	this->sz = sz;
 
+#ifdef FILL_CUDA_MEMORY_WITH_MINUS_ONE
+	CUDA_SAFE_CALL(cudaMemset(dm,-1,sz))
+#endif
+
 	return true;
 }
 
@@ -217,7 +221,13 @@ bool CudaMemory::resize(size_t sz)
 	if (dm != NULL)
 	{
 		if (this->sz < sz)
+		{
 			CUDA_SAFE_CALL(cudaMalloc(&tdm,sz));
+
+#ifdef FILL_CUDA_MEMORY_WITH_MINUS_ONE
+			CUDA_SAFE_CALL(cudaMemset(tdm,-1,sz));
+#endif
+		}
 
 		//! copy from the old buffer to the new one
 

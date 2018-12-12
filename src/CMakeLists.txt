@@ -4,7 +4,6 @@ else()
 	set(CUDA_SOURCES )
 endif()
 
-target_include_directories (pdata PUBLIC ${Boost_INCLUDE_DIRS})
 
 add_executable(mem main.cpp memory/HeapMemory.cpp ${CUDA_SOURCES} Memleak_check.cpp)
 
@@ -19,6 +18,7 @@ endif()
 
 target_include_directories (mem PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (mem PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
+target_include_directories (mem PUBLIC ${Boost_INCLUDE_DIRS})
 
 target_include_directories (ofpmmemory PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (ofpmmemory PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
