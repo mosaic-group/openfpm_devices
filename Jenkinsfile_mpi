@@ -28,7 +28,7 @@ parallel (
 
     stage ('centos_run')
     {
-      sh "./src/mem"
+      sh "./build/src/mem"
       sh "./success.sh 2 centos openfpm_devices"
     }
   }},
@@ -58,7 +58,7 @@ parallel (
 
     stage ('ubuntu_run')
     {
-      sh "./src/mem"
+      sh "./build/src/mem"
       sh "./success.sh 2 ubuntu openfpm_devices"
     }
   }},
@@ -89,7 +89,7 @@ parallel (
 
     stage ('mac_run')
     {
-      sh "./src/mem"
+      sh "./build/src/mem"
       sh "./success.sh 2 macos openfpm_devices"
     }
   }}
