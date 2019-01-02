@@ -1,5 +1,9 @@
 #! /bin/bash
 
+hostname=$(hostname)
+
+echo "Machine: $hostname"
+
 mkdir src/config
 
 if [ ! -d $HOME/openfpm_dependencies/openfpm_data/BOOST ]; then
