@@ -6,7 +6,7 @@ echo "Machine: $hostname"
 
 mkdir src/config
 
-if [ ! -d $HOME/openfpm_dependencies/openfpm_data/BOOST ]; then
+if [ ! -d $HOME/openfpm_dependencies/openfpm_devices/BOOST ]; then
         if [ x"$hostname" == x"cifarm-mac-node" ]; then
                 echo "Compiling for OSX"
                 ./install_BOOST.sh $HOME/openfpm_dependencies/openfpm_devices/ 4 darwin
