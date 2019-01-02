@@ -2,18 +2,18 @@
 
 mkdir src/config
 
-sh ./autogen.sh
-if [ "$2" == "master" ]
-then
- sh ./configure --disable-gpu
-elif [ "$2" == "gin" ]
-then
- module load gcc/4.9.2
- module load boost/1.54.0
- sh ./configure --with-boost=/sw/apps/boost/1.54.0/
-else
- sh ./configure
+if [ ! -d $HOME/openfpm_dependencies/openfpm_data/BOOST ]; then
+        if [ x"$hostname" == x"cifarm-mac-node" ]; then
+                echo "Compiling for OSX"
+                ./install_BOOST.sh $HOME/openfpm_dependencies/openfpm_devices/ 4 darwin
+        else
+                echo "Compiling for Linux"
+                ./install_BOOST.sh $HOME/openfpm_dependencies/openfpm_devices 4 gcc
+        fi
 fi
+
+sh ./autogen.sh
+sh ./configure --with-boost=$HOME/openfpm_dependencies/openfpm_devices/
 
 make
 
