@@ -16,6 +16,7 @@ if (CUDA_FOUND)
 	target_compile_options(mem PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe "--display_error_number --diag_suppress=2885 --diag_suppress=2887  --diag_suppress=2888 --diag_suppress=186 --diag_suppress=111" --expt-extended-lambda>)
 endif()
 
+target_include_directories (mem PUBLIC ${CUDA_INCLUDE_DIRS})
 target_include_directories (mem PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (mem PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
 target_include_directories (mem PUBLIC ${Boost_INCLUDE_DIRS})

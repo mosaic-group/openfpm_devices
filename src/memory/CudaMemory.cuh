@@ -40,6 +40,13 @@
 #include "Memleak_check.hpp"
 #endif
 
+#ifdef CUDA_GPU
+
+#include <cuda_runtime.h>
+
+//! Is an array to report general error can happen in CUDA
+static __device__ unsigned char global_cuda_error_array[256];
+
 class CudaMemory : public memory
 {
 	//! Is the host memory synchronized with the GPU memory
@@ -209,5 +216,6 @@ public:
 	}
 };
 
+#endif
 #endif
 

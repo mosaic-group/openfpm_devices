@@ -1,6 +1,5 @@
 #include "config.h"
 #include <cstddef>
-#include <cuda_runtime.h>
 #include "CudaMemory.cuh"
 #include "cuda_macro.h"
 #include <cstring>
