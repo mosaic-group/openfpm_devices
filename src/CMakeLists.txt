@@ -47,6 +47,7 @@ install(FILES Memleak_check.hpp
 	DESTINATION openfpm_devices/include/ )
 
 install(FILES util/se_util.hpp
+	      util/cuda_util.hpp
         DESTINATION openfpm_devices/include/util)
 
 install(FILES ptr_info.hpp
