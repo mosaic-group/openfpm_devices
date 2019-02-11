@@ -14,6 +14,10 @@ target_compile_definitions(ofpmmemory_se2 PUBLIC SE_CLASS2)
 
 if (CUDA_FOUND)
 	target_compile_options(mem PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe "--display_error_number --diag_suppress=2885 --diag_suppress=2887  --diag_suppress=2888 --diag_suppress=186 --diag_suppress=111" --expt-extended-lambda>)
+	if (TEST_COVERAGE)
+                target_compile_options(pdata PRIVATE $<$<COMPILE_LANGUAGE:CUDA>: -Xcompiler "-fprofile-arcs -ftest-coverage">)
+        endif()
+
 endif()
 
 target_include_directories (mem PUBLIC ${CUDA_INCLUDE_DIRS})
