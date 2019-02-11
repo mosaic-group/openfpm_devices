@@ -12,6 +12,14 @@ add_library(ofpmmemory_se2 STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Mem
 
 target_compile_definitions(ofpmmemory_se2 PUBLIC SE_CLASS2)
 
+if ( CMAKE_COMPILER_IS_GNUCC )
+    target_compile_options(pdata PRIVATE "-Wno-deprecated-declarations")
+    if (TEST_COVERAGE)
+        target_compile_options(pdata PRIVATE $<$<COMPILE_LANGUAGE:CXX>: -fprofile-arcs -ftest-coverage>)
+    endif()
+endif()
+
+
 if (CUDA_FOUND)
 	target_compile_options(mem PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe "--display_error_number --diag_suppress=2885 --diag_suppress=2887  --diag_suppress=2888 --diag_suppress=186 --diag_suppress=111" --expt-extended-lambda>)
 	if (TEST_COVERAGE)
@@ -32,6 +40,10 @@ target_include_directories (ofpmmemory_se2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (ofpmmemory_se2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
 
 target_link_libraries(mem ${Boost_LIBRARIES})
+
+if (TEST_COVERAGE)
+    target_link_libraries(pdata -lgcov --coverage)
+endif()
 
 install(TARGETS ofpmmemory ofpmmemory_se2
 	DESTINATION openfpm_devices/lib )
