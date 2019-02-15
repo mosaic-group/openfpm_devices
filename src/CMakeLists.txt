@@ -42,7 +42,7 @@ target_include_directories (ofpmmemory_se2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/co
 target_link_libraries(mem ${Boost_LIBRARIES})
 
 if (TEST_COVERAGE)
-    target_link_libraries(mem -lgcov --coverage)
+    target_link_libraries(mem -lgcov)
 endif()
 
 install(TARGETS ofpmmemory ofpmmemory_se2
