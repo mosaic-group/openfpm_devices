@@ -330,6 +330,8 @@ inline static bool check_delete(const void * data)
  */
 inline static bool check_valid(const void * ptr, size_t size_access)
 {
+#ifndef SE_CLASS2_ONLY_TRACK
+
 	if (active_ptr.size() == 0)
 	{
 		std::cerr << "Error invalid pointer: " << __FILE__ << ":" << __LINE__ << "  " << ptr << "\n";
@@ -395,6 +397,8 @@ inline static bool check_valid(const void * ptr, size_t size_access)
 			}
 		}
 	}
+
+#endif
 
 	return true;
 }
