@@ -10,6 +10,7 @@
 #include <cstring>
 #include <iostream>
 #include <cstdint>
+#include <errno.h>
 
 static const int extra_pad = 512;
 
@@ -18,6 +19,19 @@ static const int extra_pad = 512;
 #include "Memleak_check.hpp"
 #endif
 
+byte * HeapMemory::allocate_mem(size_t size)
+{
+	if (key == -1)
+	{return new byte[size];}
+	else
+	{
+		shmid = shmget(key,size,0666|IPC_CREAT);
+
+		std::cout << errno << std::endl;
+
+		return (byte *)shmat(shmid,(void *)0,0);
+	}
+}
 
 /*! \brief fill host and device memory with the selected byte
  *
@@ -39,7 +53,7 @@ bool HeapMemory::allocate(size_t sz)
 {
 	//! Allocate the device memory
 	if (dm == NULL)
-	{dmOrig = new byte[sz+alignement+extra_pad];}
+	{dmOrig = allocate_mem(sz+alignement+extra_pad);}
 	else
 	{
 		std::cerr << __FILE__ << ":" << __LINE__ << " error memory already allocated\n";
@@ -81,7 +95,12 @@ void HeapMemory::destroy()
 #endif
 
 	if (dmOrig != NULL)
-		delete [] dmOrig;
+	{
+		if (key == -1)
+		{delete [] dmOrig;}
+		else
+		{/*shmctl(shmid, IPC_RMID, NULL);*/}
+	}
 
 	sz = 0;
 	dm = NULL;
@@ -196,7 +215,7 @@ bool HeapMemory::resize(size_t sz)
 	//! Create a new buffer if sz is bigger than the actual size
 	byte * tdm;
 	byte * tdmOrig;
-	tdmOrig = new byte[sz+alignement+extra_pad];
+	tdmOrig = allocate_mem(sz+alignement+extra_pad);
 #ifdef SE_CLASS2
 	check_new(tdmOrig,sz+alignement,HEAPMEMORY_EVENT,0);
 #endif
@@ -263,4 +282,9 @@ void * HeapMemory::getPointer()
 const void * HeapMemory::getPointer() const
 {
 	return dm;
+}
+
+void HeapMemory::set_memory_name(const char * pathname, int proj_id)
+{
+	key = ftok(pathname,proj_id);
 }

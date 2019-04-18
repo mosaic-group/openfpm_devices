@@ -315,7 +315,13 @@ void CudaMemory::hostToDevice(size_t start, size_t stop)
 
 	//! copy from device to host memory
 
-	CUDA_SAFE_CALL(cudaMemcpy(((unsigned char *)dm)+start,((unsigned char *)hm)+start,(stop-start),cudaMemcpyHostToDevice));
+//	CUDA_SAFE_CALL(cudaMemcpy(((unsigned char *)dm)+start,((unsigned char *)hm)+start,(stop-start),cudaMemcpyHostToDevice));
+
+	cudaError_t err = cudaMemcpy(((unsigned char *)dm)+start,((unsigned char *)hm)+start,(stop-start),cudaMemcpyHostToDevice);
+	if (cudaSuccess != err) {
+		std::cerr << "Cuda error in file "<< __FILE__ << " in line " << __LINE__ <<  ": " << cudaGetErrorString(err);
+	}
+
 }
 
 /*! \brief Return a readable pointer with your data

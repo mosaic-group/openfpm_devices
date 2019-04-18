@@ -51,11 +51,20 @@ class HeapMemory : public memory
 	//! Reference counter
 	long int ref_cnt;
 
+	//! key for shared memory
+	key_t key = -1;
+
+	//! shared memory id
+	int shmid = -1;
+
 	//! copy from Pointer to Heap
 	bool copyFromPointer(const void * ptr, size_t sz);
 
 	//! Set alignment the memory will be aligned with this number
 	void setAlignment(size_t align);
+
+	// allocate memory internal
+	byte * allocate_mem(size_t sz);
 
 public:
 
@@ -82,6 +91,9 @@ public:
 
 	//! get a device pointer for HeapMemory getPointer and getDevicePointer are equivalents
 	virtual void * getDevicePointer();
+
+	//! \see memory.hpp
+	virtual void set_memory_name(const char * pathname, int proj_id);
 
 	/*! \brief fill host and device memory with the selected byte
 	 *
@@ -113,6 +125,18 @@ public:
 	virtual long int ref()
 	{
 		return ref_cnt;
+	}
+
+	//! Return the shared memory key
+	virtual key_t get_shmem_key()
+	{
+		return key;
+	}
+
+	//! Return the shared memory key
+	virtual void set_shmem_key(key_t k)
+	{
+		key = k;
 	}
 
 	/*! \brief Allocated Memory is never initialized

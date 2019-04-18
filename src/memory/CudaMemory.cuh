@@ -134,6 +134,19 @@ public:
 		return ref_cnt;
 	}
 
+	virtual void set_memory_name(const char * pathname, int proj_id)
+	{}
+
+	//! Return the shared memory key
+	virtual key_t get_shmem_key()
+	{
+		return -1;
+	}
+
+	//! Return the shared memory key
+	virtual void set_shmem_key(key_t k)
+	{}
+
 	/*! \brief Allocated Memory is never initialized
 	 *
 	 * \return false

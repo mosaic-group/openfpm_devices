@@ -18,6 +18,8 @@ typedef long int mem_id;
 
 #include "config.h"
 #include <stddef.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 class memory
 {
@@ -160,6 +162,24 @@ class memory
 	 */
 	virtual void fill(unsigned char c) = 0;
 
+	/*! \brief Set the name of the memory
+	 *
+	 * \note in case of HeapMemory is the name of the file to generate a key for the shared memory
+	 *
+	 */
+	virtual void set_memory_name(const char * pathname, int proj_id) = 0;
+
+	/*! \brief
+	 *
+	 *
+	 */
+	virtual key_t get_shmem_key() = 0;
+
+	/*! \brief
+	 *
+	 *
+	 */
+	virtual void set_shmem_key(key_t key) = 0;
 };
 
 #endif
