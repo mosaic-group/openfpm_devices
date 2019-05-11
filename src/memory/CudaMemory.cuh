@@ -44,6 +44,8 @@
 
 #include <cuda_runtime.h>
 
+extern size_t TotCudaMemoryAllocated;
+
 //! Is an array to report general error can happen in CUDA
 static __device__ unsigned char global_cuda_error_array[256];
 

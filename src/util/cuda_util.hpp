@@ -23,6 +23,7 @@
 		#ifndef __host__
 		#define __host__
 		#define __device__
+		#define __shared__
 		#endif
 
 		#define CUDA_SAFE(cuda_call) \
@@ -42,6 +43,7 @@
 #ifndef __host__
 #define __host__
 #define __device__
+#define __shared__
 #endif
 
 #endif

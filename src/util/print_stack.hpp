@@ -123,7 +123,7 @@ static inline void print_stack()
 
 #else
 
-	std::cerr << "Stack trace deactivated" << std::endl;
+	std::cerr << "Stack trace deactivated, use #define PRINT_STACKTRACE to activate" << std::endl;
 
 #endif
 }
