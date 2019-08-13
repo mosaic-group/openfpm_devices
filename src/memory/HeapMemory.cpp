@@ -21,15 +21,13 @@ static const int extra_pad = 512;
 
 byte * HeapMemory::allocate_mem(size_t size)
 {
-	if (key == -1)
+	if (sh_handle.id == -1)
 	{return new byte[size];}
 	else
 	{
-		shmid = shmget(key,size,0666|IPC_CREAT);
+		std::cout << "Allocating using shared memory" << std::endl;
 
-		std::cout << errno << std::endl;
-
-		return (byte *)shmat(shmid,(void *)0,0);
+		return (byte *)create_shmanager().alloc(sh_handle, size);
 	}
 }
 
@@ -96,10 +94,12 @@ void HeapMemory::destroy()
 
 	if (dmOrig != NULL)
 	{
-		if (key == -1)
+		if (sh_handle.id == -1)
 		{delete [] dmOrig;}
 		else
-		{/*shmctl(shmid, IPC_RMID, NULL);*/}
+		{
+			create_shmanager().free(sh_handle, dmOrig);
+		}
 	}
 
 	sz = 0;
@@ -284,7 +284,7 @@ const void * HeapMemory::getPointer() const
 	return dm;
 }
 
-void HeapMemory::set_memory_name(const char * pathname, int proj_id)
-{
-	key = ftok(pathname,proj_id);
-}
+//void HeapMemory::set_memory_name(handle_shmem shid)
+//{
+//	sh_handle = shid;
+//}

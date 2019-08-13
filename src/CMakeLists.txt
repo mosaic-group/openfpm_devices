@@ -5,10 +5,10 @@ else()
 endif()
 
 
-add_executable(mem main.cpp memory/HeapMemory.cpp ${CUDA_SOURCES} Memleak_check.cpp)
+add_executable(mem main.cpp memory/HeapMemory.cpp ${CUDA_SOURCES} memory/ShmAllocator_manager.cpp memory/SemManager.cpp memory/ShmAllocator.cpp Memleak_check.cpp)
 
-add_library(ofpmmemory STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
-add_library(ofpmmemory_se2 STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
+add_library(ofpmmemory STATIC memory/ShmAllocator_manager.cpp memory/SemManager.cpp memory/ShmAllocator.cpp memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
+add_library(ofpmmemory_se2 STATIC memory/ShmAllocator_manager.cpp memory/SemManager.cpp memory/ShmAllocator.cpp memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
 
 target_compile_definitions(ofpmmemory_se2 PUBLIC SE_CLASS2)
 
@@ -54,6 +54,9 @@ install(FILES memory/ExtPreAlloc.hpp
 	      memory/memory.hpp 
 	      memory/PtrMemory.hpp
 	      memory/CudaMemory.cuh
+	      memory/ShmAllocator_manager.hpp
+	      memory/SemManager.hpp
+	      memory/ShmAllocator.hpp
 	      DESTINATION openfpm_devices/include/memory)
 
 install(FILES util/print_stack.hpp

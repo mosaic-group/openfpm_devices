@@ -13,6 +13,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include "ShmAllocator_manager.hpp"
 
 typedef unsigned char byte;
 
@@ -52,7 +53,7 @@ class HeapMemory : public memory
 	long int ref_cnt;
 
 	//! key for shared memory
-	key_t key = -1;
+	handle_shmem sh_handle;
 
 	//! shared memory id
 	int shmid = -1;
@@ -92,9 +93,6 @@ public:
 	//! get a device pointer for HeapMemory getPointer and getDevicePointer are equivalents
 	virtual void * getDevicePointer();
 
-	//! \see memory.hpp
-	virtual void set_memory_name(const char * pathname, int proj_id);
-
 	/*! \brief fill host and device memory with the selected byte
 	 *
 	 *
@@ -128,15 +126,15 @@ public:
 	}
 
 	//! Return the shared memory key
-	virtual key_t get_shmem_key()
+	virtual handle_shmem get_shmem_handle()
 	{
-		return key;
+		return sh_handle;
 	}
 
 	//! Return the shared memory key
-	virtual void set_shmem_key(key_t k)
+	virtual void set_shmem_handle(handle_shmem sh)
 	{
-		key = k;
+		sh_handle = sh;
 	}
 
 	/*! \brief Allocated Memory is never initialized
@@ -160,12 +158,14 @@ public:
 	HeapMemory(const HeapMemory & mem)
 	:HeapMemory()
 	{
+		sh_handle.id = -1;
 		allocate(mem.size());
 		copy(mem);
 	}
 
 	HeapMemory(HeapMemory && mem) noexcept
 	{
+		sh_handle.id = -1;
 		//! move
 		alignement = mem.alignement;
 		sz = mem.sz;
@@ -181,7 +181,8 @@ public:
 	}
 
 	//! Constructor, we choose a default alignment of 32 for avx
-	HeapMemory():alignement(MEM_ALIGNMENT),sz(0),dm(NULL),dmOrig(NULL),ref_cnt(0) {};
+	HeapMemory():alignement(MEM_ALIGNMENT),sz(0),dm(NULL),dmOrig(NULL),ref_cnt(0)
+	{sh_handle.id = -1;};
 
 	virtual ~HeapMemory() noexcept
 	{

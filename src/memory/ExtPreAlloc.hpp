@@ -98,13 +98,16 @@ public:
 	{}
 
 	//! Return the shared memory key
-	virtual key_t get_shmem_key()
+	virtual handle_shmem get_shmem_handle()
 	{
-		return -1;
+		handle_shmem sh;
+		sh.id = -1;
+
+		return sh;
 	}
 
 	//! Return the shared memory key
-	virtual void set_shmem_key(key_t k)
+	virtual void set_shmem_handle(handle_shmem sh)
 	{}
 
 	//! flush the memory

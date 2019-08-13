@@ -20,6 +20,7 @@ typedef long int mem_id;
 #include <stddef.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include "ShmAllocator_manager.hpp"
 
 class memory
 {
@@ -162,24 +163,17 @@ class memory
 	 */
 	virtual void fill(unsigned char c) = 0;
 
-	/*! \brief Set the name of the memory
+	/*! \brief
 	 *
-	 * \note in case of HeapMemory is the name of the file to generate a key for the shared memory
 	 *
 	 */
-	virtual void set_memory_name(const char * pathname, int proj_id) = 0;
+	virtual handle_shmem get_shmem_handle() = 0;
 
 	/*! \brief
 	 *
 	 *
 	 */
-	virtual key_t get_shmem_key() = 0;
-
-	/*! \brief
-	 *
-	 *
-	 */
-	virtual void set_shmem_key(key_t key) = 0;
+	virtual void set_shmem_handle(handle_shmem) = 0;
 };
 
 #endif

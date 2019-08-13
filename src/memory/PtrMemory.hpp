@@ -118,14 +118,17 @@ public:
 	virtual void set_memory_name(const char * pathname, int proj_id)
 	{}
 
-	//! Return the shared memory key
-	virtual key_t get_shmem_key()
+	//! Return the shared memory handle
+	virtual handle_shmem get_shmem_handle()
 	{
-		return -1;
+		handle_shmem sh;
+		sh.id = -1;
+
+		return sh;
 	}
 
-	//! Return the shared memory key
-	virtual void set_shmem_key(key_t k)
+	//! Return the shared memory handle
+	virtual void set_shmem_handle(handle_shmem sh)
 	{}
 
 	/*! \brief Return true if the device and the host pointer are the same
