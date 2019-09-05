@@ -7,7 +7,7 @@ set(BOOST_INCLUDE ${Boost_INCLUDE_DIR} CACHE PATH "Include directory for BOOST")
 set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_CUDA_STANDARD 11)
 
-find_package(Boost 1.66.0 REQUIRED COMPONENTS unit_test_framework iostreams program_options)
+find_package(Boost 1.68.0 REQUIRED COMPONENTS unit_test_framework iostreams program_options)
 
 
 if(ENABLE_GPU)
