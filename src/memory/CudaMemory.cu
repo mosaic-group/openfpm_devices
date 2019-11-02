@@ -81,12 +81,24 @@ void CudaMemory::destroy()
 	sz = 0;
 }
 
+/*! \brief copy memory from device to device
+ *
+ * \param external device pointer
+ * \param start source starting point (where it start to copy)
+ * \param stop end point
+ * \param offset where to copy in the device pointer
+ *
+ */
+void CudaMemory::deviceToDevice(void * ptr, size_t start, size_t stop, size_t offset)
+{
+	CUDA_SAFE_CALL(cudaMemcpy(((unsigned char *)dm)+offset,((unsigned char *)ptr)+start,(stop-start),cudaMemcpyDeviceToDevice));
+}
+
 /*! \brief Allocate the host buffer
  *
  * Allocate the host buffer
  *
  */
-
 void CudaMemory::allocate_host(size_t sz) const
 {
 	if (hm == NULL)

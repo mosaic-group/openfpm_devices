@@ -57,6 +57,7 @@ install(FILES memory/ExtPreAlloc.hpp
 	      memory/memory.hpp 
 	      memory/PtrMemory.hpp
 	      memory/CudaMemory.cuh
+	      util/util_unit_tests.hpp
 	      DESTINATION openfpm_devices/include/memory)
 
 install(FILES util/print_stack.hpp

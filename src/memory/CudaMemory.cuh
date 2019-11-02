@@ -195,6 +195,16 @@ public:
 			std::cerr << "Error: " << __FILE__ << " " << __LINE__ << " destroying a live object" << "\n"; 
 	};
 
+	/*! \brief copy memory from device to device
+	 *
+	 * \param external device pointer
+	 * \param start source starting point (where it start to copy)
+	 * \param stop end point
+	 * \param offset where to copy in the device pointer
+	 *
+	 */
+	void deviceToDevice(void * ptr, size_t start, size_t stop, size_t offset);
+
 	void swap(CudaMemory & mem);
 
 	/*! \brief Return true if the device and the host pointer are the same
