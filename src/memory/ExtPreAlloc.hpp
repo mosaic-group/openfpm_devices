@@ -414,6 +414,16 @@ public:
 	{
 		return l_size;
 	}
+
+	/*! \brief Reset the internal counters
+	 *
+	 *
+	 */
+	void reset()
+	{
+		a_seq = 0;
+		l_size = 0;
+	}
 };
 
 #endif /* PREALLOCHEAPMEMORY_HPP_ */
