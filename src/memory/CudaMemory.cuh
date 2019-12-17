@@ -175,6 +175,8 @@ public:
 		mem.dm = NULL;
 		mem.hm = NULL;
 		mem.ref_cnt = 0;
+
+		cudaGetLastError();
 	}
 	
 	//! Constructor

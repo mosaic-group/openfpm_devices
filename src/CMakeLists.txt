@@ -8,6 +8,7 @@ endif()
 add_executable(mem main.cpp memory/HeapMemory.cpp ${CUDA_SOURCES} Memleak_check.cpp)
 
 add_library(ofpmmemory STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
+add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
 add_library(ofpmmemory_se2 STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
 
 target_compile_definitions(ofpmmemory_se2 PUBLIC SE_CLASS2)
@@ -39,6 +40,9 @@ endif()
 target_include_directories (ofpmmemory PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (ofpmmemory PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
 
+target_include_directories (ofpmmemory_dl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories (ofpmmemory_dl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
+
 target_include_directories (ofpmmemory_se2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (ofpmmemory_se2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
 
@@ -48,7 +52,7 @@ if (TEST_COVERAGE)
     target_link_libraries(mem -lgcov)
 endif()
 
-install(TARGETS ofpmmemory ofpmmemory_se2
+install(TARGETS ofpmmemory ofpmmemory_se2 ofpmmemory_dl
 	DESTINATION openfpm_devices/lib )
 
 install(FILES memory/ExtPreAlloc.hpp 
