@@ -1,15 +1,38 @@
 if(CUDA_FOUND)
-	set(CUDA_SOURCES memory/CudaMemory.cu)
+	if ( HIP_ENABLE )
+		set(CUDA_SOURCES memory/CudaMemory_hipified.cpp)
+	else()
+		set(CUDA_SOURCES memory/CudaMemory.cu)
+	endif()
 else()
 	set(CUDA_SOURCES )
 endif()
 
-
-add_executable(mem main.cpp memory/HeapMemory.cpp ${CUDA_SOURCES} Memleak_check.cpp)
-
 add_library(ofpmmemory STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
 add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
 add_library(ofpmmemory_se2 STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
+
+if ( HIP_ENABLE AND HIP_FOUND )
+
+        set(CMAKE_CXX_COMPILER ${HIP_HIPCC_EXECUTABLE})
+
+        hip_add_executable(mem main.cpp memory/HeapMemory.cpp ${CUDA_SOURCES} Memleak_check.cpp)
+
+	set(CMAKE_SHARED_LIBRARY_CXX_FLAGS " ")
+	set_property(TARGET ofpmmemory PROPERTY POSITION_INDEPENDENT_CODE OFF)
+	set_property(TARGET ofpmmemory_dl PROPERTY POSITION_INDEPENDENT_CODE OFF)
+	set_property(TARGET ofpmmemory_se2 PROPERTY POSITION_INDEPENDENT_CODE OFF)
+	set_property(TARGET ofpmmemory PROPERTY COMPILE_FLAGS "-Xcompiler -fPIC")
+	set_property(TARGET ofpmmemory_dl PROPERTY COMPILE_FLAGS "-Xcompiler -fPIC")
+	set_property(TARGET ofpmmemory_se2 PROPERTY COMPILE_FLAGS "-Xcompiler -fPIC")
+	set_property(TARGET ofpmmemory PROPERTY NO_SONAME ON)
+	set_property(TARGET ofpmmemory_dl PROPERTY NO_SONAME ON)
+	set_property(TARGET ofpmmemory_se2 PROPERTY NO_SONAME ON)
+else()
+
+        add_executable(mem main.cpp memory/HeapMemory.cpp ${CUDA_SOURCES} Memleak_check.cpp)
+endif()
+
 
 target_compile_definitions(ofpmmemory_se2 PUBLIC SE_CLASS2)
 

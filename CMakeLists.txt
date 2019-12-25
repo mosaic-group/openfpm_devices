@@ -1,14 +1,25 @@
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 project(openfpm_devices LANGUAGES C CXX)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake_modules/)
 
 set(BOOST_INCLUDE ${Boost_INCLUDE_DIR} CACHE PATH "Include directory for BOOST")
+set(HIP_ENABLE CACHE BOOL "Enable HIP compiler")
 
 set (CMAKE_CXX_STANDARD 11)
 set (CMAKE_CUDA_STANDARD 11)
 
-find_package(Boost 1.66.0 REQUIRED COMPONENTS unit_test_framework iostreams program_options)
+find_package(Boost 1.68.0 REQUIRED COMPONENTS unit_test_framework iostreams program_options)
+find_package(HIP)
 
+if (HIP_ENABLE)
+        if(NOT HIP_FOUND)
+                message( FATAL_ERROR "HIP has not been found" )
+        endif()
+        if (HIP_ENABLE)
+                set(CMAKE_CXX_EXTENSIONS OFF)
+        endif()
+endif()
 
 if(ENABLE_GPU)
 	enable_language(CUDA)
