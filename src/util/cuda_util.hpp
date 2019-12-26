@@ -9,7 +9,9 @@
 #define OPENFPM_DATA_SRC_UTIL_CUDA_UTIL_HPP_
 
 #include "config.h"
-#ifdef CUDA_GPU
+#ifdef __HIPCC__
+#include <hip/hip_runtime.h>
+#elif CUDA_GPU
 #include <cuda_runtime.h>
 #endif
 
