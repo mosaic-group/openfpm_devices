@@ -11,7 +11,7 @@
 #include "config.h"
 #ifdef __HIPCC__
 #include <hip/hip_runtime.h>
-#elif defuned(CUDA_GPU)
+#elif defined(CUDA_GPU)
 #include <cuda_runtime.h>
 #endif
 
