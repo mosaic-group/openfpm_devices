@@ -42,7 +42,7 @@
 
 #ifdef CUDA_GPU
 
-#include <hip/hip_runtime.h>
+#include <cuda_runtime.h>
 
 extern size_t TotCudaMemoryAllocated;
 
@@ -176,7 +176,7 @@ public:
 		mem.hm = NULL;
 		mem.ref_cnt = 0;
 
-		hipGetLastError();
+		cudaGetLastError();
 	}
 	
 	//! Constructor
