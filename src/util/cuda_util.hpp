@@ -19,6 +19,20 @@
 
 	#ifndef __NVCC__
 
+		#ifdef __HIPCC__
+
+		#define CUDA_SAFE(cuda_call) \
+		cuda_call; \
+		{\
+			hipError_t e = hipPeekAtLastError();\
+			if (e != hipSuccess)\
+			{\
+				std::string error = hipGetErrorString(e);\
+				std::cout << "HIP Error in: " << __FILE__ << ":" << __LINE__ << " " << error << std::endl;\
+			}\
+		}
+
+		#endif
 
 	#else
 

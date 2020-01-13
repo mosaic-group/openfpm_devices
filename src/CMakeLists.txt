@@ -1,18 +1,14 @@
-if(CUDA_FOUND)
-	if ( HIP_ENABLE )
-		set(CUDA_SOURCES memory/CudaMemory_hipified.cpp)
-	else()
-		set(CUDA_SOURCES memory/CudaMemory.cu)
-	endif()
+if(CUDA_FOUND OR HIP_ENABLE)
+	set(CUDA_SOURCES memory/CudaMemory.cu)
 else()
 	set(CUDA_SOURCES )
 endif()
 
-add_library(ofpmmemory STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
-add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
-add_library(ofpmmemory_se2 STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
-
 if ( HIP_ENABLE AND HIP_FOUND )
+
+	hip_add_library(ofpmmemory STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
+	hip_add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
+	hip_add_library(ofpmmemory_se2 STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
 
         set(CMAKE_CXX_COMPILER ${HIP_HIPCC_EXECUTABLE})
 
@@ -30,9 +26,16 @@ if ( HIP_ENABLE AND HIP_FOUND )
 	set_property(TARGET ofpmmemory_se2 PROPERTY NO_SONAME ON)
 else()
 
+	add_library(ofpmmemory STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
+	add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
+	add_library(ofpmmemory_se2 STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
         add_executable(mem main.cpp memory/HeapMemory.cpp ${CUDA_SOURCES} Memleak_check.cpp)
 endif()
 
+if (HIP_FOUND)
+        SET(CMAKE_EXE_LINKER_FLAGS  "--amdgpu-target=${AMD_ARCH_COMPILE}")
+	SET(CMAKE_SHARED_LINKER_FLAGS  "--amdgpu-target=${AMD_ARCH_COMPILE}")
+endif()
 
 target_compile_definitions(ofpmmemory_se2 PUBLIC SE_CLASS2)
 
