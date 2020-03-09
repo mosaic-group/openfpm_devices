@@ -42,7 +42,7 @@ public:
 	handle_shmem create(const std::string & name, int rank)
 	{
 		mems.push_back(NULL);
-		mems[mems.size()-1] = new ShmAllocator(name,rank);
+		mems[mems.size()-1] = new ShmAllocator(name,rank, true);
 
 		handle_shmem hs;
 		hs.id = mems.size()-1;
