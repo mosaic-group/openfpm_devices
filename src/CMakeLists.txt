@@ -5,10 +5,10 @@ else()
 endif()
 
 
-add_executable(mem main.cpp memory/HeapMemory.cpp ${CUDA_SOURCES} memory/ShmAllocator_manager.cpp memory/SemManager.cpp memory/ShmAllocator.cpp Memleak_check.cpp)
+add_executable(mem main.cpp memory/HeapMemory.cpp ${CUDA_SOURCES} memory/ShmAllocator_manager.cpp memory/SemManager.cpp memory/ShmAllocator.cpp memory/ShmBuffer.cpp Memleak_check.cpp)
 
-add_library(ofpmmemory STATIC memory/ShmAllocator_manager.cpp memory/SemManager.cpp memory/ShmAllocator.cpp memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
-add_library(ofpmmemory_se2 STATIC memory/ShmAllocator_manager.cpp memory/SemManager.cpp memory/ShmAllocator.cpp memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
+add_library(ofpmmemory STATIC memory/ShmAllocator_manager.cpp memory/SemManager.cpp memory/ShmAllocator.cpp memory/ShmBuffer.cpp memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
+add_library(ofpmmemory_se2 STATIC memory/ShmAllocator_manager.cpp memory/SemManager.cpp memory/ShmAllocator.cpp memory/ShmBuffer.cpp memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
 
 target_compile_definitions(ofpmmemory_se2 PUBLIC SE_CLASS2)
 
