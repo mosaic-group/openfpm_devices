@@ -42,7 +42,7 @@
 
 #ifdef CUDA_GPU
 
-#include <cuda_runtime.h>
+#include <hip/hip_runtime.h>
 
 extern size_t TotCudaMemoryAllocated;
 
