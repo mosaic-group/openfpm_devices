@@ -81,24 +81,12 @@ void CudaMemory::destroy()
 	sz = 0;
 }
 
-/*! \brief copy memory from device to device
- *
- * \param external device pointer
- * \param start source starting point (where it start to copy)
- * \param stop end point
- * \param offset where to copy in the device pointer
- *
- */
-void CudaMemory::deviceToDevice(void * ptr, size_t start, size_t stop, size_t offset)
-{
-	CUDA_SAFE_CALL(cudaMemcpy(((unsigned char *)dm)+offset,((unsigned char *)ptr)+start,(stop-start),cudaMemcpyDeviceToDevice));
-}
-
 /*! \brief Allocate the host buffer
  *
  * Allocate the host buffer
  *
  */
+
 void CudaMemory::allocate_host(size_t sz) const
 {
 	if (hm == NULL)
@@ -411,7 +399,7 @@ void CudaMemory::swap(CudaMemory & mem)
 {
 	size_t sz_tmp;
 	void * dm_tmp;
-//	long int ref_cnt_tmp;
+	long int ref_cnt_tmp;
 	bool is_hm_sync_tmp;
 	void * hm_tmp;
 
@@ -419,7 +407,7 @@ void CudaMemory::swap(CudaMemory & mem)
 	is_hm_sync_tmp = is_hm_sync;
 	sz_tmp = sz;
 	dm_tmp = dm;
-//	ref_cnt_tmp = ref_cnt;
+	ref_cnt_tmp = ref_cnt;
 
 	hm = mem.hm;
 	is_hm_sync = mem.is_hm_sync;
@@ -431,5 +419,5 @@ void CudaMemory::swap(CudaMemory & mem)
 	mem.is_hm_sync = is_hm_sync_tmp;
 	mem.sz = sz_tmp;
 	mem.dm = dm_tmp;
-//	mem.ref_cnt = ref_cnt_tmp;
+	mem.ref_cnt = ref_cnt_tmp;
 }
