@@ -7,7 +7,7 @@ endif()
 if ( HIP_ENABLE AND HIP_FOUND )
 
 	hip_add_library(ofpmmemory STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
-	if (CMAKE_EXPORT_COMPILE_COMMANDS==OFF)
+	if (NOT ${CMAKE_EXPORT_COMPILE_COMMANDS})
 		hip_add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
 		hip_add_library(ofpmmemory_se2 STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
 	endif()
@@ -18,24 +18,24 @@ if ( HIP_ENABLE AND HIP_FOUND )
 
 	set(CMAKE_SHARED_LIBRARY_CXX_FLAGS " ")
 	set_property(TARGET ofpmmemory PROPERTY POSITION_INDEPENDENT_CODE OFF)
-	if (CMAKE_EXPORT_COMPILE_COMMANDS==OFF)
+	if (NOT ${CMAKE_EXPORT_COMPILE_COMMANDS})
 		set_property(TARGET ofpmmemory_dl PROPERTY POSITION_INDEPENDENT_CODE OFF)
 		set_property(TARGET ofpmmemory_se2 PROPERTY POSITION_INDEPENDENT_CODE OFF)
 	endif()
 	set_property(TARGET ofpmmemory PROPERTY COMPILE_FLAGS "-Xcompiler -fPIC")
-	if (CMAKE_EXPORT_COMPILE_COMMANDS==OFF)
+	if (NOT ${CMAKE_EXPORT_COMPILE_COMMANDS})
 		set_property(TARGET ofpmmemory_dl PROPERTY COMPILE_FLAGS "-Xcompiler -fPIC")
 		set_property(TARGET ofpmmemory_se2 PROPERTY COMPILE_FLAGS "-Xcompiler -fPIC")
 	endif()
 	set_property(TARGET ofpmmemory PROPERTY NO_SONAME ON)
-	if (CMAKE_EXPORT_COMPILE_COMMANDS==OFF)
+	if (NOT ${CMAKE_EXPORT_COMPILE_COMMANDS})
 		set_property(TARGET ofpmmemory_dl PROPERTY NO_SONAME ON)
 		set_property(TARGET ofpmmemory_se2 PROPERTY NO_SONAME ON)
 	endif()
 else()
 
 	add_library(ofpmmemory STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
-	if (CMAKE_EXPORT_COMPILE_COMMANDS==OFF)
+	if (NOT ${CMAKE_EXPORT_COMPILE_COMMANDS})
 		add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
 		add_library(ofpmmemory_se2 STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp Memleak_check.cpp ${CUDA_SOURCES})
 	endif()
@@ -47,7 +47,7 @@ if (HIP_FOUND)
 	SET(CMAKE_SHARED_LINKER_FLAGS  "--amdgpu-target=${AMD_ARCH_COMPILE}")
 endif()
 
-if (CMAKE_EXPORT_COMPILE_COMMANDS==OFF)
+if (NOT ${CMAKE_EXPORT_COMPILE_COMMANDS})
 	target_compile_definitions(ofpmmemory_se2 PUBLIC SE_CLASS2)
 endif()
 
@@ -78,7 +78,7 @@ endif()
 target_include_directories (ofpmmemory PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (ofpmmemory PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
 
-if (CMAKE_EXPORT_COMPILE_COMMANDS==OFF)
+if (NOT ${CMAKE_EXPORT_COMPILE_COMMANDS})
 	target_include_directories (ofpmmemory_dl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 	target_include_directories (ofpmmemory_dl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
 
@@ -92,8 +92,13 @@ if (TEST_COVERAGE)
     target_link_libraries(mem -lgcov)
 endif()
 
-install(TARGETS ofpmmemory ofpmmemory_se2 ofpmmemory_dl
-	DESTINATION openfpm_devices/lib )
+if (NOT ${CMAKE_EXPORT_COMPILE_COMMANDS})
+	install(TARGETS ofpmmemory ofpmmemory_se2 ofpmmemory_dl
+		DESTINATION openfpm_devices/lib )
+else()
+        install(TARGETS ofpmmemory
+                DESTINATION openfpm_devices/lib )
+endif()
 
 install(FILES memory/ExtPreAlloc.hpp 
 	      memory/BHeapMemory.hpp  
