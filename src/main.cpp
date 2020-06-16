@@ -17,4 +17,5 @@ int main(int argc, char* argv[])
 
 #include "config.h"
 #include "memory/Memory_unit_tests.hpp"
+#include "util/util_unit_tests.hpp"
 

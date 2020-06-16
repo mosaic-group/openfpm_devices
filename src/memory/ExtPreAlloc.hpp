@@ -75,6 +75,19 @@ public:
 		return mem->copyDeviceToDevice(*m.mem);
 	}
 
+	/*! \brief special function to move memory from a raw device pointer
+	 *
+	 * \param start byte
+	 * \param stop byte
+	 *
+	 * \param offset destination byte
+	 *
+	 */
+	void deviceToDevice(void * ptr, size_t start, size_t stop, size_t offset)
+	{
+		mem->deviceToDevice(ptr,start,stop,offset);
+	}
+
 	static bool isDeviceHostSame()
 	{
 		return Mem::isDeviceHostSame();
@@ -162,6 +175,16 @@ public:
 		return (char *)mem->getPointer() + l_size;
 	}
 
+	/*! \brief Return the device end pointer of the previous allocated memory
+	 *
+	 * \return the pointer
+	 *
+	 */
+	void * getDevicePointerEnd()
+	{
+		return (char *)mem->getDevicePointer() + l_size;
+	}
+
 	/*! \brief The the base pointer of the preallocate memory
 	 *
 	 * \return the base pointer
@@ -179,7 +202,7 @@ public:
 	 */
 	virtual void * getDevicePointer()
 	{
-		return mem->getDevicePointer();
+		return (((unsigned char *)mem->getDevicePointer()) + a_seq );
 	}
 
 	/*! \brief Return the pointer of the last allocation
@@ -370,6 +393,36 @@ public:
 	{
 		a_seq += sz;
 		l_size = a_seq;
+	}
+
+	/*! \brief Get offset
+	 *
+	 * \return the offset
+	 *
+	 */
+	size_t getOffset()
+	{
+		return a_seq;
+	}
+
+	/*! \brief Get offset
+	 *
+	 * \return the offset
+	 *
+	 */
+	size_t getOffsetEnd()
+	{
+		return l_size;
+	}
+
+	/*! \brief Reset the internal counters
+	 *
+	 *
+	 */
+	void reset()
+	{
+		a_seq = 0;
+		l_size = 0;
 	}
 };
 

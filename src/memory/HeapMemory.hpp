@@ -210,6 +210,20 @@ public:
 	}
 };
 
+/*! \brief given an alignment and an alignment it return the smallest number numiple of the alignment
+ *         such that the value returned is bigger ot equal that the number given
+ *
+ *         alignment 8 number 2 it return 8
+ *         alignment 8 number 9 it return 16
+ *
+ * \param al alignment
+ * \param number
+ *
+ */
+inline size_t align_number(size_t al, size_t number)
+{
+	return number + ((number % al) != 0)*(al - number % al);
+}
 
 /*! \brief function to align a pointer equivalent to std::align
  *

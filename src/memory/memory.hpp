@@ -160,6 +160,7 @@ class memory
 	 */
 	virtual void fill(unsigned char c) = 0;
 
+
 };
 
 #endif
