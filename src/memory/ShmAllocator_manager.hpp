@@ -79,7 +79,10 @@ public:
 	 */
 	void destroy(handle_shmem handle)
 	{
-		delete(mems[handle.id]);
+	    if(handle.id != -1)
+        {
+            delete(mems[handle.id]);
+        }
 	}
 };
 
