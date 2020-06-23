@@ -40,6 +40,7 @@ target_include_directories (ofpmmemory_se2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (ofpmmemory_se2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
 
 target_link_libraries(mem ${Boost_LIBRARIES})
+target_link_libraries(mem -pthread)
 
 if (TEST_COVERAGE)
     target_link_libraries(mem -lgcov)
@@ -57,6 +58,7 @@ install(FILES memory/ExtPreAlloc.hpp
 	      memory/ShmAllocator_manager.hpp
 	      memory/SemManager.hpp
 	      memory/ShmAllocator.hpp
+		  memory/ShmBuffer.hpp
 	      DESTINATION openfpm_devices/include/memory)
 
 install(FILES util/print_stack.hpp
