@@ -14,11 +14,6 @@
 #include <iostream>
 #include <cstdint>
 
-// If debugging mode include memory leak check
-#ifdef SE_CLASS2
-#include "Memleak_check.hpp"
-#endif
-
 /*! \brief fill memory with the selected byte
  *
  * \param byte to fill

@@ -36,9 +36,6 @@
 #include "config.h"
 #include "memory.hpp"
 #include <iostream>
-#ifdef SE_CLASS2
-#include "Memleak_check.hpp"
-#endif
 
 #ifdef CUDA_GPU
 

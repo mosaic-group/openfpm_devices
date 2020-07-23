@@ -35,9 +35,6 @@
 #include <cstdint>
 #include <iostream>
 
-#ifdef SE_CLASS2
-#include "Memleak_check.hpp"
-#endif
 
 class PtrMemory : public memory
 {

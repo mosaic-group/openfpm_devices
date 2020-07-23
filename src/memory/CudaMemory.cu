@@ -71,10 +71,6 @@ void CudaMemory::destroy()
 	{
 		//! we invalidate hm
 		CUDA_SAFE_CALL(cudaFreeHost(hm));
-#ifdef SE_CLASS2
-		//! remove hm
-		check_delete(hm);
-#endif
 		hm = NULL;
 	}
 	
@@ -104,10 +100,6 @@ void CudaMemory::allocate_host(size_t sz) const
 	if (hm == NULL)
 	{
 		CUDA_SAFE_CALL(cudaHostAlloc(&hm,sz,cudaHostAllocMapped))
-#ifdef SE_CLASS2
-		//! add hm to the list of allocated memory
-		check_new(hm,sz,CUDA_EVENT,0);
-#endif
 	}
 }
 
@@ -216,7 +208,7 @@ bool CudaMemory::resize(size_t sz)
 {
 	// if the allocated memory is enough, do not resize
 	if (sz <= CudaMemory::size())
-		return true;
+	{return true;}
 
 	//! Allocate the device memory if not done yet
 
