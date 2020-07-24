@@ -46,6 +46,9 @@ if (TEST_COVERAGE)
     target_link_libraries(mem -lgcov)
 endif()
 
+install(TARGETS ofpmmemory ofpmmemory_dl
+	DESTINATION openfpm_devices/lib )
+
 install(FILES memory/ExtPreAlloc.hpp 
 	      memory/BHeapMemory.hpp  
 	      memory/HeapMemory.hpp 
