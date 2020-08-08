@@ -107,7 +107,11 @@ public:
 	//! Move memory from host to device, just the selected chunk
 	virtual void hostToDevice(size_t start, size_t top);
 
+	//! host to device using external memory (this host memory is copied into mem device memory)
 	void hostToDevice(CudaMemory & mem);
+
+	//! device to host using external memory (this device memory is copied into mem host memory)
+	void deviceToHost(CudaMemory & mem);
 
 	//! fill the buffer with a byte
 	virtual void fill(unsigned char c);

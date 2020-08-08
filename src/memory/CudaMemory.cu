@@ -298,6 +298,24 @@ void CudaMemory::deviceToHost()
  * \param mem the other memory object
  *
  */
+void CudaMemory::deviceToHost(CudaMemory & mem)
+{
+	// allocate an host memory if not allocated
+	if (mem.hm == NULL)
+		mem.allocate_host(sz);
+
+	if (mem.sz > sz)
+	{resize(mem.sz);}
+
+	//! copy from device to host memory
+	CUDA_SAFE_CALL(cudaMemcpy(mem.hm,dm,mem.sz,cudaMemcpyDeviceToHost));
+}
+
+/*! \brief It transfer to device memory from the host of another memory
+ *
+ * \param mem the other memory object
+ *
+ */
 void CudaMemory::hostToDevice(CudaMemory & mem)
 {
 	// allocate an host memory if not allocated
