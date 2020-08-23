@@ -52,7 +52,8 @@ public:
 
 	void wait(int keyNo, int semNo, int value = 0); // wait until semaphore equal to value (blocking)
 	void waitgeq(int keyNo, int semNo, int value); // wait until semaphore at least value
-
 };
+
+int PROJ_ID(int rank, int toggle); // generate proj_id to send to ftok (later should be more complex)
 
 #endif

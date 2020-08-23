@@ -8,14 +8,16 @@
 
 #include "SemManager.hpp"
 
-#define PROJ_ID(rank, toggle) (2*(rank)+1+(toggle)) // generate proj_id to send to ftok (later should be more complex)
-
 #define TESTPRINT if (verbose) printf
+
+int PROJ_ID(int rank, int toggle) {  // generate proj_id to send to ftok (later should be more complex)
+    return 2*(rank)+1+(toggle);
+}
 
 SemManager::SemManager(std::string pname, int rank, bool verbose, bool ismain) : pname(pname), rank(rank), verbose(verbose), ismain(ismain)
 {
 	for (int i = 0; i < NKEYS; ++i) {
-		TESTPRINT("rank:%d\ttoggle:%d\tid:%d\t", rank, i, PROJ_ID(rank, i)); // test
+		TESTPRINT("path:%s\trank:%d\ttoggle:%d\tid:%d\t", pname.c_str(), rank, i, PROJ_ID(rank, i)); // test
 		keys[i] = ftok(pname.data(), PROJ_ID(rank, i));
 		TESTPRINT("key:%d\n", keys[i]); // test
 
