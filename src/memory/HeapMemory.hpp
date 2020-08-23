@@ -19,6 +19,7 @@ typedef unsigned char byte;
 
 #define MEM_ALIGNMENT 32
 
+static const int extra_pad = 512;
 
 /**
  * \brief This class allocate, and destroy CPU memory

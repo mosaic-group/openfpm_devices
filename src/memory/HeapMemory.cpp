@@ -12,8 +12,6 @@
 #include <cstdint>
 #include <errno.h>
 
-static const int extra_pad = 512;
-
 // If debugging mode include memory leak check
 #ifdef SE_CLASS2
 #include "Memleak_check.hpp"
