@@ -4,8 +4,8 @@ project(openfpm_devices LANGUAGES C CXX)
 
 set(BOOST_INCLUDE ${Boost_INCLUDE_DIR} CACHE PATH "Include directory for BOOST")
 
-set (CMAKE_CXX_STANDARD 11)
-set (CMAKE_CUDA_STANDARD 11)
+set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_CUDA_STANDARD 14)
 
 find_package(Boost 1.68.0 REQUIRED COMPONENTS unit_test_framework iostreams program_options)
 
