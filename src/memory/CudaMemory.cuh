@@ -43,6 +43,21 @@
 
 extern size_t TotCudaMemoryAllocated;
 
+/*! \brief given an alignment and an alignment it return the smallest number numiple of the alignment
+ *         such that the value returned is bigger ot equal that the number given
+ *
+ *         alignment 8 number 2 it return 8
+ *         alignment 8 number 9 it return 16
+ *
+ * \param al alignment
+ * \param number
+ *
+ */
+__device__ inline size_t align_number_device(size_t al, size_t number)
+{
+	return number + ((number % al) != 0)*(al - number % al);
+}
+
 //! Is an array to report general error can happen in CUDA
 static __device__ unsigned char global_cuda_error_array[256];
 
