@@ -9,7 +9,7 @@
 #define OPENFPM_DATA_SRC_UTIL_CUDA_UTIL_HPP_
 
 #include "config.h"
-#ifdef CUDA_GPU
+#if defined(__NVCC__) && !defined(CUDA_ON_CPU)
 #include <cuda_runtime.h>
 #endif
 
@@ -17,6 +17,12 @@
 
 	#ifndef __NVCC__
 
+		#ifndef __host__
+		#define __host__
+		#define __device__
+		#define __shared__
+		#define __global__
+		#endif
 
 	#else
 
@@ -24,7 +30,15 @@
 		#define __host__
 		#define __device__
 		#define __shared__
+		#define __global__
 		#endif
+
+		#ifdef CUDA_ON_CPU 
+
+		#define CUDA_SAFE(cuda_call) \
+		cuda_call;
+
+		#else
 
 		#define CUDA_SAFE(cuda_call) \
 		cuda_call; \
@@ -37,13 +51,16 @@
 			}\
 		}
 
+		#endif
+
 	#endif
 #else
 
 #ifndef __host__
 #define __host__
 #define __device__
-#define __shared__
+#define __shared__ static
+#define __global__
 #endif
 
 #endif

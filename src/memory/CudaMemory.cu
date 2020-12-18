@@ -17,7 +17,11 @@ bool CudaMemory::flush()
 	{
 		//! copy from host to device memory
 
-		CUDA_SAFE_CALL(cudaMemcpy(dm,hm,sz,cudaMemcpyHostToDevice));		
+		#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
+		CUDA_SAFE_CALL(cudaMemcpy(dm,hm,sz,cudaMemcpyHostToDevice));
+		#else
+		memcpy(dm,hm,sz);
+		#endif
 	}
 	
 	return true;
@@ -34,7 +38,13 @@ bool CudaMemory::allocate(size_t sz)
 {
 	//! Allocate the device memory
 	if (dm == NULL)
-	{CUDA_SAFE_CALL(cudaMalloc(&dm,sz));}
+	{
+		#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
+		CUDA_SAFE_CALL(cudaMalloc(&dm,sz));
+		#else
+		dm = new unsigned char[sz];
+		#endif
+	}
 	else
 	{
 		if (sz != this->sz)
@@ -63,14 +73,22 @@ void CudaMemory::destroy()
 	if (dm != NULL)
 	{
 		//! Release the allocated memory
+		#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 		CUDA_SAFE_CALL(cudaFree(dm));
+		#else
+		delete [] (unsigned char *)dm;
+		#endif
 		dm = NULL;
 	}
 
 	if (hm != NULL)
 	{
 		//! we invalidate hm
+		#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 		CUDA_SAFE_CALL(cudaFreeHost(hm));
+		#else
+		delete [] (unsigned char *)hm;
+		#endif
 		hm = NULL;
 	}
 	
@@ -87,7 +105,11 @@ void CudaMemory::destroy()
  */
 void CudaMemory::deviceToDevice(void * ptr, size_t start, size_t stop, size_t offset)
 {
+	#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 	CUDA_SAFE_CALL(cudaMemcpy(((unsigned char *)dm)+offset,((unsigned char *)ptr)+start,(stop-start),cudaMemcpyDeviceToDevice));
+	#else
+	memcpy(((unsigned char *)dm)+offset,((unsigned char *)ptr)+start,(stop-start));
+	#endif
 }
 
 /*! \brief Allocate the host buffer
@@ -99,7 +121,11 @@ void CudaMemory::allocate_host(size_t sz) const
 {
 	if (hm == NULL)
 	{
+		#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 		CUDA_SAFE_CALL(cudaHostAlloc(&hm,sz,cudaHostAllocMapped))
+		#else
+		hm = new unsigned char[sz];
+		#endif
 	}
 }
 
@@ -119,11 +145,15 @@ bool CudaMemory::copyFromPointer(const void * ptr)
 	// get the device pointer
 
 	void * dvp;
+	#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 	CUDA_SAFE_CALL(cudaHostGetDevicePointer(&dvp,hm,0));
 
 	// memory copy
 
 	memcpy(dvp,ptr,sz);
+	#else
+	memcpy(hm,ptr,sz);
+	#endif
 
 	return true;
 }
@@ -147,7 +177,11 @@ bool CudaMemory::copyDeviceToDevice(const CudaMemory & m)
 	}
 
 	//! Copy the memory
+	#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 	CUDA_SAFE_CALL(cudaMemcpy(dm,m.dm,m.sz,cudaMemcpyDeviceToDevice));
+	#else
+	memcpy(dm,m.dm,m.sz);
+	#endif
 
 	return true;
 }
@@ -225,26 +259,46 @@ bool CudaMemory::resize(size_t sz)
 	{
 		if (this->sz < sz)
 		{
+			#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 			CUDA_SAFE_CALL(cudaMalloc(&tdm,sz));
+			#else
+			tdm = new unsigned char [sz];
+			#endif
 
 #ifdef FILL_CUDA_MEMORY_WITH_MINUS_ONE
+			#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 			CUDA_SAFE_CALL(cudaMemset(tdm,-1,sz));
+			#else
+			memset(tdm,-1,sz);
+			#endif
 #endif
 		}
 
 		//! copy from the old buffer to the new one
-
+		#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 		CUDA_SAFE_CALL(cudaMemcpy(tdm,dm,CudaMemory::size(),cudaMemcpyDeviceToDevice));
+		#else
+		memcpy(tdm,dm,CudaMemory::size());
+		#endif
 	}
 
 	if (hm != NULL)
 	{
 		if (this->sz < sz)
+		{
+			#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 			CUDA_SAFE_CALL(cudaHostAlloc(&thm,sz,cudaHostAllocMapped));
+			#else
+			thm = new unsigned char [sz];
+			#endif
+		}
 
 		//! copy from the old buffer to the new one
-
+		#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 		CUDA_SAFE_CALL(cudaMemcpy(thm,hm,CudaMemory::size(),cudaMemcpyHostToHost));
+		#else
+		memcpy(thm,hm,CudaMemory::size());
+		#endif
 	}
 
 	//! free the old buffer
@@ -289,8 +343,11 @@ void CudaMemory::deviceToHost()
 		allocate_host(sz);
 
 	//! copy from device to host memory
-
+	#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 	CUDA_SAFE_CALL(cudaMemcpy(hm,dm,sz,cudaMemcpyDeviceToHost));
+	#else
+	memcpy(hm,dm,sz);
+	#endif
 }
 
 /*! \brief It transfer to device memory from the host of another memory
@@ -308,7 +365,11 @@ void CudaMemory::deviceToHost(CudaMemory & mem)
 	{resize(mem.sz);}
 
 	//! copy from device to host memory
+	#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 	CUDA_SAFE_CALL(cudaMemcpy(mem.hm,dm,mem.sz,cudaMemcpyDeviceToHost));
+	#else
+	memcpy(mem.hm,dm,mem.sz);
+	#endif
 }
 
 /*! \brief It transfer to device memory from the host of another memory
@@ -326,7 +387,11 @@ void CudaMemory::hostToDevice(CudaMemory & mem)
 	{resize(mem.sz);}
 
 	//! copy from device to host memory
+	#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 	CUDA_SAFE_CALL(cudaMemcpy(dm,mem.hm,mem.sz,cudaMemcpyHostToDevice));
+	#else
+	memcpy(dm,mem.hm,mem.sz);
+	#endif
 }
 
 void CudaMemory::hostToDevice(size_t start, size_t stop)
@@ -336,8 +401,11 @@ void CudaMemory::hostToDevice(size_t start, size_t stop)
 		allocate_host(sz);
 
 	//! copy from device to host memory
-
+	#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 	CUDA_SAFE_CALL(cudaMemcpy(((unsigned char *)dm)+start,((unsigned char *)hm)+start,(stop-start),cudaMemcpyHostToDevice));
+	#else
+	memcpy(((unsigned char *)dm)+start,((unsigned char *)hm)+start,(stop-start));
+	#endif
 }
 
 /*! \brief Return a readable pointer with your data
@@ -352,8 +420,11 @@ void CudaMemory::deviceToHost(size_t start, size_t stop)
 		allocate_host(sz);
 
 	//! copy from device to host memory
-
+	#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 	CUDA_SAFE_CALL(cudaMemcpy(((unsigned char *)hm)+start,((unsigned char *)dm)+start,(stop-start),cudaMemcpyDeviceToHost));
+	#else
+	memcpy(((unsigned char *)hm)+start,((unsigned char *)dm)+start,(stop-start));
+	#endif
 }
 
 
@@ -379,7 +450,11 @@ const void * CudaMemory::getPointer() const
  */
 void CudaMemory::fill(unsigned char c)
 {
+	#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 	CUDA_SAFE_CALL(cudaMemset(dm,c,size()));
+	#else
+	memset(dm,c,size());
+	#endif
 	if (hm != NULL)
 	{memset(hm,c,size());}
 }
@@ -407,8 +482,11 @@ void CudaMemory::hostToDevice()
 		allocate_host(sz);
 
 	//! copy from device to host memory
-
+	#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 	CUDA_SAFE_CALL(cudaMemcpy(dm,hm,sz,cudaMemcpyHostToDevice));
+	#else
+	memcpy(dm,hm,sz);
+	#endif
 }
 
 

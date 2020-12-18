@@ -1,14 +1,21 @@
-if(CUDA_FOUND)
+if(CUDA_FOUND OR CUDA_ON_CPU)
 	set(CUDA_SOURCES memory/CudaMemory.cu)
 else()
 	set(CUDA_SOURCES )
 endif()
 
+if (CUDA_ON_CPU)
+	add_definitions(-DCUDA_ON_CPU)
+        set_source_files_properties(${CUDA_SOURCES} PROPERTIES LANGUAGE CXX)
+       	if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        	add_definitions("-x c++")
+        endif()
+endif()
 
-add_executable(mem main.cpp memory/HeapMemory.cpp ${CUDA_SOURCES})
+add_executable(mem main.cpp memory/HeapMemory.cpp util/cudify_vars.cpp util/cudify_unit_test.cpp ${CUDA_SOURCES})
 
-add_library(ofpmmemory STATIC memory/HeapMemory.cpp memory/PtrMemory.cpp ${CUDA_SOURCES})
-add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp memory/PtrMemory.cpp ${CUDA_SOURCES})
+add_library(ofpmmemory STATIC memory/HeapMemory.cpp util/cudify_vars.cpp memory/PtrMemory.cpp ${CUDA_SOURCES})
+add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp util/cudify_vars.cpp memory/PtrMemory.cpp ${CUDA_SOURCES})
 
 if ( CMAKE_COMPILER_IS_GNUCC )
     target_compile_options(mem PRIVATE "-Wno-deprecated-declarations")
@@ -30,17 +37,19 @@ target_include_directories (mem PUBLIC ${CUDA_INCLUDE_DIRS})
 target_include_directories (mem PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (mem PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
 target_include_directories (mem PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories (mem PUBLIC ${ALPAKA_ROOT}/include)
 if (CUDA_FOUND)
 	target_include_directories (mem PUBLIC ${CUDA_INCLUDE_DIRS})
 endif()
 
 target_include_directories (ofpmmemory PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (ofpmmemory PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
+target_include_directories (ofpmmemory PUBLIC ${ALPAKA_ROOT}/include)
 
 target_include_directories (ofpmmemory_dl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (ofpmmemory_dl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
-
-target_link_libraries(mem ${Boost_LIBRARIES})
+target_include_directories (ofpmmemory_dl PUBLIC ${ALPAKA_ROOT}/include)
+target_link_libraries(mem ${Boost_LIBRARIES_BCK})
 
 if (TEST_COVERAGE)
     target_link_libraries(mem -lgcov)

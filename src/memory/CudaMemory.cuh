@@ -37,9 +37,11 @@
 #include "memory.hpp"
 #include <iostream>
 
-#ifdef CUDA_GPU
-
+#if defined(__NVCC__)  && !defined(CUDA_ON_CPU)
 #include <cuda_runtime.h>
+#else
+#include "util/cuda_util.hpp"
+#endif
 
 extern size_t TotCudaMemoryAllocated;
 
@@ -191,8 +193,6 @@ public:
 		mem.dm = NULL;
 		mem.hm = NULL;
 		mem.ref_cnt = 0;
-
-		cudaGetLastError();
 	}
 	
 	//! Constructor
@@ -246,6 +246,6 @@ public:
 	}
 };
 
-#endif
+
 #endif
 
