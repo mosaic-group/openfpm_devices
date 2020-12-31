@@ -4,6 +4,11 @@ hostname=$(hostname)
 
 echo "Machine: $hostname"
 
+if [ x"$hostname" == x"cifarm-centos-node.mpi-cbg.de"  ]; then
+        echo "CentOS node"
+        source /opt/rh/devtoolset-8/enable
+fi
+
 mkdir src/config
 
 if [ ! -d $HOME/openfpm_dependencies/openfpm_devices/BOOST ]; then
