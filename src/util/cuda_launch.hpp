@@ -10,10 +10,6 @@
 
 #include "cuda_kernel_error_checker.hpp"
 
-#ifdef CUDA_ON_CPU
-#include "cudify.hpp"
-#endif
-
 #if defined(CUDA_GPU) && !defined(CUDA_ON_CPU) 
 
 	#if defined(SE_CLASS1) || defined(CUDA_CHECK_LAUNCH)
@@ -114,7 +110,7 @@
 
 #else
 
-#include "util/cudify.hpp"
+#include "util/cudify/cudify.hpp"
 
 #endif
 

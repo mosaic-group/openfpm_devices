@@ -6,7 +6,7 @@ set(BOOST_INCLUDE ${Boost_INCLUDE_DIR} CACHE PATH "Include directory for BOOST")
 set (CMAKE_CXX_STANDARD 14)
 set (CMAKE_CUDA_STANDARD 14)
 
-find_package(Boost 1.68.0 REQUIRED COMPONENTS unit_test_framework iostreams program_options fiber)
+find_package(Boost 1.68.0 REQUIRED COMPONENTS unit_test_framework iostreams program_options OPTIONAL_COMPONENTS fiber context)
 
 set(CUDA_ON_CPU CACHE BOOL "Make Cuda work on heap")
 
@@ -32,6 +32,10 @@ if (BOOST_FOUND)
 	set(DEFINE_HAVE_BOOST_IOSTREAMS "#define HAVE_BOOST_IOSTREAMS")
 	set(DEFINE_HAVE_BOOST_PROGRAM_OPTIONS "#define HAVE_BOOST_PROGRAM_OPTIONS")
 	set(DEFINE_HAVE_BOOST_UNIT_TEST_FRAMEWORK "#define HAVE_BOOST_UNIT_TEST_FRAMEWORK")
+endif()
+
+if (ALPAKA_ROOT)
+	set(DEFINE_HAVE_ALPAKA "#define HAVE_ALPAKA")
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/config/config_cmake.h.in ${CMAKE_CURRENT_SOURCE_DIR}/src/config/config.h)

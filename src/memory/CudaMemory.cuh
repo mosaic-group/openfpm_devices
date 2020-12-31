@@ -27,11 +27,7 @@
 #ifndef CUDA_MEMORY_CUH_
 #define CUDA_MEMORY_CUH_
 
-#if __CUDACC_VER_MAJOR__ < 9
-#define EXCEPT_MC
-#else
 #define EXCEPT_MC noexcept
-#endif
 
 #include "config.h"
 #include "memory.hpp"

@@ -42,7 +42,8 @@ bool CudaMemory::allocate(size_t sz)
 		#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 		CUDA_SAFE_CALL(cudaMalloc(&dm,sz));
 		#else
-		dm = new unsigned char[sz];
+		if (sz != 0)
+		{dm = new unsigned char[sz];}
 		#endif
 	}
 	else

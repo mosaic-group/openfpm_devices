@@ -8,6 +8,7 @@
 #ifndef SE_CLASS1_CUDA_HPP_
 #define SE_CLASS1_CUDA_HPP_
 
+#include "util/se_util.hpp"
 #include <type_traits>
 #include <string>
 

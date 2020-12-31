@@ -2,12 +2,11 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#ifndef CUDA_ON_CPU
-#define CUDA_ON_CPU
-#endif
 
-#include "cuda_launch.hpp"
+#include "util/cuda_launch.hpp"
 #include "memory/CudaMemory.cuh"
+
+#ifdef CUDA_ON_CPU
 
 BOOST_AUTO_TEST_SUITE( cudify_tests )
 
@@ -20,6 +19,16 @@ struct ite_g
 {
     dim3 wthr;
     dim3 thr;
+
+    size_t nblocks()
+	{
+		return wthr.x * wthr.y * wthr.z;
+	}
+
+	size_t nthrs()
+	{
+		return thr.x * thr.y * thr.z;
+	}
 };
 
 template<typename T>
@@ -29,9 +38,9 @@ __global__ void test1(float * array,T p)
     size_t idx_y = blockIdx.y * blockDim.y + threadIdx.y;
     size_t idx_z = blockIdx.z * blockDim.z + threadIdx.z;
 
-    array[idx_z*gridDim.x*gridDim.y + idx_y*gridDim.x + idx_x] = 5.0;
+    array[idx_z*gridDim.x*gridDim.y*blockDim.x*blockDim.y + idx_y*gridDim.x*blockDim.x + idx_x] = 5.0;
 
-    p.ptr[idx_z*gridDim.x*gridDim.y + idx_y*gridDim.x + idx_x] = 17.0;
+    p.ptr[idx_z*gridDim.x*gridDim.y*blockDim.x*blockDim.y + idx_y*gridDim.x*blockDim.x + idx_x] = 17.0;
 }
 
 template<typename T>
@@ -47,28 +56,28 @@ __global__ void test1_syncthreads(T p, float * array)
     size_t idx_y = blockIdx.y * blockDim.y + threadIdx.y;
     size_t idx_z = blockIdx.z * blockDim.z + threadIdx.z;
 
-    array[idx_z*gridDim.x*gridDim.y + idx_y*gridDim.x + idx_x] = 5.0;
+    array[idx_z*gridDim.x*gridDim.y*blockDim.x*blockDim.y + idx_y*gridDim.x*blockDim.x + idx_x] = 5.0;
 
-    p.ptr[idx_z*gridDim.x*gridDim.y + idx_y*gridDim.x + idx_x] = 17.0;
-
-    atomicAdd(&cnt,1);
-
-    __syncthreads();
-
-    array[idx_z*gridDim.x*gridDim.y + idx_y*gridDim.x + idx_x] = cnt;
-
-    __syncthreads();
+    p.ptr[idx_z*gridDim.x*gridDim.y*blockDim.x*blockDim.y + idx_y*gridDim.x*blockDim.x + idx_x] = 17.0;
 
     atomicAdd(&cnt,1);
 
     __syncthreads();
 
-    p.ptr[idx_z*gridDim.x*gridDim.y + idx_y*gridDim.x + idx_x] = cnt;
+    array[idx_z*gridDim.x*gridDim.y*blockDim.x*blockDim.y + idx_y*gridDim.x*blockDim.x + idx_x] = cnt;
+
+    __syncthreads();
+
+    atomicAdd(&cnt,1);
+
+    __syncthreads();
+
+    p.ptr[idx_z*gridDim.x*gridDim.y*blockDim.x*blockDim.y + idx_y*gridDim.x*blockDim.x + idx_x] = cnt;
 }
 
 BOOST_AUTO_TEST_CASE( cudify_on_test_test )
 {
-    init_alpaka();
+    init_wrappers();
 
     CudaMemory mem;
     mem.allocate(16*16*16*sizeof(float));
@@ -106,7 +115,7 @@ BOOST_AUTO_TEST_CASE( cudify_on_test_test )
 
 BOOST_AUTO_TEST_CASE( cudify_on_test_test2 )
 {
-    init_alpaka();
+    init_wrappers();
 
     CudaMemory mem;
     mem.allocate(16*16*16*sizeof(float));
@@ -143,3 +152,5 @@ BOOST_AUTO_TEST_CASE( cudify_on_test_test2 )
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+#endif

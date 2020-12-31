@@ -29,27 +29,29 @@
 		#ifndef __host__
 		#define __host__
 		#define __device__
-		#define __shared__
 		#define __global__
 		#endif
 
 		#ifdef CUDA_ON_CPU 
 
-		#define CUDA_SAFE(cuda_call) \
-		cuda_call;
+			#define CUDA_SAFE(cuda_call) \
+			cuda_call;
+			#define __shared__ static
 
 		#else
 
-		#define CUDA_SAFE(cuda_call) \
-		cuda_call; \
-		{\
-			cudaError_t e = cudaPeekAtLastError();\
-			if (e != cudaSuccess)\
+			#define CUDA_SAFE(cuda_call) \
+			cuda_call; \
 			{\
-				std::string error = cudaGetErrorString(e);\
-				std::cout << "Cuda Error in: " << __FILE__ << ":" << __LINE__ << " " << error << std::endl;\
-			}\
-		}
+				cudaError_t e = cudaPeekAtLastError();\
+				if (e != cudaSuccess)\
+				{\
+					std::string error = cudaGetErrorString(e);\
+					std::cout << "Cuda Error in: " << __FILE__ << ":" << __LINE__ << " " << error << std::endl;\
+				}\
+			}
+
+			#define __shared__
 
 		#endif
 
