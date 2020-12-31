@@ -16,7 +16,6 @@ centos_run:
     - centos_build
   script:
     - ./build/src/mem
-    - ./success.sh 2 centos openfpm_devices
 
 mac_build:
   stage: build
@@ -35,8 +34,7 @@ mac_run:
   dependencies:
     - mac_build
   script:
-    - ./build/src/mem
-    - ./success.sh 2 mac openfpm_devices
+    - ./build/src/mem &>out
 
 ubuntu_build:
   stage: build
@@ -56,5 +54,4 @@ ubuntu_run:
     - ubuntu_build
   script:
     - ./build/src/mem
-    - ./success.sh 2 ubuntu openfpm_devices
 
