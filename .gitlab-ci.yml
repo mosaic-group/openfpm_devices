@@ -34,7 +34,7 @@ mac_run:
   dependencies:
     - mac_build
   script:
-    - echo "HELLO"
+    - echo "HELLO" > out
     - pwd
     - ./build/src/mem &>out
 
