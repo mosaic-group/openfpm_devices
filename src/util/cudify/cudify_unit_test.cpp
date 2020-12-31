@@ -6,7 +6,7 @@
 #include "util/cuda_launch.hpp"
 #include "memory/CudaMemory.cuh"
 
-#ifdef CUDA_ON_CPU
+#if defined(CUDA_ON_CPU) && defined(CUDIFY_ACTIVE)
 
 BOOST_AUTO_TEST_SUITE( cudify_tests )
 

@@ -1,13 +1,20 @@
 #ifndef CUDIFY_SEQUENCIAL_HPP_
 #define CUDIFY_SEQUENCIAL_HPP_
 
+#ifdef BOOST_HAVE_CONTEXT
+
+#define CUDIFY_ACTiVE
+
 #include "util/cuda_util.hpp"
 #include "boost/bind.hpp"
 #include <type_traits>
 #include "cudify_hardware_common.hpp"
+#ifdef HAVE_BOOST_CONTEXT
 #include <boost/context/continuation.hpp>
+#endif
 #include <vector>
 #include <string.h>
+
 
 #ifndef CUDIFY_BOOST_CONTEXT_STACK_SIZE
 #define CUDIFY_BOOST_CONTEXT_STACK_SIZE 8192
@@ -533,6 +540,8 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
         }
 
 #define CUDA_CHECK()
+
+#endif
 
 #endif
 

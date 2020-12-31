@@ -1,6 +1,8 @@
 #include "config.h"
 #include "cudify_hardware_common.hpp"
+#ifdef HAVE_BOOST_CONTEXT
 #include <boost/context/continuation.hpp>
+#endif
 #include <vector>
 
 #ifdef HAVE_ALPAKA
@@ -18,9 +20,10 @@ dim3 gridDim;
 int vct_atomic_add;
 int vct_atomic_rem;
 
-
+#ifdef HAVE_BOOST_CONTEXT
 std::vector<void *> mem_stack;
 std::vector<boost::context::detail::fcontext_t> contexts;
 int cur_fib;
 void * par_glob;
 boost::context::detail::fcontext_t main_ctx;
+#endif
