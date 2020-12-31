@@ -11,7 +11,6 @@ fi
 
 mkdir src/config
 
-rm -rf $HOME/openfpm_dependencies/openfpm_devices/BOOST
 
 if [ ! -d $HOME/openfpm_dependencies/openfpm_devices/BOOST ]; then
         if [ x"$hostname" == x"cifarm-mac-node" ]; then
