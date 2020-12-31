@@ -15,7 +15,6 @@
 #include <alpaka/alpaka.hpp>
 
 
-
 using Dim_alpa = alpaka::DimInt<3>;
 using Idx_alpa = std::size_t;
 

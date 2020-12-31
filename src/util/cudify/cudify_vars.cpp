@@ -1,6 +1,13 @@
-#include "cudify_hardware.hpp"
+#include "config.h"
+#include "cudify_hardware_common.hpp"
+#include <boost/context/continuation.hpp>
+#include <vector>
+
+#ifdef HAVE_ALPAKA
+#include "cudify_hardware_alpaka.hpp"
 
 alpa_base_structs __alpa_base__;
+#endif
 
 dim3 threadIdx;
 dim3 blockIdx;
@@ -11,7 +18,6 @@ dim3 gridDim;
 int vct_atomic_add;
 int vct_atomic_rem;
 
-boost::context::fiber main_fib;
 
 std::vector<void *> mem_stack;
 std::vector<boost::context::detail::fcontext_t> contexts;
