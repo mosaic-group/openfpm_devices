@@ -9,6 +9,11 @@ if [ x"$hostname" == x"cifarm-centos-node.mpi-cbg.de"  ]; then
         source /opt/rh/devtoolset-8/enable
 fi
 
+if [ x"$hostname" == x"cifarm-ubuntu-node.mpi-cbg.de"  ]; then
+        echo "Ubuntu node"
+        export PATH="$PATH:/opt/bin"
+fi
+
 mkdir src/config
 
 
