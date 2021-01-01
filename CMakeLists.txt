@@ -8,7 +8,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake_modules/)
 set (CMAKE_CXX_STANDARD 14)
 set (CMAKE_CUDA_STANDARD 14)
 
-find_package(Boost 1.68.0 REQUIRED COMPONENTS unit_test_framework iostreams program_options OPTIONAL_COMPONENTS fiber context)
+find_package(Boost 1.72.0 REQUIRED COMPONENTS unit_test_framework iostreams program_options OPTIONAL_COMPONENTS fiber context)
 
 set(CUDA_ON_CPU CACHE BOOL "Make Cuda work on heap")
 
