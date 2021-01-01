@@ -30,7 +30,7 @@ fi
 sh ./autogen.sh
 sh ./configure --with-boost=$HOME/openfpm_dependencies/openfpm_devices/BOOST
 
-make
+make VERBOSE=1
 
 
 
