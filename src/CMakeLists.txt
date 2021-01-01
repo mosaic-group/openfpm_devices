@@ -47,7 +47,7 @@ endif()
 target_include_directories (ofpmmemory PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (ofpmmemory PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
 target_include_directories (ofpmmemory PUBLIC ${ALPAKA_ROOT}/include)
-target_include_directories (ofpmemory PUBLIC ${Boost_INCLUDE_DIRS})
+target_include_directories (ofpmmemory PUBLIC ${Boost_INCLUDE_DIRS})
 
 target_include_directories (ofpmmemory_dl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (ofpmmemory_dl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
