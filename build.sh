@@ -28,7 +28,7 @@ if [ ! -d $HOME/openfpm_dependencies/openfpm_devices/BOOST ]; then
 fi
 
 sh ./autogen.sh
-sh ./configure --with-boost=$HOME/openfpm_dependencies/openfpm_devices/BOOST
+sh ./configure --with-boost=$HOME/openfpm_dependencies/openfpm_devices/BOOST --enable-cuda-on-cpu
 
 make VERBOSE=1
 
