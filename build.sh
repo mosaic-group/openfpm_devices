@@ -11,7 +11,7 @@ fi
 
 if [ x"$hostname" == x"cifarm-ubuntu-node.mpi-cbg.de"  ]; then
         echo "Ubuntu node"
-        export PATH="$PATH:/opt/bin"
+        export PATH="/opt/bin:$PATH"
 fi
 
 mkdir src/config
