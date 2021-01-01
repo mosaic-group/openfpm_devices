@@ -1,9 +1,11 @@
 #ifndef CUDIFY_SEQUENCIAL_HPP_
 #define CUDIFY_SEQUENCIAL_HPP_
 
-#ifdef BOOST_HAVE_CONTEXT
+#include "config.h"
 
-#define CUDIFY_ACTiVE
+#ifdef HAVE_BOOST_CONTEXT
+
+#define CUDIFY_ACTIVE
 
 #include "util/cuda_util.hpp"
 #include "boost/bind.hpp"
