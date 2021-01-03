@@ -12,11 +12,15 @@
 alpa_base_structs __alpa_base__;
 #endif
 
+#ifdef CUDA_ON_CPU
+
 dim3 threadIdx;
 dim3 blockIdx;
 
 dim3 blockDim;
 dim3 gridDim;
+
+#endif
 
 int vct_atomic_add;
 int vct_atomic_rem;
