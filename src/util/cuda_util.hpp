@@ -51,7 +51,9 @@
 				}\
 			}
 
+			#ifndef __shared__
 			#define __shared__
+			#endif
 
 		#endif
 
