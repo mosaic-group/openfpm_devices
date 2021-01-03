@@ -1,7 +1,10 @@
 #ifndef CUDIFY_HARDWARE_COMMON_HPP_
 #define CUDIFY_HARDWARE_COMMON_HPP_
 
+
 #include <initializer_list>
+
+#ifdef CUDA_ON_CPU
 
 struct uint3
 {
@@ -30,5 +33,7 @@ struct dim3
         z = *it;
     }
 };
+
+#endif
 
 #endif

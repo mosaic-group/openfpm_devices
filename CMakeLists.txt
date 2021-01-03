@@ -29,6 +29,10 @@ if(CUDA_FOUND)
 	set(CUDA_SOURCES memory/CudaMemory.cu)
 endif()
 
+if(CUDA_ON_CPU)
+        set(DEFINE_CUDA_GPU "#define CUDA_GPU")
+endif()
+
 if (BOOST_FOUND)
 	set(DEFINE_HAVE_BOOST "#define HAVE_BOOST")
 	set(DEFINE_HAVE_BOOST_IOSTREAMS "#define HAVE_BOOST_IOSTREAMS")

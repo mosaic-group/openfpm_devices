@@ -1,5 +1,5 @@
 if(CUDA_FOUND OR CUDA_ON_CPU)
-	set(CUDA_SOURCES memory/CudaMemory.cu util/cudify/cudify_unit_test.cu)
+	set(CUDA_SOURCES memory/CudaMemory.cu)
 else()
 	set(CUDA_SOURCES )
 endif()
@@ -7,13 +7,13 @@ endif()
 if (CUDA_ON_CPU)
 	add_definitions(-DCUDA_ON_CPU)
         set_source_files_properties(${CUDA_SOURCES} PROPERTIES LANGUAGE CXX)
-	set_source_files_properties(${CUDA_SOURCES} PROPERTIES COMPILE_FLAGS "-D__NVCC__ -DCUDA_GPU -DCUDART_VERSION=11000")
+	set_source_files_properties(${CUDA_SOURCES} PROPERTIES COMPILE_FLAGS "-D__NVCC__ -DCUDART_VERSION=11000")
        	if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         	add_definitions("-x c++")
         endif()
 endif()
 
-add_executable(mem main.cpp memory/HeapMemory.cpp util/cudify/cudify_vars.cpp ${CUDA_SOURCES})
+add_executable(mem main.cpp memory/HeapMemory.cpp util/cudify/cudify_vars.cpp util/cudify/cudify_unit_test.cu ${CUDA_SOURCES})
 
 add_library(ofpmmemory STATIC memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp ${CUDA_SOURCES})
 add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp ${CUDA_SOURCES})
@@ -74,13 +74,28 @@ install(FILES memory/ExtPreAlloc.hpp
 	      util/util_unit_tests.hpp
 	      DESTINATION openfpm_devices/include/memory)
 
+install(FILES memory/ExtPreAlloc.hpp
+              memory/BHeapMemory.hpp
+              memory/HeapMemory.hpp
+              memory/memory.hpp
+              memory/PtrMemory.hpp
+              memory/CudaMemory.cuh
+              util/util_unit_tests.hpp
+              DESTINATION openfpm_devices/include/memory)
+
 install(FILES util/print_stack.hpp
+	      util/cuda_launch.hpp
+	      util/se_util.hpp
+	      util/cuda_util.hpp
+	      util/cuda_kernel_error_checker.hpp
 	DESTINATION openfpm_devices/include/util)
 
-
-install(FILES util/se_util.hpp
-	      util/cuda_util.hpp
-        DESTINATION openfpm_devices/include/util)
+install(FILES util/cudify/cudify_alpaka.hpp
+              util/cudify/cudify_hardware_alpaka.hpp
+              util/cudify/cudify_hardware_common.hpp
+              util/cudify/cudify_sequencial.hpp
+              util/cudify/cudify.hpp
+        DESTINATION openfpm_devices/include/util/cudify)
 
 install(FILES ptr_info.hpp
 	DESTINATION openfpm_devices/include)

@@ -4,6 +4,7 @@
 #include <boost/context/continuation.hpp>
 #endif
 #include <vector>
+#include "cudify_hardware_common.hpp"
 
 #ifdef HAVE_ALPAKA
 #include "cudify_hardware_alpaka.hpp"
