@@ -295,7 +295,7 @@ namespace mgpu
     }
 }
 
-static void init_alpaka()
+static void init_wrappers()
 {
     if (__alpa_base__.initialized == true) {return;}
 

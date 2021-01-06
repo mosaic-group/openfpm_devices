@@ -13,10 +13,10 @@ if (CUDA_ON_CPU)
         endif()
 endif()
 
-add_executable(mem main.cpp memory/HeapMemory.cpp util/cudify/cudify_vars.cpp util/cudify/cudify_unit_test.cu ${CUDA_SOURCES})
+add_executable(mem main.cpp memory/HeapMemory.cpp util/cudify/cudify_vars.cpp util/cudify/cudify_unit_test.cu memory/mem_conf.cpp  ${CUDA_SOURCES})
 
-add_library(ofpmmemory STATIC memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp ${CUDA_SOURCES})
-add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp ${CUDA_SOURCES})
+add_library(ofpmmemory STATIC memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
+add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
 
 if ( CMAKE_COMPILER_IS_GNUCC )
     target_compile_options(mem PRIVATE "-Wno-deprecated-declarations")
@@ -30,7 +30,11 @@ if (CUDA_FOUND)
 	target_compile_options(mem PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe "--display_error_number --diag_suppress=2885 --diag_suppress=2887  --diag_suppress=2888 --diag_suppress=186 --diag_suppress=111" --expt-extended-lambda>)
 	if (TEST_COVERAGE)
                 target_compile_options(mem PRIVATE $<$<COMPILE_LANGUAGE:CUDA>: -Xcompiler "-fprofile-arcs -ftest-coverage" >)
-        endif()
+    endif()
+
+    if (NOT CUDA_ON_CPU)
+        set_source_files_properties(memory/mem_conf.cpp PROPERTIES LANGUAGE CUDA)
+    endif()
 
 endif()
 

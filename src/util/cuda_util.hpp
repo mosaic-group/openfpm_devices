@@ -9,7 +9,7 @@
 #define OPENFPM_DATA_SRC_UTIL_CUDA_UTIL_HPP_
 
 #include "config.h"
-#if defined(__NVCC__) && !defined(CUDA_ON_CPU)
+#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 #include <cuda_runtime.h>
 #endif
 
