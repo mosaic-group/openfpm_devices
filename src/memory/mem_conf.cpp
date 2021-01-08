@@ -9,10 +9,6 @@ size_t openfpm_ofpmmemory_compilation_mask()
 	compiler_mask |= 0x1;
 	#endif
 
-	#ifdef __NVCC__
-	compiler_mask |= 0x02;
-	#endif
-
 	#ifdef CUDA_GPU
 	compiler_mask |= 0x04;
 	#endif
