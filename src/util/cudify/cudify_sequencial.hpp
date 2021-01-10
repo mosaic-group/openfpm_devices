@@ -12,7 +12,7 @@
 #define CUDIFY_ACTIVE
 
 #include "util/cuda_util.hpp"
-#include "boost/bind.hpp"
+#include <boost/bind/bind.hpp>
 #include <type_traits>
 #ifdef HAVE_BOOST_CONTEXT
 #include <boost/context/continuation.hpp>
@@ -330,6 +330,8 @@ void launch_kernel(boost::context::detail::transfer_t par)
 template<typename lambda_f, typename ite_type>
 static void exe_kernel(lambda_f f, ite_type & ite)
 {
+    if (ite.nthrs() == 0 || ite.nblocks() == 0) {return;}
+
     if (mem_stack.size() < ite.nthrs())
     {
         int old_size = mem_stack.size();
