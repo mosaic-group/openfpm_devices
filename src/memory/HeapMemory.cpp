@@ -34,7 +34,12 @@ bool HeapMemory::allocate(size_t sz)
 {
 	//! Allocate the device memory
 	if (dm == NULL)
-	{dmOrig = new byte[sz+alignement+extra_pad];}
+	{
+		dmOrig = new byte[sz+alignement+extra_pad];
+		#ifdef GARBAGE_INJECTOR
+		memset(dmOrig,0xFF,sz+alignement+extra_pad);
+		#endif
+	}
 	else
 	{
 		std::cerr << __FILE__ << ":" << __LINE__ << " error memory already allocated\n";
@@ -174,6 +179,9 @@ bool HeapMemory::resize(size_t sz)
 	byte * tdm;
 	byte * tdmOrig;
 	tdmOrig = new byte[sz+alignement+extra_pad];
+	#ifdef GARBAGE_INJECTOR
+	memset(tdmOrig,0xFF,sz+alignement+extra_pad);
+	#endif
 	tdm = tdmOrig;
 
 	//! size plus alignment

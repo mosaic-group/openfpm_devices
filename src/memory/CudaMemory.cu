@@ -43,7 +43,12 @@ bool CudaMemory::allocate(size_t sz)
 		CUDA_SAFE_CALL(cudaMalloc(&dm,sz));
 		#else
 		if (sz != 0)
-		{dm = new unsigned char[sz];}
+		{
+			dm = new unsigned char[sz];
+			#ifdef GARBAGE_INJECTOR
+			memset(dm,0xFF,sz);
+			#endif
+		}
 		#endif
 	}
 	else
@@ -126,6 +131,9 @@ void CudaMemory::allocate_host(size_t sz) const
 		CUDA_SAFE_CALL(cudaHostAlloc(&hm,sz,cudaHostAllocMapped))
 		#else
 		hm = new unsigned char[sz];
+		#ifdef GARBAGE_INJECTOR
+		memset(hm,0xFF,sz);
+		#endif
 		#endif
 	}
 }
@@ -264,6 +272,9 @@ bool CudaMemory::resize(size_t sz)
 			CUDA_SAFE_CALL(cudaMalloc(&tdm,sz));
 			#else
 			tdm = new unsigned char [sz];
+			#ifdef GARBAGE_INJECTOR
+			memset(tdm,0xFF,sz);
+			#endif
 			#endif
 
 #ifdef FILL_CUDA_MEMORY_WITH_MINUS_ONE
@@ -291,6 +302,9 @@ bool CudaMemory::resize(size_t sz)
 			CUDA_SAFE_CALL(cudaHostAlloc(&thm,sz,cudaHostAllocMapped));
 			#else
 			thm = new unsigned char [sz];
+			#ifdef GARBAGE_INJECTOR
+			memset(thm,0xFF,sz);
+			#endif
 			#endif
 		}
 
