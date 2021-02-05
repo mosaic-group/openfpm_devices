@@ -62,7 +62,7 @@ bool CudaMemory::allocate(size_t sz)
 
 	this->sz = sz;
 
-#ifdef FILL_CUDA_MEMORY_WITH_MINUS_ONE
+#if defined(GARBAGE_INJECTOR) && !defined(CUDA_ON_CPU)
 	CUDA_SAFE_CALL(cudaMemset(dm,-1,sz))
 #endif
 
@@ -277,11 +277,9 @@ bool CudaMemory::resize(size_t sz)
 			#endif
 			#endif
 
-#ifdef FILL_CUDA_MEMORY_WITH_MINUS_ONE
+#ifdef GARBAGE_INJECTOR
 			#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
 			CUDA_SAFE_CALL(cudaMemset(tdm,-1,sz));
-			#else
-			memset(tdm,-1,sz);
 			#endif
 #endif
 		}
