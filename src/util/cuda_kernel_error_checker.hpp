@@ -117,7 +117,10 @@ template<typename ... Args>pos_pc error_arg(void * ptr, int prp, Args ... args)
 #if defined(SE_CLASS1) && !defined(__clang__) 
 #define CUDA_LAUNCH_ERROR_OBJECT std::runtime_error("Runtime vector error");
 #define CHECK_SE_CLASS1_PRE int dev_mem[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-#define CHECK_SE_CLASS1_POST(kernel_call,...) \
+
+#if !defined(CUDA_ON_CPU)
+
+	#define CHECK_SE_CLASS1_POST(kernel_call,...) \
 							cudaError_t e1 = cudaMemcpyFromSymbol(dev_mem,global_cuda_error_array,sizeof(dev_mem)); \
 							if (e1 != cudaSuccess)\
 							{\
@@ -157,7 +160,39 @@ template<typename ... Args>pos_pc error_arg(void * ptr, int prp, Args ... args)
 								 ACTION_ON_ERROR(CUDA_LAUNCH_ERROR_OBJECT);\
 		                     }\
 
+#else
 
+	#define CHECK_SE_CLASS1_POST(kernel_call,...) \
+							memcpy(dev_mem,global_cuda_error_array,sizeof(dev_mem)); \
+		                     if (dev_mem[0] != 0)\
+		                     {\
+		                    	 void * ptr = (void *)*(size_t *)&dev_mem[1]; \
+		                    	 int prp_err = dev_mem[3];\
+		                    	 pos_pc ea = error_arg(ptr,prp_err,__VA_ARGS__);\
+		                    	 std::string args_s( #__VA_ARGS__ );\
+		                    	 std::vector<std::string> results;\
+		                    	 boost::split(results, args_s, [](char c){return c == ',';});\
+		                    	 std::string data_s;\
+		                    	 if (ea.pos >= results.size())\
+		                    	 {data_s = "Internal";}\
+								 else\
+								 {data_s = results[ea.pos];}\
+		                    	 std::cout << __FILE__ << ":" << __LINE__ << " Overflow detected in Kernel: " << kernel_call << " from the structure: " << data_s << " property: " << prp_err << " index:(" ;\
+		                    	 int i = 0; \
+		                    	 for ( ; i < dev_mem[4]-1 ; i++)\
+		                    	 {\
+		                    		 std::cout << dev_mem[5+i] << ",";\
+								 }\
+								 std::cout << dev_mem[5+i];\
+								 std::cout << ")";\
+								 std::cout << " thread: " << "(" << dev_mem[6+i] << "," << dev_mem[7+i] << "," << dev_mem[8+i] << ")*(" << dev_mem[9+i] << "," << dev_mem[10+i] << "," << dev_mem[11+i] << ")+(" << dev_mem[12+i] << "," << dev_mem[13+i] << "," << dev_mem[14+i] << ")" << std::endl;\
+		                    	 std::cout << "Internal error report: " << ea.pc.match_str << std::endl;\
+		                    	 int dev_mem_null[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};\
+		                    	 memcpy(global_cuda_error_array,dev_mem_null,sizeof(dev_mem_null),0,cudaMemcpyHostToDevice);\
+								 ACTION_ON_ERROR(CUDA_LAUNCH_ERROR_OBJECT);\
+		                     }\
+
+#endif
 
 #else
 #define CHECK_SE_CLASS1_PRE
