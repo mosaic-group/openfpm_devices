@@ -18,6 +18,14 @@ add_executable(mem main.cpp memory/HeapMemory.cpp util/cudify/cudify_vars.cpp ut
 add_library(ofpmmemory STATIC memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
 add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
 
+if (CUDA_FOUND AND NOT CUDA_ON_CPU)
+	add_library(ofpmmemory_cuda_on_cpu STATIC memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
+	add_library(ofpmmemory_dl_cuda_on_cpu SHARED memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
+
+	target_compile_options(ofpmmemory_cuda_on_cpu PUBLIC -DCUDA_ON_CPU)
+	target_compile_options(ofpmmemory_dl_cuda_on_cpu PUBLIC -DCUDA_ON_CPU)
+endif()
+
 if ( CMAKE_COMPILER_IS_GNUCC )
     target_compile_options(mem PRIVATE "-Wno-deprecated-declarations")
     if (TEST_COVERAGE)
@@ -64,6 +72,19 @@ target_include_directories (ofpmmemory_dl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (ofpmmemory_dl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
 target_include_directories (ofpmmemory_dl PUBLIC ${ALPAKA_ROOT}/include)
 target_include_directories (ofpmmemory_dl PUBLIC ${Boost_INCLUDE_DIRS})
+
+if (CUDA_FOUND AND NOT CUDA_ON_CPU)
+	target_include_directories (ofpmmemory_cuda_on_cpu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+	target_include_directories (ofpmmemory_cuda_on_cpu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
+	target_include_directories (ofpmmemory_cuda_on_cpu PUBLIC ${ALPAKA_ROOT}/include)
+	target_include_directories (ofpmmemory_cuda_on_cpu PUBLIC ${Boost_INCLUDE_DIRS})
+
+	target_include_directories (ofpmmemory_dl_cuda_on_cpu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+	target_include_directories (ofpmmemory_dl_cuda_on_cpu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
+	target_include_directories (ofpmmemory_dl_cuda_on_cpu PUBLIC ${ALPAKA_ROOT}/include)
+	target_include_directories (ofpmmemory_dl_cuda_on_cpu PUBLIC ${Boost_INCLUDE_DIRS})
+endif()
+
 target_link_libraries(mem ${Boost_LIBRARIES_BCK})
 target_link_libraries(ofpmmemory ${Boost_LIBRARIES_BCK})
 target_link_libraries(ofpmmemory_dl ${Boost_LIBRARIES_BCK})
@@ -72,7 +93,7 @@ if (TEST_COVERAGE)
     target_link_libraries(mem -lgcov)
 endif()
 
-install(TARGETS ofpmmemory ofpmmemory_dl
+install(TARGETS ofpmmemory ofpmmemory_dl ofpmmemory_cuda_on_cpu ofpmmemory_dl_cuda_on_cpu
 	DESTINATION openfpm_devices/lib )
 
 install(FILES memory/ExtPreAlloc.hpp 

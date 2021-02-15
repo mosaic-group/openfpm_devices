@@ -36,6 +36,10 @@
 
 			#define CUDA_SAFE(cuda_call) \
 			cuda_call;
+			
+			#ifdef __shared__
+				#undef __shared__
+			#endif
 			#define __shared__ static
 
 		#else
