@@ -93,7 +93,11 @@ if (TEST_COVERAGE)
     target_link_libraries(mem -lgcov)
 endif()
 
-install(TARGETS ofpmmemory ofpmmemory_dl ofpmmemory_cuda_on_cpu ofpmmemory_dl_cuda_on_cpu
+if (CUDA_FOUND AND NOT CUDA_ON_CPU)
+	set(ADDITIONAL_OPENFPM_LIBS ofpmmemory_cuda_on_cpu ofpmmemory_dl_cuda_on_cpu)
+endif()
+
+install(TARGETS ofpmmemory ofpmmemory_dl ${ADDITIONAL_OPENFPM_LIBS}
 	DESTINATION openfpm_devices/lib )
 
 install(FILES memory/ExtPreAlloc.hpp 
