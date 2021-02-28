@@ -98,7 +98,8 @@ if (CUDA_FOUND AND NOT CUDA_ON_CPU)
 endif()
 
 install(TARGETS ofpmmemory ofpmmemory_dl ${ADDITIONAL_OPENFPM_LIBS}
-	DESTINATION openfpm_devices/lib )
+	DESTINATION openfpm_devices/lib 
+	COMPONENT OpenFPM)
 
 install(FILES memory/ExtPreAlloc.hpp 
 	      memory/BHeapMemory.hpp  
@@ -107,7 +108,8 @@ install(FILES memory/ExtPreAlloc.hpp
 	      memory/PtrMemory.hpp
 	      memory/CudaMemory.cuh
 	      util/util_unit_tests.hpp
-	      DESTINATION openfpm_devices/include/memory)
+	      DESTINATION openfpm_devices/include/memory
+	      COMPONENT OpenFPM)
 
 install(FILES memory/ExtPreAlloc.hpp
               memory/BHeapMemory.hpp
@@ -116,23 +118,27 @@ install(FILES memory/ExtPreAlloc.hpp
               memory/PtrMemory.hpp
               memory/CudaMemory.cuh
 	      memory/mem_conf.hpp
-              DESTINATION openfpm_devices/include/memory)
+              DESTINATION openfpm_devices/include/memory
+	      COMPONENT OpenFPM)
 
 install(FILES util/print_stack.hpp
 	      util/cuda_launch.hpp
 	      util/se_util.hpp
 	      util/cuda_util.hpp
 	      util/cuda_kernel_error_checker.hpp
-	DESTINATION openfpm_devices/include/util)
+	DESTINATION openfpm_devices/include/util
+	COMPONENT OpenFPM)
 
 install(FILES util/cudify/cudify_alpaka.hpp
               util/cudify/cudify_hardware_alpaka.hpp
               util/cudify/cudify_hardware_common.hpp
               util/cudify/cudify_sequencial.hpp
               util/cudify/cudify.hpp
-        DESTINATION openfpm_devices/include/util/cudify)
+        DESTINATION openfpm_devices/include/util/cudify
+	COMPONENT OpenFPM)
 
 install(FILES ptr_info.hpp
-	DESTINATION openfpm_devices/include)
+	DESTINATION openfpm_devices/include
+	COMPONENT OpenFPM)
 
 
