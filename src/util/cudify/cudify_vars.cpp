@@ -27,8 +27,12 @@ int vct_atomic_rem;
 
 #ifdef HAVE_BOOST_CONTEXT
 std::vector<void *> mem_stack;
+
 std::vector<boost::context::detail::fcontext_t> contexts;
+
 int cur_fib;
+
 void * par_glob;
+
 boost::context::detail::fcontext_t main_ctx;
 #endif
