@@ -339,7 +339,7 @@ static void exe_kernel(lambda_f f, ite_type & ite)
 
         for (int i = old_size ; i < mem_stack.size() ; i++)
         {
-            mem_stack[i] = new char [8192];
+            mem_stack[i] = new char [CUDIFY_BOOST_CONTEXT_STACK_SIZE];
         }
     }
 
@@ -449,7 +449,6 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
         [&](boost::context::fiber && main) -> void {\
             \
             \
-            main_fib = main;
 \
             cuda_call(__VA_ARGS__);\
         },ite);\
@@ -481,11 +480,9 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
         [&] (boost::context::fiber && main) -> void {\
             \
             \
-            main_fib = std::move(main);\
 \
             cuda_call(__VA_ARGS__);\
             \
-            return std::move(main_fib);\
             \
         });\
         CHECK_SE_CLASS1_POST(#cuda_call,__VA_ARGS__)\
