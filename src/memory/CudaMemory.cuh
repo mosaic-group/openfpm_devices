@@ -33,11 +33,7 @@
 #include "memory.hpp"
 #include <iostream>
 
-#if defined(__NVCC__)  && !defined(CUDA_ON_CPU)
-#include <cuda_runtime.h>
-#else
 #include "util/cuda_util.hpp"
-#endif
 
 extern size_t TotCudaMemoryAllocated;
 

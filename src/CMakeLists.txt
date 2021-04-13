@@ -1,4 +1,4 @@
-if(CUDA_FOUND OR CUDA_ON_CPU)
+if(CUDA_FOUND OR CUDA_ON_CPU OR HIP_FOUND)
 	set(CUDA_SOURCES memory/CudaMemory.cu)
 else()
 	set(CUDA_SOURCES )
@@ -13,10 +13,37 @@ if (CUDA_ON_CPU)
         endif()
 endif()
 
-add_executable(mem main.cpp memory/HeapMemory.cpp util/cudify/cudify_vars.cpp util/cudify/cudify_unit_test.cu memory/mem_conf.cpp  ${CUDA_SOURCES})
+if ( HIP_ENABLE AND HIP_FOUND )
 
-add_library(ofpmmemory STATIC memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
-add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
+	set_source_files_properties(${CUDA_SOURCES} PROPERTIES LANGUAGE CXX)
+
+        hip_add_library(ofpmmemory STATIC memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
+        hip_add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
+
+        set(CMAKE_CXX_COMPILER ${HIP_HIPCC_EXECUTABLE})
+
+        hip_add_executable(mem main.cpp memory/HeapMemory.cpp util/cudify/cudify_vars.cpp util/cudify/cudify_unit_test.cu memory/mem_conf.cpp  ${CUDA_SOURCES})
+
+        set(CMAKE_SHARED_LIBRARY_CXX_FLAGS " ")
+	set_property(TARGET ofpmmemory PROPERTY POSITION_INDEPENDENT_CODE ON)
+	set_property(TARGET ofpmmemory_dl PROPERTY POSITION_INDEPENDENT_CODE ON)
+	set_property(TARGET ofpmmemory PROPERTY CMAKE_CXX_FLAGS "-Xcompiler -fPIC")
+	set_property(TARGET ofpmmemory_dl PROPERTY CMAKE_CXX_FLAGS "-Xcompiler -fPIC")
+        set_property(TARGET ofpmmemory PROPERTY NO_SONAME ON)
+        set_property(TARGET ofpmmemory_dl PROPERTY NO_SONAME ON)
+else()
+
+	add_executable(mem main.cpp memory/HeapMemory.cpp util/cudify/cudify_vars.cpp util/cudify/cudify_unit_test.cu memory/mem_conf.cpp  ${CUDA_SOURCES})
+
+	add_library(ofpmmemory STATIC memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
+	add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
+
+endif()
+
+if (HIP_FOUND)
+        SET(CMAKE_EXE_LINKER_FLAGS  "--amdgpu-target=${AMD_ARCH_COMPILE}")
+        SET(CMAKE_SHARED_LINKER_FLAGS  "--amdgpu-target=${AMD_ARCH_COMPILE}")
+endif()
 
 if (CUDA_FOUND AND NOT CUDA_ON_CPU)
 	add_library(ofpmmemory_cuda_on_cpu STATIC memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
