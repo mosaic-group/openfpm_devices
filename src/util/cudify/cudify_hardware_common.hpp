@@ -22,7 +22,7 @@ struct dim3
     constexpr dim3(const dim3 & d) : x(d.x), y(d.y), z(d.z) {}
 
     template<typename T>
-    constexpr dim3(const std::initializer_list<T> & list) 
+    dim3(const std::initializer_list<T> & list) 
     {
         auto it = list.begin();
 
