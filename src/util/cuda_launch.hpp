@@ -11,7 +11,12 @@
 #include "config.h"
 #include "cuda_kernel_error_checker.hpp"
 
-#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU) 
+#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU) && !defined(__HIP__)
+
+	constexpr int default_kernel_wg_threads_ = 1024;
+
+	#include "cub/util_type.cuh"
+	#include "cub/block/block_scan.cuh"
 
 	#if defined(SE_CLASS1) || defined(CUDA_CHECK_LAUNCH)
 
