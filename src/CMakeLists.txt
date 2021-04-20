@@ -157,6 +157,7 @@ install(FILES util/print_stack.hpp
 	COMPONENT OpenFPM)
 
 install(FILES util/cudify/cudify_alpaka.hpp
+	      util/cudify/cudify_hip.hpp
               util/cudify/cudify_hardware_alpaka.hpp
               util/cudify/cudify_hardware_common.hpp
               util/cudify/cudify_sequencial.hpp
