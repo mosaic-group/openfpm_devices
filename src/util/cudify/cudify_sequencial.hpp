@@ -5,6 +5,8 @@
 
 #ifdef CUDA_ON_CPU
 
+constexpr int default_kernel_wg_threads_ = 1024;
+
 #include "cudify_hardware_common.hpp"
 
 #ifdef HAVE_BOOST_CONTEXT
@@ -549,6 +551,10 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
 
 #endif
 
-#endif
+#else
 
-#endif
+constexpr int default_kernel_wg_threads_ = 1024;
+
+#endif /* CUDA_ON_CPU */
+
+#endif /* CUDIFY_SEQUENCIAL_HPP_ */

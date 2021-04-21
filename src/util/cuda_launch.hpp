@@ -11,7 +11,7 @@
 #include "config.h"
 #include "cuda_kernel_error_checker.hpp"
 
-#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU) && !defined(__HIP__)
+#if defined(__NVCC__) && !defined(CUDA_ON_CPU) && !defined(__HIP__)
 
 	constexpr int default_kernel_wg_threads_ = 1024;
 
