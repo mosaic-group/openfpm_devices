@@ -15,8 +15,14 @@
 
 	constexpr int default_kernel_wg_threads_ = 1024;
 
-	#include "cub/util_type.cuh"
-	#include "cub/block/block_scan.cuh"
+	#if CUDART_VERSION >= 11000
+		#include "cub/util_type.cuh"
+		#include "cub/block/block_scan.cuh"
+	#else
+		#include "cub_old/util_type.cuh"
+		#include "cub_old/block/block_scan.cuh"
+	#endif
+
 
 	#if defined(SE_CLASS1) || defined(CUDA_CHECK_LAUNCH)
 
