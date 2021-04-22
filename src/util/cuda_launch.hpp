@@ -18,9 +18,6 @@
 	#if CUDART_VERSION >= 11000
 		#include "cub/util_type.cuh"
 		#include "cub/block/block_scan.cuh"
-	#else
-		#include "cub_old/util_type.cuh"
-		#include "cub_old/block/block_scan.cuh"
 	#endif
 
 
