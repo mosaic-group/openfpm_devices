@@ -15,7 +15,7 @@
 #include <stdexcept>
 #include <string>
 #include <array>
-#ifndef __CYGWIN__ 
+#if !defined(__CYGWIN__) && !defined(WIN64)
 #include <execinfo.h>
 #endif
 
@@ -45,7 +45,7 @@ static inline std::string exec(const char* cmd)
  */
 static inline void print_stack()
 {
-#if defined(PRINT_STACKTRACE) && !defined(__CYGWIN__)
+#if defined(PRINT_STACKTRACE) && !defined(__CYGWIN__) &&!defined(WIN64)
 
 	void *trace[256];
 
