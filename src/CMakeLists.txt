@@ -40,6 +40,9 @@ else()
 
 endif()
 
+set_property(TARGET ofpmmemory PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET ofpmmemory_dl PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 if (HIP_FOUND)
         SET(CMAKE_EXE_LINKER_FLAGS  "--amdgpu-target=${AMD_ARCH_COMPILE}")
         SET(CMAKE_SHARED_LINKER_FLAGS  "--amdgpu-target=${AMD_ARCH_COMPILE}")
