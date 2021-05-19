@@ -40,6 +40,7 @@ else()
 
 endif()
 
+set_property(TARGET mem PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET ofpmmemory PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET ofpmmemory_dl PROPERTY POSITION_INDEPENDENT_CODE ON)
 
