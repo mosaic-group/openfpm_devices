@@ -138,7 +138,9 @@ public:
 	
 	//! Increment the reference counter
 	virtual void incRef()
-	{ref_cnt++;}
+	{
+		ref_cnt++;
+	}
 
 	//! Decrement the reference counter
 	virtual void decRef()

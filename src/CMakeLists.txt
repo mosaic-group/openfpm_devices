@@ -1,22 +1,31 @@
 if(CUDA_FOUND OR CUDA_ON_CPU)
 	set(CUDA_SOURCES memory/CudaMemory.cu)
+	set(CUDA_SOURCES_TEST util/cudify/cudify_unit_test.cu util/cudify/cudify_openmp_unit_test.cu)
 else()
 	set(CUDA_SOURCES )
+	set(CUDA_SOURCES_TEST )
 endif()
 
 if (CUDA_ON_CPU)
 	add_definitions(-DCUDA_ON_CPU)
         set_source_files_properties(${CUDA_SOURCES} PROPERTIES LANGUAGE CXX)
+	set_source_files_properties(${CUDA_SOURCES_TEST} PROPERTIES LANGUAGE CXX)
 	set_source_files_properties(${CUDA_SOURCES} PROPERTIES COMPILE_FLAGS "-D__NVCC__ -DCUDART_VERSION=11000")
        	if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
         	add_definitions("-x c++")
         endif()
 endif()
 
-add_executable(mem main.cpp memory/HeapMemory.cpp util/cudify/cudify_vars.cpp util/cudify/cudify_unit_test.cu memory/mem_conf.cpp  ${CUDA_SOURCES})
+add_executable(mem main.cpp memory/HeapMemory.cpp util/cudify/cudify_vars.cpp ${CUDA_SOURCES_TEST} memory/mem_conf.cpp  ${CUDA_SOURCES})
+
+set_property(TARGET mem PROPERTY CUDA_ARCHITECTURES OFF)
 
 add_library(ofpmmemory STATIC memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
 add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
+
+if(OpenMP_CXX_FOUND)
+    target_compile_options(mem PUBLIC ${OpenMP_CXX_FLAGS})
+endif()
 
 if (CUDA_FOUND AND NOT CUDA_ON_CPU)
 	add_library(ofpmmemory_cuda_on_cpu STATIC memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
@@ -88,6 +97,10 @@ endif()
 target_link_libraries(mem ${Boost_LIBRARIES_BCK})
 target_link_libraries(ofpmmemory ${Boost_LIBRARIES_BCK})
 target_link_libraries(ofpmmemory_dl ${Boost_LIBRARIES_BCK})
+
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(mem ${OpenMP_CXX_FLAGS})
+endif()
 
 if (TEST_COVERAGE)
     target_link_libraries(mem -lgcov)

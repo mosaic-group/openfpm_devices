@@ -27,16 +27,16 @@
 
 extern std::vector<void *>mem_stack;
 
-extern dim3 threadIdx;
-extern dim3 blockIdx;
+extern thread_local dim3 threadIdx;
+extern thread_local dim3 blockIdx;
 
 extern dim3 blockDim;
 extern dim3 gridDim;
 
 extern std::vector<void *> mem_stack;
 extern std::vector<boost::context::detail::fcontext_t> contexts;
-extern void * par_glob;
-extern boost::context::detail::fcontext_t main_ctx;
+extern thread_local void * par_glob;
+extern thread_local boost::context::detail::fcontext_t main_ctx;
 
 static void __syncthreads()
 {
@@ -364,7 +364,7 @@ static void exe_kernel(lambda_f f, ite_type & ite)
                     {
                         for (int kt = 0 ; kt < ite.thr.x ; kt++)
                         {
-                            contexts[nc] = boost::context::detail::make_fcontext((char *)mem_stack[nc]+CUDIFY_BOOST_CONTEXT_STACK_SIZE-16,CUDIFY_BOOST_CONTEXT_STACK_SIZE,launch_kernel<Fun_enc<lambda_f>>);;
+                            contexts[nc] = boost::context::detail::make_fcontext((char *)mem_stack[nc]+CUDIFY_BOOST_CONTEXT_STACK_SIZE-16,CUDIFY_BOOST_CONTEXT_STACK_SIZE,launch_kernel<Fun_enc<lambda_f>>);
                             nc++;
                         }
                     }

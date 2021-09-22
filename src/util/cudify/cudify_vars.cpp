@@ -14,8 +14,8 @@ alpa_base_structs __alpa_base__;
 
 #ifdef CUDA_ON_CPU
 
-dim3 threadIdx;
-dim3 blockIdx;
+thread_local dim3 threadIdx;
+thread_local dim3 blockIdx;
 
 dim3 blockDim;
 dim3 gridDim;
@@ -25,10 +25,11 @@ dim3 gridDim;
 int vct_atomic_add;
 int vct_atomic_rem;
 
+size_t n_workers = 1;
+
 #ifdef HAVE_BOOST_CONTEXT
 std::vector<void *> mem_stack;
 std::vector<boost::context::detail::fcontext_t> contexts;
-int cur_fib;
-void * par_glob;
-boost::context::detail::fcontext_t main_ctx;
+thread_local void * par_glob;
+thread_local boost::context::detail::fcontext_t main_ctx;
 #endif

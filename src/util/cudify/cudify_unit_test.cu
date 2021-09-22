@@ -7,7 +7,11 @@
 
 #if defined(CUDA_ON_CPU) && defined(CUDIFY_ACTIVE)
 
-BOOST_AUTO_TEST_SUITE( cudify_tests )
+#ifdef CUDIFY_USE_OPENMP
+BOOST_AUTO_TEST_SUITE( cudify_tests_openmp )
+#else
+BOOST_AUTO_TEST_SUITE( cudify_tests_sequencial )
+#endif
 
 struct par_struct
 {
@@ -74,7 +78,11 @@ __global__ void test1_syncthreads(T p, float * array)
     p.ptr[idx_z*gridDim.x*gridDim.y*blockDim.x*blockDim.y + idx_y*gridDim.x*blockDim.x + idx_x] = cnt;
 }
 
-BOOST_AUTO_TEST_CASE( cudify_on_test_test )
+#ifdef CUDIFY_USE_OPENMP
+BOOST_AUTO_TEST_CASE( cudify_on_test_test_openmp )
+#else
+BOOST_AUTO_TEST_CASE( cudify_on_test_test_sequencial )
+#endif
 {
     init_wrappers();
 
@@ -112,7 +120,11 @@ BOOST_AUTO_TEST_CASE( cudify_on_test_test )
     BOOST_REQUIRE_EQUAL(check,true);
 }
 
-BOOST_AUTO_TEST_CASE( cudify_on_test_test2 )
+#ifdef CUDIFY_USE_OPENMP
+BOOST_AUTO_TEST_CASE( cudify_on_test_test2_openmp )
+#else
+BOOST_AUTO_TEST_CASE( cudify_on_test_test2_sequencial )
+#endif
 {
     init_wrappers();
 
@@ -143,6 +155,8 @@ BOOST_AUTO_TEST_CASE( cudify_on_test_test2 )
     bool check = true;
     for (int i = 0 ; i < 16*16*16; i++)
     {
+        //std::cout << i << "   " << ptr1[i] << "  " << ptr2[i] << std::endl;
+
         check &= ptr1[i] == 64.0;
         check &= ptr2[i] == 128.0;
     }

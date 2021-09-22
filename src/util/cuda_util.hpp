@@ -20,7 +20,7 @@
 		#ifndef __host__
 		#define __host__
 		#define __device__
-		#define __shared__
+		#define __shared__ static thread_local
 		#define __global__
 		#endif
 
@@ -40,7 +40,7 @@
 			#ifdef __shared__
 				#undef __shared__
 			#endif
-			#define __shared__ static
+			#define __shared__ static thread_local
 
 		#else
 
@@ -67,7 +67,7 @@
 #ifndef __host__
 #define __host__
 #define __device__
-#define __shared__ static
+#define __shared__ static thread_local
 #define __global__
 #endif
 
