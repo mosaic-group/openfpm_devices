@@ -65,6 +65,7 @@ public:
 		mem.resize(size);
 	}
 
+
 	/*! \brief Copy the memory from device to device
 	 *
 	 * \param m memory from where to copy
