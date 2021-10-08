@@ -89,7 +89,7 @@ public:
 		mem->deviceToDevice(ptr,start,stop,offset);
 	}
 
-	static bool isDeviceHostSame()
+	constexpr static bool isDeviceHostSame()
 	{
 		return Mem::isDeviceHostSame();
 	}
