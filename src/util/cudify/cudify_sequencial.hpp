@@ -53,6 +53,21 @@ static void cudaMemcpyFromSymbol(void * dev_mem,const unsigned char * global_cud
     memcpy(dev_mem,global_cuda_error_array,sz);
 }
 
+struct float3
+{
+    float x,y,z;
+};
+
+struct float4
+{
+    float x,y,z,w;
+};
+
+static __inline__ __host__ __device__ float4 make_float4(float x, float y, float z, float w)
+{
+  float4 t; t.x = x; t.y = y; t.z = z; t.w = w; return t;
+}
+
 /**
  * CUDA memory copy types
  */
