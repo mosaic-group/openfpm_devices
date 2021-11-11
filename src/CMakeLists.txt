@@ -1,6 +1,8 @@
 if(CUDA_FOUND OR CUDA_ON_CPU)
 	set(CUDA_SOURCES memory/CudaMemory.cu)
-	set(CUDA_SOURCES_TEST util/cudify/cudify_unit_test.cu util/cudify/cudify_openmp_unit_test.cu)
+	set(CUDA_SOURCES_TEST #util/cudify/cudify_unit_test.cu 
+						  util/cudify/cudify_openmp_unit_test.cu
+						  )
 else()
 	set(CUDA_SOURCES )
 	set(CUDA_SOURCES_TEST )
@@ -8,12 +10,12 @@ endif()
 
 if (CUDA_ON_CPU)
 	add_definitions(-DCUDA_ON_CPU)
-        set_source_files_properties(${CUDA_SOURCES} PROPERTIES LANGUAGE CXX)
+    set_source_files_properties(${CUDA_SOURCES} PROPERTIES LANGUAGE CXX)
 	set_source_files_properties(${CUDA_SOURCES_TEST} PROPERTIES LANGUAGE CXX)
 	set_source_files_properties(${CUDA_SOURCES} PROPERTIES COMPILE_FLAGS "-D__NVCC__ -DCUDART_VERSION=11000")
-       	if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-        	add_definitions("-x c++")
-        endif()
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+    	add_definitions("-x c++")
+	endif()
 endif()
 
 add_executable(mem main.cpp memory/HeapMemory.cpp util/cudify/cudify_vars.cpp ${CUDA_SOURCES_TEST} memory/mem_conf.cpp  ${CUDA_SOURCES})

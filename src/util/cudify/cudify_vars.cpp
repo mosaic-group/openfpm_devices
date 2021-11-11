@@ -22,8 +22,8 @@ dim3 gridDim;
 
 #endif
 
-int vct_atomic_add;
-int vct_atomic_rem;
+thread_local int vct_atomic_add;
+thread_local int vct_atomic_rem;
 
 size_t n_workers = 1;
 

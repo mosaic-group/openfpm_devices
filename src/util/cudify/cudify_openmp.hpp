@@ -65,8 +65,8 @@ enum  cudaMemcpyKind
     cudaMemcpyDefault             =   4       /**< Direction of the transfer is inferred from the pointer values. Requires unified virtual addressing */
 };
 
-extern int vct_atomic_add;
-extern int vct_atomic_rem;
+extern thread_local int vct_atomic_add;
+extern thread_local int vct_atomic_rem;
 
 static void cudaMemcpyToSymbol(unsigned char * global_cuda_error_array,const void * mem,size_t sz,int offset,int unused)
 {
@@ -117,7 +117,6 @@ namespace cub
         }
     };
 }
-
 
 template<typename T, typename T2>
 static T atomicAdd(T * address, T2 val)  
@@ -455,8 +454,8 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
 
 #ifdef PRINT_CUDA_LAUNCHES
 
-#define CUDA_LAUNCH(cuda_call,ite, ...)\
-        \
+#define CUDA_LAUNCH(cuda_call,ite, ...) \
+        {\
         gridDim.x = ite.wthr.x;\
         gridDim.y = ite.wthr.y;\
         gridDim.z = ite.wthr.z;\
@@ -467,16 +466,15 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
         \
         CHECK_SE_CLASS1_PRE\
         \
-        std::cout << "Launching: " << #cuda_call << std::endl;\
+        std::cout << "Launching: " << #cuda_call << "  (" << ite.wthr.x << "," << ite.wthr.y << "," << ite.wthr.z << ")     (" << ite.thr.x << "," << ite.thr.y << "," << ite.thr.z << ")" << std::endl;\
         \
-        exe_kernel(\
-        [&](boost::context::fiber && main) -> void {\
+        exe_kernel([&]() -> void {\
+        \
             \
-            \
-            main_fib = main;
-\
             cuda_call(__VA_ARGS__);\
-        },ite);\
+            \
+            },ite);\
+        \
         CHECK_SE_CLASS1_POST(#cuda_call,__VA_ARGS__)\
         }
 
@@ -487,8 +485,8 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
         dim3 thr__(thr_);\
         \
         ite_gpu<1> itg;\
-        itg.wthr = wthr;\
-        itg.thr = thr;\
+        itg.wthr = wthr_;\
+        itg.thr = thr_;\
         \
         gridDim.x = wthr__.x;\
         gridDim.y = wthr__.y;\
@@ -499,21 +497,17 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
         blockDim.z = thr__.z;\
         \
         CHECK_SE_CLASS1_PRE\
-        std::cout << "Launching: " << #cuda_call << std::endl;\
+        std::cout << "Launching: " << #cuda_call << "  (" << wthr__.x << "," << wthr__.y << "," << wthr__.z << ")     (" << thr__.x << "," << thr__.y << "," << thr__.z << ")" << std::endl;\
         \
-        exe_kernel(\
-        [&] (boost::context::fiber && main) -> void {\
+        exe_kernel([&]() -> void {\
             \
-            \
-            main_fib = std::move(main);\
-\
             cuda_call(__VA_ARGS__);\
             \
-            return std::move(main_fib);\
-            \
-        });\
+            },itg);\
+        \
         CHECK_SE_CLASS1_POST(#cuda_call,__VA_ARGS__)\
         }
+
 
 #define CUDA_CHECK()
 
