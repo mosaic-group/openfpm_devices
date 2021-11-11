@@ -63,8 +63,8 @@ enum  cudaMemcpyKind
     cudaMemcpyDefault             =   4       /**< Direction of the transfer is inferred from the pointer values. Requires unified virtual addressing */
 };
 
-extern int vct_atomic_add;
-extern int vct_atomic_rem;
+extern int thread_local vct_atomic_add;
+extern int thread_local vct_atomic_rem;
 
 static void cudaMemcpyToSymbol(unsigned char * global_cuda_error_array,const void * mem,size_t sz,int offset,int unused)
 {

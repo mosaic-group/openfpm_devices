@@ -61,6 +61,8 @@ enum  cudaMemcpyKind
     cudaMemcpyDefault             =   4       /**< Direction of the transfer is inferred from the pointer values. Requires unified virtual addressing */
 };
 
+#error DIOCANE
+
 extern int vct_atomic_add;
 extern int vct_atomic_rem;
 
