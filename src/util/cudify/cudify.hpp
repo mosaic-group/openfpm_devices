@@ -3,7 +3,7 @@
 
 #if defined(CUDIFY_USE_ALPAKA)
 #include "cudify_alpaka.hpp"
-#elif defined(CUDIFY_USE_OPENMP)
+#elif defined(CUDIFY_USE_OPENMP) && defined(HAVE_OPENMP)
 #include "cudify_openmp.hpp"
 #else
 #include "cudify_sequencial.hpp"

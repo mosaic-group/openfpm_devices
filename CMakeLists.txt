@@ -74,6 +74,10 @@ if (BOOST_FOUND)
 	endif()
 endif()
 
+if (OPENMP_FOUND)
+	set(DEFINE_HAVE_OPENMP "#define HAVE_OPENMP")
+endif()
+
 if (ALPAKA_ROOT)
 	set(DEFINE_HAVE_ALPAKA "#define HAVE_ALPAKA")
 endif()

@@ -7,6 +7,7 @@
 
 #ifdef CUDA_ON_CPU
 
+
 #include "cudify_hardware_common.hpp"
 
 #ifdef HAVE_BOOST_CONTEXT

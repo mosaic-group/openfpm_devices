@@ -4,6 +4,9 @@ ${DEFINE_COVERTY_SCAN}
 /* GPU support */
 ${DEFINE_CUDA_GPU}
 
+/* OpenMP support */
+${DEFINE_HAVE_OPENMP}
+
 /* Debug */
 ${DEFINE_DEBUG} /**/
 
