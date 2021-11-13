@@ -5,10 +5,12 @@
 #include "util/cuda_launch.hpp"
 #include "memory/CudaMemory.cuh"
 
-#if defined(CUDA_ON_CPU) && defined(CUDIFY_ACTIVE)
-
 #ifdef CUDIFY_USE_OPENMP
 BOOST_AUTO_TEST_SUITE( cudify_tests_openmp )
+#elif defined(CUDIFY_USE_CUDA)
+BOOST_AUTO_TEST_SUITE( cudify_tests_cuda )
+#elif defined(CUDIFY_USE_HIP)
+BOOST_AUTO_TEST_SUITE( cudify_tests_hip )
 #else
 BOOST_AUTO_TEST_SUITE( cudify_tests_sequencial )
 #endif
@@ -78,11 +80,7 @@ __global__ void test1_syncthreads(T p, float * array)
     p.ptr[idx_z*gridDim.x*gridDim.y*blockDim.x*blockDim.y + idx_y*gridDim.x*blockDim.x + idx_x] = cnt;
 }
 
-#ifdef CUDIFY_USE_OPENMP
-BOOST_AUTO_TEST_CASE( cudify_on_test_test_openmp )
-#else
-BOOST_AUTO_TEST_CASE( cudify_on_test_test_sequencial )
-#endif
+BOOST_AUTO_TEST_CASE( cudify_on_test_test )
 {
     init_wrappers();
 
@@ -120,11 +118,7 @@ BOOST_AUTO_TEST_CASE( cudify_on_test_test_sequencial )
     BOOST_REQUIRE_EQUAL(check,true);
 }
 
-#ifdef CUDIFY_USE_OPENMP
-BOOST_AUTO_TEST_CASE( cudify_on_test_test2_openmp )
-#else
-BOOST_AUTO_TEST_CASE( cudify_on_test_test2_sequencial )
-#endif
+BOOST_AUTO_TEST_CASE( cudify_on_test_test2)
 {
     init_wrappers();
 
@@ -166,4 +160,3 @@ BOOST_AUTO_TEST_CASE( cudify_on_test_test2_sequencial )
 
 BOOST_AUTO_TEST_SUITE_END()
 
-#endif

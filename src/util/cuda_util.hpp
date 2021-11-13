@@ -9,7 +9,25 @@
 #define OPENFPM_DATA_SRC_UTIL_CUDA_UTIL_HPP_
 
 #include "config.h"
-#if defined(CUDA_GPU) && !defined(CUDA_ON_CPU)
+
+#if defined(CUDIFY_USE_ALPAKA)
+#define CUDA_ON_CPU
+#elif defined(CUDIFY_USE_OPENMP)
+#define CUDA_ON_CPU
+#elif defined(CUDIFY_USE_SEQUENTIAL)
+#define CUDA_ON_CPU
+#endif
+
+#if defined(__HIP__)
+	// If hip fill NVCC think it is Nvidia compiler
+	#ifdef __NVCC__
+		#undef __NVCC__
+		#include <hip/hip_runtime.h>
+		#define __NVCC__
+	#else
+		#include <hip/hip_runtime.h>
+	#endif
+#elif defined(CUDIFY_USE_CUDA)
 #include <cuda_runtime.h>
 #endif
 
@@ -33,9 +51,6 @@
 		#endif
 
 		#ifdef CUDA_ON_CPU 
-
-			#define CUDA_SAFE(cuda_call) \
-			cuda_call;
 			
 			#ifdef __shared__
 				#undef __shared__
@@ -43,17 +58,6 @@
 			#define __shared__ static thread_local
 
 		#else
-
-			#define CUDA_SAFE(cuda_call) \
-			cuda_call; \
-			{\
-				cudaError_t e = cudaPeekAtLastError();\
-				if (e != cudaSuccess)\
-				{\
-					std::string error = cudaGetErrorString(e);\
-					std::cout << "Cuda Error in: " << __FILE__ << ":" << __LINE__ << " " << error << std::endl;\
-				}\
-			}
 
 			#ifndef __shared__
 			#define __shared__

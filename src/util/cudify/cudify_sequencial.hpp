@@ -1,15 +1,15 @@
 #ifndef CUDIFY_SEQUENCIAL_HPP_
 #define CUDIFY_SEQUENCIAL_HPP_
 
+#define CUDA_ON_BACKEND CUDA_BACKEND_SEQUENTIAL
+
 #include "config.h"
 
-#ifdef CUDA_ON_CPU
+constexpr int default_kernel_wg_threads_ = 1024;
 
 #include "cudify_hardware_common.hpp"
 
 #ifdef HAVE_BOOST_CONTEXT
-
-#define CUDIFY_ACTIVE
 
 #include "util/cuda_util.hpp"
 #include <boost/bind/bind.hpp>
@@ -49,6 +49,21 @@ static void cudaDeviceSynchronize()
 static void cudaMemcpyFromSymbol(void * dev_mem,const unsigned char * global_cuda_error_array,size_t sz)
 {
     memcpy(dev_mem,global_cuda_error_array,sz);
+}
+
+struct float3
+{
+    float x,y,z;
+};
+
+struct float4
+{
+    float x,y,z,w;
+};
+
+static __inline__ __host__ __device__ float4 make_float4(float x, float y, float z, float w)
+{
+  float4 t; t.x = x; t.y = y; t.z = z; t.w = w; return t;
 }
 
 /**
@@ -339,7 +354,7 @@ static void exe_kernel(lambda_f f, ite_type & ite)
 
         for (int i = old_size ; i < mem_stack.size() ; i++)
         {
-            mem_stack[i] = new char [8192];
+            mem_stack[i] = new char [CUDIFY_BOOST_CONTEXT_STACK_SIZE];
         }
     }
 
@@ -449,7 +464,6 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
         [&](boost::context::fiber && main) -> void {\
             \
             \
-            main_fib = main;
 \
             cuda_call(__VA_ARGS__);\
         },ite);\
@@ -481,11 +495,9 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
         [&] (boost::context::fiber && main) -> void {\
             \
             \
-            main_fib = std::move(main);\
 \
             cuda_call(__VA_ARGS__);\
             \
-            return std::move(main_fib);\
             \
         });\
         CHECK_SE_CLASS1_POST(#cuda_call,__VA_ARGS__)\
@@ -552,6 +564,8 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
 
 #endif
 
-#endif
+#else
 
-#endif
+constexpr int default_kernel_wg_threads_ = 1024;
+
+#endif /* CUDIFY_SEQUENCIAL_HPP_ */

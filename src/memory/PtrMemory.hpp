@@ -117,7 +117,7 @@ public:
 	 * \return true if they are the same
 	 *
 	 */
-	static bool isDeviceHostSame()
+	constexpr static bool isDeviceHostSame()
 	{
 		return true;
 	}

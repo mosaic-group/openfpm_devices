@@ -4,7 +4,7 @@
 
 #include <initializer_list>
 
-#ifdef CUDA_ON_CPU
+#if defined(CUDIFY_USE_SEQUENTIAL) || defined(CUDIFY_USE_OPENMP)
 
 struct uint3
 {
@@ -22,7 +22,7 @@ struct dim3
     constexpr dim3(const dim3 & d) : x(d.x), y(d.y), z(d.z) {}
 
     template<typename T>
-    constexpr dim3(const std::initializer_list<T> & list) 
+    dim3(const std::initializer_list<T> & list) 
     {
         auto it = list.begin();
 

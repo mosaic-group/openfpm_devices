@@ -14,6 +14,8 @@
 #include "boost/bind.hpp"
 #include <type_traits>
 
+#define CUDA_ON_BACKEND CUDA_BACKEND_ALPAKA
+
 extern alpa_base_structs __alpa_base__;
 
 extern thread_local dim3 threadIdx;
@@ -60,8 +62,6 @@ enum  cudaMemcpyKind
     cudaMemcpyDeviceToDevice      =   3,      /**< Device -> Device */
     cudaMemcpyDefault             =   4       /**< Direction of the transfer is inferred from the pointer values. Requires unified virtual addressing */
 };
-
-#error DIOCANE
 
 extern int vct_atomic_add;
 extern int vct_atomic_rem;

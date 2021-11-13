@@ -65,6 +65,7 @@ public:
 		mem.resize(size);
 	}
 
+
 	/*! \brief Copy the memory from device to device
 	 *
 	 * \param m memory from where to copy
@@ -88,7 +89,7 @@ public:
 		mem->deviceToDevice(ptr,start,stop,offset);
 	}
 
-	static bool isDeviceHostSame()
+	constexpr static bool isDeviceHostSame()
 	{
 		return Mem::isDeviceHostSame();
 	}

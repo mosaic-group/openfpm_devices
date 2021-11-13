@@ -8,7 +8,7 @@
 #ifndef HEAP_MEMORY_HPP
 #define HEAP_MEMORY_HPP
 
-#include "config.h"
+#include "config/config.h"
 #include "memory.hpp"
 #include <cstddef>
 #include <cstdint>
@@ -204,7 +204,7 @@ public:
 	 * \return true if they are the same
 	 *
 	 */
-	static bool isDeviceHostSame()
+	constexpr static bool isDeviceHostSame()
 	{
 		return true;
 	}

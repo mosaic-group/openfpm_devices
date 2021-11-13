@@ -4,8 +4,17 @@ ${DEFINE_COVERTY_SCAN}
 /* GPU support */
 ${DEFINE_CUDA_GPU}
 
+/* Define CUDIFY backend */
+${DEFINE_CUDIFY_BACKEND}
+
 /* OpenMP support */
 ${DEFINE_HAVE_OPENMP}
+
+/* HIP GPU support */
+${DEFINE_HIP_GPU}
+
+/* HIP Cudify GPU support */
+${DEFINE_CUDIFY_USE_HIP}
 
 /* Debug */
 ${DEFINE_DEBUG} /**/

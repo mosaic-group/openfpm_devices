@@ -1,18 +1,15 @@
-#ifndef CUDIFY_SEQUENCIAL_HPP_
-#define CUDIFY_SEQUENCIAL_HPP_
+#ifndef CUDIFY_OPENMP_HPP_
+#define CUDIFY_OPENMP_HPP_
 
 #include "config.h"
 #include <omp.h>
 #include <iostream>
 
-#ifdef CUDA_ON_CPU
-
+#define CUDA_ON_BACKEND CUDA_BACKEND_OPENMP
 
 #include "cudify_hardware_common.hpp"
 
 #ifdef HAVE_BOOST_CONTEXT
-
-#define CUDIFY_ACTIVE
 
 #include "util/cuda_util.hpp"
 #include <boost/bind/bind.hpp>
@@ -566,8 +563,6 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
         }
 
 #define CUDA_CHECK()
-
-#endif
 
 #endif
 
