@@ -12,14 +12,14 @@ if [ x"$hostname" == x"cifarm-centos-node.mpi-cbg.de"  ]; then
 	export PATH="$HOME/openfpm_dependencies/openfpm_pdata/$branch/CMAKE/bin:$PATH"
 fi
 
-if [ x"$hostname" == x"cifarm-ubuntu-node"  ]; then
+if [ x"$hostname" == x"cifarm-ubuntu-node.mpi-cbg.de"  ]; then
         echo "Ubuntu node"
         export PATH="/opt/bin:$PATH"
-	rm -rf $HOME/openfpm_dependencies/openfpm_devices/BOOST
 fi
 
 mkdir src/config
 
+rm -rf $HOME/openfpm_dependencies/openfpm_devices/BOOST
 
 if [ ! -d $HOME/openfpm_dependencies/openfpm_devices/BOOST ]; then
         if [ x"$hostname" == x"cifarm-mac-node" ]; then
