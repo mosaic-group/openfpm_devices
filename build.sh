@@ -16,11 +16,12 @@ fi
 
 mkdir src/config
 
+rm -rf $HOME/openfpm_dependencies/openfpm_devices/BOOST
 
 if [ ! -d $HOME/openfpm_dependencies/openfpm_devices/BOOST ]; then
         if [ x"$hostname" == x"cifarm-mac-node" ]; then
                 echo "Compiling for OSX"
-                ./install_BOOST.sh $HOME/openfpm_dependencies/openfpm_devices/ 4 darwin
+                ./install_BOOST.sh $HOME/openfpm_dependencies/openfpm_devices/ 4 clang
         else
                 echo "Compiling for Linux"
                 ./install_BOOST.sh $HOME/openfpm_dependencies/openfpm_devices 4 gcc
