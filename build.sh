@@ -34,8 +34,11 @@ if [ ! -d $HOME/openfpm_dependencies/openfpm_devices/BOOST ]; then
         fi
 fi
 
-sh ./autogen.sh
-sh ./configure --with-boost=$HOME/openfpm_dependencies/openfpm_devices/BOOST --enable-cuda-on-cpu
+if [ x"$hostname" == x"cifarm-mac-node.mpi-cbg.de"  ]; then
+	./configure --with-boost=$HOME/openfpm_dependencies/openfpm_devices/BOOST --enable-cuda-on-cpu
+else
+	./configure --with-boost=$HOME/openfpm_dependencies/openfpm_devices/BOOST --with-cuda-on-backend=OpenMP
+fi
 
 make VERBOSE=1
 
