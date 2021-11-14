@@ -6,7 +6,7 @@ centos_build:
     paths:
       - ./build/src/mem
   script:
-    - ./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME
+    - ./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME $CI_COMMIT_REF_NAME
 
 centos_run:
   stage: test
@@ -25,7 +25,7 @@ mac_build:
     paths:
       - ./build/src/mem
   script:
-    - ./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME
+    - ./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME $CI_COMMIT_REF_NAME
 
 mac_run:
   stage: test
@@ -44,7 +44,7 @@ ubuntu_build:
     paths:
       - ./build/src/mem
   script:
-    - ./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME
+    - ./build.sh $CI_PROJECT_DIR $CI_SERVER_NAME $CI_COMMIT_REF_NAME
 
 ubuntu_run:
   stage: test

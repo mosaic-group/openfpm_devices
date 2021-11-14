@@ -1,8 +1,10 @@
 #! /bin/bash
 
 hostname=$(hostname)
+branch=$3
 
 echo "Machine: $hostname"
+echo "Branch: $branch"
 
 if [ x"$hostname" == x"cifarm-centos-node.mpi-cbg.de"  ]; then
         echo "CentOS node"
