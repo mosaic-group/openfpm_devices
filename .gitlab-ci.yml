@@ -34,7 +34,7 @@ mac_run:
   dependencies:
     - mac_build
   script:
-    - export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/Users/jenkins/openfpm_dependencies/openfpm_devices/BOOST/lib" && ./build/src/mem
+    - ./build/src/mem
 
 ubuntu_build:
   stage: build
