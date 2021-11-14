@@ -15,6 +15,7 @@ fi
 if [ x"$hostname" == x"cifarm-ubuntu-node"  ]; then
         echo "Ubuntu node"
         export PATH="/opt/bin:$PATH"
+	rm -rf $HOME/openfpm_dependencies/openfpm_devices/BOOST
 fi
 
 mkdir src/config
