@@ -7,6 +7,7 @@ echo "Machine: $hostname"
 if [ x"$hostname" == x"cifarm-centos-node.mpi-cbg.de"  ]; then
         echo "CentOS node"
         source /opt/rh/devtoolset-8/enable
+	export PATH="$HOME/openfpm_dependencies/openfpm_pdata/$branch/CMAKE/bin:$PATH"
 fi
 
 if [ x"$hostname" == x"cifarm-ubuntu-node"  ]; then
