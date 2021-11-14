@@ -12,7 +12,7 @@ fi
 
 rm boost_1_75_0.tar.bz2
 wget http://ppmcore.mpi-cbg.de/upload/boost_1_75_0.tar.bz2
-tar -xvf boost_1_75_0.tar.bz2
+tar -xf boost_1_75_0.tar.bz2
 cd boost_1_75_0
 if [ x"$4" != x"" ]; then
 	if [ -f $HOME/user-config.jam ]; then
