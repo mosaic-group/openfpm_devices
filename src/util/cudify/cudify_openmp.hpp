@@ -2,6 +2,9 @@
 #define CUDIFY_OPENMP_HPP_
 
 #include "config.h"
+
+constexpr int default_kernel_wg_threads_ = 1024;
+
 #include <omp.h>
 #include <iostream>
 

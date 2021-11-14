@@ -8,7 +8,7 @@
 #ifndef HEAP_MEMORY_HPP
 #define HEAP_MEMORY_HPP
 
-#include "config/config.h"
+#include "config.h"
 #include "memory.hpp"
 #include <cstddef>
 #include <cstdint>

@@ -98,14 +98,18 @@ if (BOOST_FOUND)
         set(DEFINE_HAVE_BOOST_IOSTREAMS "#define HAVE_BOOST_IOSTREAMS")
         set(DEFINE_HAVE_BOOST_PROGRAM_OPTIONS "#define HAVE_BOOST_PROGRAM_OPTIONS")
         set(DEFINE_HAVE_BOOST_UNIT_TEST_FRAMEWORK "#define HAVE_BOOST_UNIT_TEST_FRAMEWORK")
+
 	if (Boost_CONTEXT_FOUND)
 		set(DEFINE_HAVE_BOOST_CONTEXT "#define HAVE_BOOST_CONTEXT" PARENT_SCOPE)
 		set(DEFINE_HAVE_BOOST_CONTEXT "#define HAVE_BOOST_CONTEXT")
+		set(OPTIONAL_BOOST_LIBS "-lboost_context")
 	endif()
 	if (Boost_FIBER_FOUND)
 		set(DEFINE_HAVE_BOOST_FIBER "#define HAVE_BOOST_FIBER" PARENT_SCOPE)
 		set(DEFINE_HAVE_BOOST_FIBER "#define HAVE_BOOST_FIBER")
+		string(CONCAT OPTIONAL_BOOST_LIBS ${OPTIONAL_BOOST_LIBS}  " -lboost_fiber")
 	endif()
+	set(OPTIONAL_BOOST_LIBS ${OPTIONAL_BOOST_LIBS} PARENT_SCOPE)
 endif()
 
 if (OPENMP_FOUND)
@@ -116,6 +120,36 @@ endif()
 if (ALPAKA_ROOT)
 	set(DEFINE_HAVE_ALPAKA "#define HAVE_ALPAKA" PARENT_SCOPE)
 	set(DEFINE_HAVE_ALPAKA "#define HAVE_ALPAKA")
+endif()
+
+######## COMPONENT CHECK ########, some component require dependencies, HERE we check that what you want can be satisfied
+
+if (CUDA_ON_BACKEND STREQUAL "SEQUENTIAL")
+	## We need BOOST_CONTEXT
+	if (NOT Boost_CONTEXT_FOUND)
+		message(FATAL_ERROR "Error to run CUDA on CPU (SEQUENTIAL backend) we need Boost::context installed, it seems is not available in your boost installation")
+	endif()
+endif()
+
+if (CUDA_ON_BACKEND STREQUAL "OpenMP")
+	## We need OpenMP
+	if (NOT OPENMP_FOUND OR NOT Boost_CONTEXT_FOUND)
+		message(FATAL_ERROR "Error to run CUDA on CPU (OpenMP backend) we need Boost::context and OpenMPinstalled, it seems is not available in your system")
+        endif()
+endif()
+
+if (CUDA_ON_BACKEND STREQUAL "HIP")
+	## We need HIP
+	if (NOT HIP_FOUND)
+		message(FATAL_ERROR "Error to run CUDA on HIP (HIP backend) RocM/HIP, it seems is not available in your system")
+        endif()
+endif()
+
+if (CUDA_ON_BACKEND STREQUAL "CUDA")
+	## We need CUDA
+	if (NOT CUDA_FOUND)
+		message(FATAL_ERROR "Error to run on CUDA you need a CUDA compatible compiler, it seems is not available in your system")
+        endif()
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/config/config_cmake.h.in ${CMAKE_CURRENT_SOURCE_DIR}/src/config/config.h)
