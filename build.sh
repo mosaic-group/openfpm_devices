@@ -10,8 +10,6 @@ if [ x"$hostname" == x"cifarm-centos-node.mpi-cbg.de"  ]; then
         echo "CentOS node"
         source /opt/rh/devtoolset-8/enable
 	export PATH="$HOME/openfpm_dependencies/openfpm_pdata/$branch/CMAKE/bin:$PATH"
-	echo "$PATH"
-	cmake --version
 fi
 
 if [ x"$hostname" == x"cifarm-ubuntu-node"  ]; then
@@ -21,8 +19,6 @@ fi
 
 mkdir src/config
 
-#rm -rf $HOME/openfpm_dependencies/openfpm_devices/BOOST
-echo "$hostname"
 
 if [ ! -d $HOME/openfpm_dependencies/openfpm_devices/BOOST ]; then
         if [ x"$hostname" == x"cifarm-mac-node" ]; then
@@ -38,6 +34,5 @@ sh ./autogen.sh
 sh ./configure --with-boost=$HOME/openfpm_dependencies/openfpm_devices/BOOST --enable-cuda-on-cpu
 
 make VERBOSE=1
-
 
 
