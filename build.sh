@@ -19,8 +19,7 @@ fi
 
 if [ x"$hostname" == x"cifarm-mac-node.mpi-cbg.de"  ]; then
         echo "Mac node"
-	./install_CMAKE_on_CI.sh $HOME/openfpm_dependencies/openfpm_devices/CMAKE 4
-        export PATH="$HOME/openfpm_dependencies/openfpm_devices/CMAKE/bin:$PATH"
+        export PATH="$HOME/openfpm_dependencies/openfpm_devices/CMAKE/CMAKE/bin:$PATH"
 fi
 
 mkdir src/config
