@@ -12,7 +12,7 @@ if [ x"$hostname" == x"cifarm-centos-node.mpi-cbg.de"  ]; then
 	export PATH="$HOME/openfpm_dependencies/openfpm_pdata/$branch/CMAKE/bin:$PATH"
 fi
 
-if [ x"$hostname" == x"cifarm-ubuntu-node.mpi-cbg.de"  ]; then
+if [ x"$hostname" == x"cifarm-ubuntu-node"  ]; then
         echo "Ubuntu node"
         export PATH="/opt/bin:$PATH"
 fi
