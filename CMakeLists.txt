@@ -154,6 +154,8 @@ if (CUDA_ON_BACKEND STREQUAL "CUDA")
         endif()
 endif()
 
+message("DDDDDDDDDDDDDDDDDDDDDDD ${DEFINE_HAVE_BOOST}     ${DEFINE_HAVE_BOOST_CONTEXT}")
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/config/config_cmake.h.in ${CMAKE_CURRENT_SOURCE_DIR}/src/config/config.h)
 
 add_subdirectory (src)
