@@ -20,7 +20,6 @@ fi
 if [ x"$hostname" == x"cifarm-mac-node.mpi-cbg.de"  ]; then
         echo "Mac node"
         export PATH="$HOME/openfpm_dependencies/openfpm_devices/CMAKE/CMAKE/bin:$PATH"
-	rm -rf $HOME/openfpm_dependencies/openfpm_devices/BOOST
 fi
 
 mkdir src/config
