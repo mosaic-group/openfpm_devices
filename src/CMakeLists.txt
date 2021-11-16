@@ -37,10 +37,11 @@ if ( CUDA_ON_BACKEND STREQUAL "HIP" AND HIP_FOUND )
 else()
 
 	add_executable(mem main.cpp memory/HeapMemory.cpp util/cudify/cudify_vars.cpp util/cudify/cudify_unit_test.cu memory/mem_conf.cpp  ${CUDA_SOURCES} ${CUDA_SOURCES_TEST})
-
+	set_property(TARGET mem PROPERTY CUDA_ARCHITECTURES OFF)
 	add_library(ofpmmemory STATIC memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
+	set_property(TARGET ofpmmemory PROPERTY CUDA_ARCHITECTURES OFF)
 	add_library(ofpmmemory_dl SHARED memory/HeapMemory.cpp util/cudify/cudify_vars.cpp memory/PtrMemory.cpp memory/mem_conf.cpp  ${CUDA_SOURCES})
-
+	set_property(TARGET ofpmmemory_dl PROPERTY CUDA_ARCHITECTURES OFF)
 endif()
 
 set_property(TARGET mem PROPERTY CUDA_ARCHITECTURES OFF)
@@ -53,9 +54,6 @@ if (HIP_FOUND)
         SET(CMAKE_SHARED_LINKER_FLAGS  "--amdgpu-target=${AMD_ARCH_COMPILE}")
 endif()
 
-if(OpenMP_CXX_FOUND)
-    target_compile_options(mem PUBLIC ${OpenMP_CXX_FLAGS})
-endif()
 
 if ( CMAKE_COMPILER_IS_GNUCC )
     target_compile_options(mem PRIVATE "-Wno-deprecated-declarations")
