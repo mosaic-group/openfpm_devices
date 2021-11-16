@@ -89,7 +89,6 @@ if(HIP_FOUND)
         set(DEFINE_CUDIFY_USE_HIP "#define CUDIFY_USE_HIP")
 endif()
 
-message("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC ${Boost_CONTEXT_FOUND} ${}")
 
 if (Boost_FOUND)
 	set(DEFINE_HAVE_BOOST "#define HAVE_BOOST" PARENT_SCOPE)
@@ -154,7 +153,6 @@ if (CUDA_ON_BACKEND STREQUAL "CUDA")
         endif()
 endif()
 
-message("DDDDDDDDDDDDDDDDDDDDDDD ${DEFINE_HAVE_BOOST}     ${DEFINE_HAVE_BOOST_CONTEXT}")
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/config/config_cmake.h.in ${CMAKE_CURRENT_SOURCE_DIR}/src/config/config.h)
 
