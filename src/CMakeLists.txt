@@ -154,6 +154,7 @@ install(FILES util/cudify/cudify_alpaka.hpp
 	      util/cudify/cudify_openmp.hpp
 	      util/cudify/cudify_hip.hpp
               util/cudify/cudify.hpp
+	      util/cudify/cudify_cuda.hpp
         DESTINATION openfpm_devices/include/util/cudify
 	COMPONENT OpenFPM)
 
