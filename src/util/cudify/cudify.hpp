@@ -24,6 +24,8 @@
 #else
 #define CUDA_ON_BACKEND CUDA_BACKEND_NONE
 
+constexpr int default_kernel_wg_threads_ = 1024;
+
 static void init_wrappers() {}
 
 #endif
