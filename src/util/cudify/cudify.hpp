@@ -10,6 +10,7 @@
 #define CUDA_BACKEND_OPENMP 4
 #define CUDA_BACKEND_HIP 5
 
+
 #if defined(CUDIFY_USE_CUDA)
 #include "util/cudify/cudify_cuda.hpp"
 #elif defined(CUDIFY_USE_ALPAKA)

@@ -68,6 +68,7 @@ if (CMAKE_CUDA_COMPILER_ID STREQUAL "Clang")
 endif()
 
 if (CUDA_FOUND)
+	target_include_directories(mem PUBLIC ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 	if (CMAKE_CUDA_COMPILER_ID STREQUAL "NVIDIA")
         	target_compile_options(mem PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcudafe "--display_error_number --diag_suppress=2885 --diag_suppress=2887  --diag_suppress=2888 --diag_suppress=186 --diag_suppress=111" --expt-extended-lambda>)
 	endif()
