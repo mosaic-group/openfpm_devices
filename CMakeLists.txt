@@ -19,7 +19,7 @@ set(CUDA_ON_BACKEND CACHE STRING "Activate several backend for CUDA")
 # Save Boost_LIBRARIES before alpaka fuck-up Boost
 set(Boost_LIBRARIES_BCK ${Boost_LIBRARIES})
 
-if (CUDA_ON_BACKEND STREQUAL "HIP" AND NOT HIP_FOUND)
+if (CUDA_ON_BACKEND STREQUAL "HIP")
 	find_package(HIP)
         if(NOT HIP_FOUND)
                 message( FATAL_ERROR "HIP has not been found" )

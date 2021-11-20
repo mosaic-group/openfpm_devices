@@ -5,11 +5,6 @@
 
 #define CUDA_ON_BACKEND CUDA_BACKEND_HIP
 
-#ifdef HIP_GPU
-
-#include "cudify_hardware_common.hpp"
-
-
 #ifdef __NVCC__
     #undef __NVCC__
     #include <hip/hip_runtime.h>
@@ -17,11 +12,6 @@
 #else
     #include <hip/hip_runtime.h>
 #endif
-#include "util/cuda_util.hpp"
-#include <vector>
-#include <string.h>
-#include "hipcub/hipcub.hpp"
-#include "hipcub/block/block_scan.hpp"
 
 constexpr int default_kernel_wg_threads_ = 256;
 
@@ -32,13 +22,9 @@ typedef cudaDeviceProp_t cudaDeviceProp;
 typedef hipEvent_t cudaEvent_t;
 typedef hipFuncAttributes cudaFuncAttributes;
 
+
 #define cudaSuccess hipSuccess
 
-namespace cub
-{
-    template<typename T, unsigned int bd>
-    using BlockScan = hipcub::BlockScan<T,bd>;
-}
 
 static void init_wrappers()
 {}
@@ -208,6 +194,21 @@ static cudaError_t cudaMemcpy ( void* dst, const void* src, size_t count, cudaMe
     }
 
     return hipMemcpy(dst,src,count,opt_);
+}
+
+#ifdef __HIPCC__
+
+#include "cudify_hardware_common.hpp"
+#include "util/cuda_util.hpp"
+#include <vector>
+#include <string.h>
+#include "hipcub/hipcub.hpp"
+#include "hipcub/block/block_scan.hpp"
+
+namespace cub
+{
+    template<typename T, unsigned int bd>
+    using BlockScan = hipcub::BlockScan<T,bd>;
 }
 
 template<typename T>
