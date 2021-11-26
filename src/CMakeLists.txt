@@ -80,15 +80,11 @@ if (CUDA_FOUND)
 
 endif()
 
-target_include_directories (mem PUBLIC ${CUDA_INCLUDE_DIRS})
 target_include_directories (mem PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (mem PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/config)
 target_include_directories (mem PUBLIC ${Boost_INCLUDE_DIRS})
 if (ALPAKA_ROOT)
 	target_include_directories (mem PUBLIC ${ALPAKA_ROOT}/include)
-endif()
-if (CUDA_FOUND)
-	target_include_directories (mem PUBLIC ${CUDA_INCLUDE_DIRS})
 endif()
 
 target_include_directories (ofpmmemory PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
