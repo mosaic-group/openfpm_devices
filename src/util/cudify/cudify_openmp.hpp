@@ -6,7 +6,7 @@
 constexpr int default_kernel_wg_threads_ = 1024;
 
 #include <omp.h>
-#include <iostream>
+
 
 #define CUDA_ON_BACKEND CUDA_BACKEND_OPENMP
 
@@ -14,7 +14,6 @@ constexpr int default_kernel_wg_threads_ = 1024;
 
 #ifdef HAVE_BOOST_CONTEXT
 
-#include "util/cuda_util.hpp"
 #include <boost/bind/bind.hpp>
 #include <type_traits>
 #ifdef HAVE_BOOST_CONTEXT
@@ -46,33 +45,10 @@ static void __syncthreads()
     boost::context::detail::jump_fcontext(main_ctx,par_glob);
 };
 
-static void cudaDeviceSynchronize()
-{}
-
-static void cudaMemcpyFromSymbol(void * dev_mem,const unsigned char * global_cuda_error_array,size_t sz)
-{
-    memcpy(dev_mem,global_cuda_error_array,sz);
-}
-
-/**
- * CUDA memory copy types
- */
-enum  cudaMemcpyKind
-{
-    cudaMemcpyHostToHost          =   0,      /**< Host   -> Host */
-    cudaMemcpyHostToDevice        =   1,      /**< Host   -> Device */
-    cudaMemcpyDeviceToHost        =   2,      /**< Device -> Host */
-    cudaMemcpyDeviceToDevice      =   3,      /**< Device -> Device */
-    cudaMemcpyDefault             =   4       /**< Direction of the transfer is inferred from the pointer values. Requires unified virtual addressing */
-};
 
 extern thread_local int vct_atomic_add;
 extern thread_local int vct_atomic_rem;
 
-static void cudaMemcpyToSymbol(unsigned char * global_cuda_error_array,const void * mem,size_t sz,int offset,int unused)
-{
-    memcpy(global_cuda_error_array+offset,mem,sz);
-}
 
 namespace cub
 {
@@ -307,8 +283,12 @@ namespace mgpu
 
 extern size_t n_workers;
 
+static bool init_wrappers_call = false;
+
 static void init_wrappers()
 {
+    init_wrappers_call = true;
+
     #pragma omp parallel
     {
         n_workers = omp_get_num_threads();
@@ -346,6 +326,13 @@ void launch_kernel(boost::context::detail::transfer_t par)
 template<typename lambda_f, typename ite_type>
 static void exe_kernel(lambda_f f, ite_type & ite)
 {
+#ifdef SE_CLASS1
+    if (init_wrappers_call == false)
+    {
+        std::cerr << __FILE__ << ":" << __LINE__ << " error, you must call init_wrappers to use cuda openmp backend" << std::endl;
+    }
+#endif
+
     if (ite.nthrs() == 0 || ite.nblocks() == 0) {return;}
 
     if (mem_stack.size() < ite.nthrs()*n_workers)

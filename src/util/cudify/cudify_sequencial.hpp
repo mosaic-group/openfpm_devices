@@ -43,40 +43,7 @@ static void __syncthreads()
     boost::context::detail::jump_fcontext(main_ctx,par_glob);
 };
 
-static void cudaDeviceSynchronize()
-{}
 
-static void cudaMemcpyFromSymbol(void * dev_mem,const unsigned char * global_cuda_error_array,size_t sz)
-{
-    memcpy(dev_mem,global_cuda_error_array,sz);
-}
-
-struct float3
-{
-    float x,y,z;
-};
-
-struct float4
-{
-    float x,y,z,w;
-};
-
-static __inline__ __host__ __device__ float4 make_float4(float x, float y, float z, float w)
-{
-  float4 t; t.x = x; t.y = y; t.z = z; t.w = w; return t;
-}
-
-/**
- * CUDA memory copy types
- */
-enum  cudaMemcpyKind
-{
-    cudaMemcpyHostToHost          =   0,      /**< Host   -> Host */
-    cudaMemcpyHostToDevice        =   1,      /**< Host   -> Device */
-    cudaMemcpyDeviceToHost        =   2,      /**< Device -> Host */
-    cudaMemcpyDeviceToDevice      =   3,      /**< Device -> Device */
-    cudaMemcpyDefault             =   4       /**< Direction of the transfer is inferred from the pointer values. Requires unified virtual addressing */
-};
 
 extern int thread_local vct_atomic_add;
 extern int thread_local vct_atomic_rem;

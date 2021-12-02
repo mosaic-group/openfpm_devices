@@ -158,5 +158,26 @@ BOOST_AUTO_TEST_CASE( cudify_on_test_test2)
     BOOST_REQUIRE_EQUAL(check,true);
 }
 
+BOOST_AUTO_TEST_CASE( cudify_type_chack)
+{
+    float3 f3;
+
+    f3.x = 0.0;
+    f3.y = 1.0;
+    f3.z = 2.0;
+
+    BOOST_REQUIRE_EQUAL(f3.x,0.0);
+    BOOST_REQUIRE_EQUAL(f3.y,1.0);
+    BOOST_REQUIRE_EQUAL(f3.z,2.0);
+
+    float4 f4 = make_float4(0.0,1.0,2.0,3.0);
+
+
+    BOOST_REQUIRE_EQUAL(f4.x,0.0);
+    BOOST_REQUIRE_EQUAL(f4.y,1.0);
+    BOOST_REQUIRE_EQUAL(f4.z,2.0);
+    BOOST_REQUIRE_EQUAL(f4.w,3.0);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
