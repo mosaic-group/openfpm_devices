@@ -87,11 +87,13 @@ if (ALPAKA_ROOT)
 	target_include_directories (mem PUBLIC ${ALPAKA_ROOT}/include)
 endif()
 
+target_include_directories (ofpmmemory PRIVATE ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 target_include_directories (ofpmmemory PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (ofpmmemory PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/config)
 target_include_directories (ofpmmemory PUBLIC ${ALPAKA_ROOT}/include)
 target_include_directories (ofpmmemory PUBLIC ${Boost_INCLUDE_DIRS})
 
+target_include_directories (ofpmmemory_dl PRIVATE ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 target_include_directories (ofpmmemory_dl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (ofpmmemory_dl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/config)
 target_include_directories (ofpmmemory_dl PUBLIC ${ALPAKA_ROOT}/include)
