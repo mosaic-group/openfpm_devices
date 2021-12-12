@@ -352,37 +352,69 @@ static void exe_kernel(lambda_f f, ite_type & ite)
     contexts.resize(mem_stack.size());
 
     Fun_enc<lambda_f> fe(f);
+    bool is_sync_free = true;
 
-    #pragma omp parallel for collapse(3)
+    bool first_block = true;
+
+    #pragma omp parallel for collapse(3) firstprivate(first_block)
     for (int i = 0 ; i < ite.wthr.z ; i++)
     {
         for (int j = 0 ; j < ite.wthr.y ; j++)
         {
             for (int k = 0 ; k < ite.wthr.x ; k++)
             {
-                size_t tid = omp_get_thread_num();
-
-                blockIdx.z = i;
-                blockIdx.y = j;
-                blockIdx.x = k;
-                int nc = 0;
-                for (int it = 0 ; it < ite.thr.z ; it++)
+                if (first_block == true || is_sync_free == false)
                 {
-                    for (int jt = 0 ; jt < ite.thr.y ; jt++)
-                    {
-                        for (int kt = 0 ; kt < ite.thr.x ; kt++)
-                        {
-                            contexts[nc + tid*stride] = boost::context::detail::make_fcontext((char *)mem_stack[nc + tid*stride]+CUDIFY_BOOST_CONTEXT_STACK_SIZE-16,CUDIFY_BOOST_CONTEXT_STACK_SIZE,launch_kernel<Fun_enc<lambda_f>>);
+                    size_t tid = omp_get_thread_num();
 
-                            nc++;
+                    blockIdx.z = i;
+                    blockIdx.y = j;
+                    blockIdx.x = k;
+                    int nc = 0;
+                    for (int it = 0 ; it < ite.thr.z ; it++)
+                    {
+                        for (int jt = 0 ; jt < ite.thr.y ; jt++)
+                        {
+                            for (int kt = 0 ; kt < ite.thr.x ; kt++)
+                            {
+                                contexts[nc + tid*stride] = boost::context::detail::make_fcontext((char *)mem_stack[nc + tid*stride]+CUDIFY_BOOST_CONTEXT_STACK_SIZE-16,CUDIFY_BOOST_CONTEXT_STACK_SIZE,launch_kernel<Fun_enc<lambda_f>>);
+
+                                nc++;
+                            }
+                        }
+                    }
+
+                    bool work_to_do = true;
+                    while(work_to_do)
+                    {
+                        nc = 0;
+                        // Work threads
+                        for (int it = 0 ; it < ite.thr.z ; it++)
+                        {
+                            threadIdx.z = it;
+                            for (int jt = 0 ; jt < ite.thr.y ; jt++)
+                            {
+                                threadIdx.y = jt;
+                                for (int kt = 0 ; kt < ite.thr.x ; kt++)
+                                {
+                                    threadIdx.x = kt;
+                                    auto t = boost::context::detail::jump_fcontext(contexts[nc + tid*stride],&fe);
+                                    contexts[nc + tid*stride] = t.fctx;
+
+                                    work_to_do &= (t.data != 0);
+                                    is_sync_free &= !(work_to_do);
+                                    nc++;
+                                }
+                            }
                         }
                     }
                 }
-
-                bool work_to_do = true;
-                while(work_to_do)
+                else
                 {
-                    nc = 0;
+                    blockIdx.z = i;
+                    blockIdx.y = j;
+                    blockIdx.x = k;
+                    int fb = 0;
                     // Work threads
                     for (int it = 0 ; it < ite.thr.z ; it++)
                     {
@@ -393,15 +425,13 @@ static void exe_kernel(lambda_f f, ite_type & ite)
                             for (int kt = 0 ; kt < ite.thr.x ; kt++)
                             {
                                 threadIdx.x = kt;
-                                auto t = boost::context::detail::jump_fcontext(contexts[nc + tid*stride],&fe);
-                                contexts[nc + tid*stride] = t.fctx;
-
-                                work_to_do &= (t.data != 0);
-                                nc++;
+                                f();
                             }
                         }
                     }
                 }
+
+                first_block = false;
             }
         }
     }
@@ -422,13 +452,13 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
                 blockIdx.x = k;
                 int fb = 0;
                 // Work threads
-                for (int it = 0 ; it < ite.wthr.z ; it++)
+                for (int it = 0 ; it < ite.thr.z ; it++)
                 {
                     threadIdx.z = it;
-                    for (int jt = 0 ; jt < ite.wthr.y ; jt++)
+                    for (int jt = 0 ; jt < ite.thr.y ; jt++)
                     {
                         threadIdx.y = jt;
-                        for (int kt = 0 ; kt < ite.wthr.x ; kt++)
+                        for (int kt = 0 ; kt < ite.thr.x ; kt++)
                         {
                             threadIdx.x = kt;
                             f();
@@ -544,6 +574,57 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
         CHECK_SE_CLASS1_PRE\
         \
         exe_kernel([&]() -> void {\
+            \
+            cuda_call(__VA_ARGS__);\
+            \
+            },itg);\
+        \
+        CHECK_SE_CLASS1_POST(#cuda_call,__VA_ARGS__)\
+        }
+
+#define CUDA_LAUNCH_NOSYNC(cuda_call,ite, ...) \
+        {\
+        gridDim.x = ite.wthr.x;\
+        gridDim.y = ite.wthr.y;\
+        gridDim.z = ite.wthr.z;\
+        \
+        blockDim.x = ite.thr.x;\
+        blockDim.y = ite.thr.y;\
+        blockDim.z = ite.thr.z;\
+        \
+        CHECK_SE_CLASS1_PRE\
+        \
+        exe_kernel_no_sync([&]() -> void {\
+        \
+            \
+            cuda_call(__VA_ARGS__);\
+            \
+            },ite);\
+        \
+        CHECK_SE_CLASS1_POST(#cuda_call,__VA_ARGS__)\
+        }
+
+
+#define CUDA_LAUNCH_DIM3_NOSYNC(cuda_call,wthr_,thr_, ...)\
+        {\
+        dim3 wthr__(wthr_);\
+        dim3 thr__(thr_);\
+        \
+        ite_gpu<1> itg;\
+        itg.wthr = wthr_;\
+        itg.thr = thr_;\
+        \
+        gridDim.x = wthr__.x;\
+        gridDim.y = wthr__.y;\
+        gridDim.z = wthr__.z;\
+        \
+        blockDim.x = thr__.x;\
+        blockDim.y = thr__.y;\
+        blockDim.z = thr__.z;\
+        \
+        CHECK_SE_CLASS1_PRE\
+        \
+        exe_kernel_no_sync([&]() -> void {\
             \
             cuda_call(__VA_ARGS__);\
             \

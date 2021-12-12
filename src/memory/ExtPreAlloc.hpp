@@ -198,12 +198,16 @@ public:
 
 	/*! \brief Return the pointer of the last allocation
 	 *
+	 * NULL if memory has not been allocated
+	 * 
 	 * \return the pointer
 	 *
 	 */
 	virtual void * getDevicePointer()
 	{
-		return (((unsigned char *)mem->getDevicePointer()) + a_seq );
+		if (mem != NULL)
+		{return (((unsigned char *)mem->getDevicePointer()) + a_seq );}
+		else {return NULL;}
 	}
 
 	/*! \brief Return the pointer of the last allocation
