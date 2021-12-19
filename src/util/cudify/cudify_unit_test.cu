@@ -80,6 +80,7 @@ __global__ void test1_syncthreads(T p, float * array)
     p.ptr[idx_z*gridDim.x*gridDim.y*blockDim.x*blockDim.y + idx_y*gridDim.x*blockDim.x + idx_x] = cnt;
 }
 
+
 BOOST_AUTO_TEST_CASE( cudify_on_test_test )
 {
     init_wrappers();
@@ -139,6 +140,79 @@ BOOST_AUTO_TEST_CASE( cudify_on_test_test2)
     g.thr = dim3(4,4,4);
 
     CUDA_LAUNCH(test1_syncthreads,g,p,array_ptr);
+
+    mem.deviceToHost();
+    mem2.deviceToHost();
+
+    float * ptr1 = (float *)mem.getPointer();
+    float * ptr2 = (float *)mem2.getPointer();
+
+    bool check = true;
+    for (int i = 0 ; i < 16*16*16; i++)
+    {
+        //std::cout << i << "   " << ptr1[i] << "  " << ptr2[i] << std::endl;
+
+        check &= ptr1[i] == 64.0;
+        check &= ptr2[i] == 128.0;
+    }
+
+    BOOST_REQUIRE_EQUAL(check,true);
+}
+
+
+BOOST_AUTO_TEST_CASE( cudify_on_test_test2_lambda)
+{
+    init_wrappers();
+
+    CudaMemory mem;
+    mem.allocate(16*16*16*sizeof(float));
+
+    CudaMemory mem2;
+    mem2.allocate(16*16*16*sizeof(float));
+
+    float * array_ptr = (float *)mem.getDevicePointer();
+
+    par_struct p;
+    p.ptr = (float *)mem2.getDevicePointer();
+
+    ite_g g;
+
+    float * array = array_ptr;
+
+    g.wthr = dim3(4,4,4);
+    g.thr = dim3(4,4,4);
+
+    auto lambda_f = [array,p] __device__ (dim3 & blockIdx, dim3 & threadIdx){
+        __shared__ int cnt;
+
+        cnt = 0;
+    
+        __syncthreads();
+    
+        size_t idx_x = blockIdx.x * blockDim.x + threadIdx.x;
+        size_t idx_y = blockIdx.y * blockDim.y + threadIdx.y;
+        size_t idx_z = blockIdx.z * blockDim.z + threadIdx.z;
+    
+        array[idx_z*gridDim.x*gridDim.y*blockDim.x*blockDim.y + idx_y*gridDim.x*blockDim.x + idx_x] = 5.0;
+    
+        p.ptr[idx_z*gridDim.x*gridDim.y*blockDim.x*blockDim.y + idx_y*gridDim.x*blockDim.x + idx_x] = 17.0;
+    
+        atomicAdd(&cnt,1);
+    
+        __syncthreads();
+    
+        array[idx_z*gridDim.x*gridDim.y*blockDim.x*blockDim.y + idx_y*gridDim.x*blockDim.x + idx_x] = cnt;
+    
+        __syncthreads();
+    
+        atomicAdd(&cnt,1);
+    
+        __syncthreads();
+    
+        p.ptr[idx_z*gridDim.x*gridDim.y*blockDim.x*blockDim.y + idx_y*gridDim.x*blockDim.x + idx_x] = cnt;
+    };
+
+    CUDA_LAUNCH_LAMBDA(g, lambda_f);
 
     mem.deviceToHost();
     mem2.deviceToHost();

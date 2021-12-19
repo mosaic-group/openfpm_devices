@@ -8,6 +8,15 @@ constexpr int default_kernel_wg_threads_ = 1024;
 #if CUDART_VERSION >= 11000 && defined(__NVCC__)
     #include "cub/util_type.cuh"
     #include "cub/block/block_scan.cuh"
+
+template<typename lambda_f>
+__global__ void kernel_launch_lambda(lambda_f f)
+{
+    dim3 bid = blockIdx;
+    dim3 tid = threadIdx;
+    f(bid,tid);
+}
+
 #endif
 
 static void init_wrappers()
@@ -98,6 +107,9 @@ static void init_wrappers()
 
 #define CUDA_LAUNCH_DIM3(cuda_call,wthr,thr, ...) \
         cuda_call<<<wthr,thr>>>(__VA_ARGS__);
+
+#define CUDA_LAUNCH_LAMBDA(ite,lambda_f, ...) \
+        kernel_launch_lambda<<<ite.wthr,ite.thr>>>(lambda_f);
 
 #define CUDA_CHECK()
 
