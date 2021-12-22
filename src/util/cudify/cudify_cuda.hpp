@@ -8,6 +8,9 @@ constexpr int default_kernel_wg_threads_ = 1024;
 #if CUDART_VERSION >= 11000 && defined(__NVCC__)
     #include "cub/util_type.cuh"
     #include "cub/block/block_scan.cuh"
+#endif
+
+#ifdef __NVCC__
 
 template<typename lambda_f>
 __global__ void kernel_launch_lambda(lambda_f f)
