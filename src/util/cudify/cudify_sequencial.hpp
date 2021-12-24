@@ -27,8 +27,8 @@ constexpr int default_kernel_wg_threads_ = 1024;
 
 extern std::vector<void *>mem_stack;
 
-static thread_local dim3 threadIdx;
-static thread_local dim3 blockIdx;
+extern thread_local dim3 threadIdx;
+extern thread_local dim3 blockIdx;
 
 static dim3 blockDim;
 static dim3 gridDim;

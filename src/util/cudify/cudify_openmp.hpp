@@ -29,11 +29,11 @@ constexpr int default_kernel_wg_threads_ = 1024;
 
 extern std::vector<void *>mem_stack;
 
-static thread_local dim3 threadIdx;
-static thread_local dim3 blockIdx;
+extern thread_local dim3 threadIdx;
+extern thread_local dim3 blockIdx;
 
-static dim3 blockDim;
-static dim3 gridDim;
+extern dim3 blockDim;
+extern dim3 gridDim;
 
 extern std::vector<void *> mem_stack;
 extern std::vector<boost::context::detail::fcontext_t> contexts;

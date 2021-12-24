@@ -12,6 +12,16 @@
 alpa_base_structs __alpa_base__;
 #endif
 
+#if defined(CUDIFY_USE_SEQUENTIAL) || defined(CUDIFY_USE_OPENMP)
+
+thread_local dim3 threadIdx;
+thread_local dim3 blockIdx;
+
+dim3 blockDim;
+dim3 gridDim;
+
+#endif
+
 
 thread_local int vct_atomic_add;
 thread_local int vct_atomic_rem;
