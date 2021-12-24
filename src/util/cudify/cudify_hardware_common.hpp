@@ -140,8 +140,6 @@ enum cudaError
 
 typedef cudaError cudaError_t;
 
-
-
 struct uint3
 {
     unsigned int x, y, z;
@@ -208,6 +206,43 @@ static cudaError cudaMemcpyToSymbol(unsigned char * global_cuda_error_array, con
     memcpy(global_cuda_error_array + offset,dev_mem,sz);
     return cudaError::cudaSuccess;
 }
+
+//static cudaError cudaMemcpy( void* dst, const void* src, size_t count, cudaMemcpyKind kind)
+//{
+    // we copy with OpenMP (when available) the reason stay in avoiding NUMA across threads 
+    // (in multi-socket environment)
+/*    {
+        char * dst_ = (char *)dst;
+        char * src_ = (char *)src;
+        for (int i = 0 ; i < count % 8 ; i++)
+        {
+            dst_[i] = src_[i];
+        }
+    }
+
+    {
+        double * dst_ = (double *)(((char *)dst) + count % 8);
+        double * src_ = (double *)(((char *)src) + count % 8);
+        count /= 8;
+        #pragma omp parallel for
+        for (int i = 0 ; i < count ; i++)
+        {
+            dst_[i] = src_[i];
+        }
+    }*/
+
+//    memcpy(dst,src,count);
+
+//    return cudaError::cudaSuccess;
+//}
+
+
+/*static cudaError cudaHostGetDevicePointer( void** pDevice, void* pHost, unsigned int  flags)
+{
+    *pDevice = pHost;
+
+    return cudaError::cudaSuccess;
+}*/
 
 struct float3
 {
