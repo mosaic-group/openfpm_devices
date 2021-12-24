@@ -78,6 +78,32 @@ static void init_wrappers()
         }\
         }
 
+#define CUDA_LAUNCH_LAMBDA(ite, lambda_f, ...) \
+        {\
+        cudaDeviceSynchronize(); \
+        {\
+            cudaError_t e = cudaGetLastError();\
+            if (e != cudaSuccess)\
+            {\
+                std::string error = cudaGetErrorString(e);\
+                std::cout << "Cuda an error has occurred before this CUDA_LAUNCH, detected in: " << __FILE__ << ":" << __LINE__ << " " << error << std::endl;\
+            }\
+        }\
+        CHECK_SE_CLASS1_PRE\
+        if (ite.wthr.x != 0)\
+        {kernel_launch_lambda<<<ite.wthr,ite.thr>>>(lambda_f);}\
+        cudaDeviceSynchronize(); \
+        {\
+            cudaError_t e = cudaGetLastError();\
+            if (e != cudaSuccess)\
+            {\
+                std::string error = cudaGetErrorString(e);\
+                std::cout << "Cuda Error in: " << __FILE__ << ":" << __LINE__ << " " << error << std::endl;\
+            }\
+            CHECK_SE_CLASS1_POST("lambda")\
+        }\
+        }
+
 #define CUDA_CHECK() \
         {\
         cudaDeviceSynchronize(); \
