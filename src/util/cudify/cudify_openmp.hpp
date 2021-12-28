@@ -283,7 +283,7 @@ namespace mgpu
 
 extern size_t n_workers;
 
-static bool init_wrappers_call = false;
+extern bool init_wrappers_call;
 
 static void init_wrappers()
 {
@@ -660,6 +660,34 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
         }
 
 
+#define CUDA_LAUNCH_DIM3_DEBUG_SE1(cuda_call,wthr_,thr_, ...)\
+        {\
+        dim3 wthr__(wthr_);\
+        dim3 thr__(thr_);\
+        \
+        ite_gpu<1> itg;\
+        itg.wthr = wthr_;\
+        itg.thr = thr_;\
+        \
+        gridDim.x = wthr__.x;\
+        gridDim.y = wthr__.y;\
+        gridDim.z = wthr__.z;\
+        \
+        blockDim.x = thr__.x;\
+        blockDim.y = thr__.y;\
+        blockDim.z = thr__.z;\
+        \
+        CHECK_SE_CLASS1_PRE\
+        std::cout << "Launching: " << #cuda_call << "  (" << wthr__.x << "," << wthr__.y << "," << wthr__.z << ")     (" << thr__.x << "," << thr__.y << "," << thr__.z << ")" << std::endl;\
+        \
+        exe_kernel([&]() -> void {\
+            \
+            cuda_call(__VA_ARGS__);\
+            \
+            },itg);\
+        \
+        }
+
 #define CUDA_CHECK()
 
 #else
@@ -700,7 +728,7 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
         \
         exe_kernel_lambda(lambda_f,ite);\
         \
-        CHECK_SE_CLASS1_POST("lambda")\
+        CHECK_SE_CLASS1_POST("lambda",0)\
         }
 
 #define CUDA_LAUNCH_DIM3(cuda_call,wthr_,thr_, ...)\
@@ -730,6 +758,34 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
             },itg);\
         \
         CHECK_SE_CLASS1_POST(#cuda_call,__VA_ARGS__)\
+        }
+
+#define CUDA_LAUNCH_DIM3_DEBUG_SE1(cuda_call,wthr_,thr_, ...)\
+        {\
+        dim3 wthr__(wthr_);\
+        dim3 thr__(thr_);\
+        \
+        ite_gpu<1> itg;\
+        itg.wthr = wthr_;\
+        itg.thr = thr_;\
+        \
+        gridDim.x = wthr__.x;\
+        gridDim.y = wthr__.y;\
+        gridDim.z = wthr__.z;\
+        \
+        blockDim.x = thr__.x;\
+        blockDim.y = thr__.y;\
+        blockDim.z = thr__.z;\
+        \
+        CHECK_SE_CLASS1_PRE\
+        \
+        \
+        exe_kernel([&]() -> void {\
+            \
+            cuda_call(__VA_ARGS__);\
+            \
+            },itg);\
+        \
         }
 
 #define CUDA_LAUNCH_NOSYNC(cuda_call,ite, ...) \

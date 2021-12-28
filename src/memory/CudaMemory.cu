@@ -2,6 +2,7 @@
 #include <cstddef>
 #include "CudaMemory.cuh"
 #include "cuda_macro.h"
+#include "util/cudify/cudify.hpp"
 #include <cstring>
 
 #define CUDA_EVENT 0x1201
@@ -19,10 +20,8 @@ bool CudaMemory::flush()
 
 		#ifdef __HIP__
 		CUDA_SAFE_CALL(hipMemcpy(dm,hm,sz,hipMemcpyHostToDevice));
-		#elif defined(CUDIFY_USE_CUDA)
-		CUDA_SAFE_CALL(cudaMemcpy(dm,hm,sz,cudaMemcpyHostToDevice));
 		#else
-		memcpy(dm,hm,sz);
+		CUDA_SAFE_CALL(cudaMemcpy(dm,hm,sz,cudaMemcpyHostToDevice));
 		#endif
 	}
 	
@@ -121,10 +120,8 @@ void CudaMemory::deviceToDevice(void * ptr, size_t start, size_t stop, size_t of
 {
 	#ifdef __HIP__
 	CUDA_SAFE_CALL(hipMemcpy(((unsigned char *)dm)+offset,((unsigned char *)ptr)+start,(stop-start),hipMemcpyDeviceToDevice));
-	#elif defined(CUDIFY_USE_CUDA)
-	CUDA_SAFE_CALL(cudaMemcpy(((unsigned char *)dm)+offset,((unsigned char *)ptr)+start,(stop-start),cudaMemcpyDeviceToDevice));
 	#else
-	memcpy(((unsigned char *)dm)+offset,((unsigned char *)ptr)+start,(stop-start));
+	CUDA_SAFE_CALL(cudaMemcpy(((unsigned char *)dm)+offset,((unsigned char *)ptr)+start,(stop-start),cudaMemcpyDeviceToDevice));
 	#endif
 }
 
@@ -170,12 +167,10 @@ bool CudaMemory::copyFromPointer(const void * ptr)
     CUDA_SAFE_CALL(hipHostGetDevicePointer(&dvp,hm,0));
     // memory copy
     memcpy(dvp,ptr,sz);
-	#elif defined(CUDIFY_USE_CUDA)
+	#else
 	CUDA_SAFE_CALL(cudaHostGetDevicePointer(&dvp,hm,0));
 	// memory copy
 	memcpy(dvp,ptr,sz);
-	#else
-	memcpy(hm,ptr,sz);
 	#endif
 
 	return true;
@@ -202,10 +197,8 @@ bool CudaMemory::copyDeviceToDevice(const CudaMemory & m)
 	//! Copy the memory
 	#ifdef __HIP__
 	CUDA_SAFE_CALL(hipMemcpy(dm,m.dm,m.sz,hipMemcpyDeviceToDevice));
-	#elif defined(CUDIFY_USE_CUDA)
-	CUDA_SAFE_CALL(cudaMemcpy(dm,m.dm,m.sz,cudaMemcpyDeviceToDevice));
 	#else
-	memcpy(dm,m.dm,m.sz);
+	CUDA_SAFE_CALL(cudaMemcpy(dm,m.dm,m.sz,cudaMemcpyDeviceToDevice));
 	#endif
 
 	return true;
@@ -307,10 +300,8 @@ bool CudaMemory::resize(size_t sz)
 		//! copy from the old buffer to the new one
 		#ifdef __HIP__
 		CUDA_SAFE_CALL(hipMemcpy(tdm,dm,CudaMemory::size(),hipMemcpyDeviceToDevice));
-		#elif defined(CUDIFY_USE_CUDA)
-		CUDA_SAFE_CALL(cudaMemcpy(tdm,dm,CudaMemory::size(),cudaMemcpyDeviceToDevice));
 		#else
-		memcpy(tdm,dm,CudaMemory::size());
+		CUDA_SAFE_CALL(cudaMemcpy(tdm,dm,CudaMemory::size(),cudaMemcpyDeviceToDevice));
 		#endif
 	}
 
@@ -333,10 +324,8 @@ bool CudaMemory::resize(size_t sz)
 		//! copy from the old buffer to the new one
 		#ifdef __HIP__
 		CUDA_SAFE_CALL(hipMemcpy(thm,hm,CudaMemory::size(),hipMemcpyHostToHost));
-		#elif defined(CUDIFY_USE_CUDA)
-		CUDA_SAFE_CALL(cudaMemcpy(thm,hm,CudaMemory::size(),cudaMemcpyHostToHost));
 		#else
-		memcpy(thm,hm,CudaMemory::size());
+		CUDA_SAFE_CALL(cudaMemcpy(thm,hm,CudaMemory::size(),cudaMemcpyHostToHost));
 		#endif
 	}
 
@@ -384,10 +373,8 @@ void CudaMemory::deviceToHost()
 	//! copy from device to host memory
 	#ifdef __HIP__
 	CUDA_SAFE_CALL(hipMemcpy(hm,dm,sz,hipMemcpyDeviceToHost));
-	#elif defined(CUDIFY_USE_CUDA)
-	CUDA_SAFE_CALL(cudaMemcpy(hm,dm,sz,cudaMemcpyDeviceToHost));
 	#else
-	memcpy(hm,dm,sz);
+	CUDA_SAFE_CALL(cudaMemcpy(hm,dm,sz,cudaMemcpyDeviceToHost));
 	#endif
 }
 
@@ -408,10 +395,8 @@ void CudaMemory::deviceToHost(CudaMemory & mem)
 	//! copy from device to host memory
 	#ifdef __HIP__
 	CUDA_SAFE_CALL(hipMemcpy(mem.hm,dm,mem.sz,hipMemcpyDeviceToHost));
-	#elif defined(CUDIFY_USE_CUDA)
-	CUDA_SAFE_CALL(cudaMemcpy(mem.hm,dm,mem.sz,cudaMemcpyDeviceToHost));
 	#else
-	memcpy(mem.hm,dm,mem.sz);
+	CUDA_SAFE_CALL(cudaMemcpy(mem.hm,dm,mem.sz,cudaMemcpyDeviceToHost));
 	#endif
 }
 
@@ -432,10 +417,8 @@ void CudaMemory::hostToDevice(CudaMemory & mem)
 	//! copy from device to host memory
 	#ifdef __HIP__
 	CUDA_SAFE_CALL(hipMemcpy(dm,mem.hm,mem.sz,hipMemcpyHostToDevice));
-	#elif defined(CUDIFY_USE_CUDA)
-	CUDA_SAFE_CALL(cudaMemcpy(dm,mem.hm,mem.sz,cudaMemcpyHostToDevice));
 	#else
-	memcpy(dm,mem.hm,mem.sz);
+	CUDA_SAFE_CALL(cudaMemcpy(dm,mem.hm,mem.sz,cudaMemcpyHostToDevice));
 	#endif
 }
 
@@ -448,10 +431,8 @@ void CudaMemory::hostToDevice(size_t start, size_t stop)
 	//! copy from device to host memory
 	#ifdef __HIP__
 	CUDA_SAFE_CALL(hipMemcpy(((unsigned char *)dm)+start,((unsigned char *)hm)+start,(stop-start),hipMemcpyHostToDevice));
-	#elif defined(CUDIFY_USE_CUDA)
-	CUDA_SAFE_CALL(cudaMemcpy(((unsigned char *)dm)+start,((unsigned char *)hm)+start,(stop-start),cudaMemcpyHostToDevice));
 	#else
-	memcpy(((unsigned char *)dm)+start,((unsigned char *)hm)+start,(stop-start));
+	CUDA_SAFE_CALL(cudaMemcpy(((unsigned char *)dm)+start,((unsigned char *)hm)+start,(stop-start),cudaMemcpyHostToDevice));
 	#endif
 }
 
@@ -469,10 +450,8 @@ void CudaMemory::deviceToHost(size_t start, size_t stop)
 	//! copy from device to host memory
 	#ifdef __HIP__
 	CUDA_SAFE_CALL(hipMemcpy(((unsigned char *)hm)+start,((unsigned char *)dm)+start,(stop-start),hipMemcpyDeviceToHost));
-	#elif defined(CUDIFY_USE_CUDA)
-	CUDA_SAFE_CALL(cudaMemcpy(((unsigned char *)hm)+start,((unsigned char *)dm)+start,(stop-start),cudaMemcpyDeviceToHost));
 	#else
-	memcpy(((unsigned char *)hm)+start,((unsigned char *)dm)+start,(stop-start));
+	CUDA_SAFE_CALL(cudaMemcpy(((unsigned char *)hm)+start,((unsigned char *)dm)+start,(stop-start),cudaMemcpyDeviceToHost));
 	#endif
 }
 
@@ -535,10 +514,8 @@ void CudaMemory::hostToDevice()
 	//! copy from device to host memory
 	#ifdef __HIP__
 	CUDA_SAFE_CALL(hipMemcpy(dm,hm,sz,hipMemcpyHostToDevice));
-	#elif defined(CUDIFY_USE_CUDA)
-	CUDA_SAFE_CALL(cudaMemcpy(dm,hm,sz,cudaMemcpyHostToDevice));
 	#else
-	memcpy(dm,hm,sz);
+	CUDA_SAFE_CALL(cudaMemcpy(dm,hm,sz,cudaMemcpyHostToDevice));
 	#endif
 }
 

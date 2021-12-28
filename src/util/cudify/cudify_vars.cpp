@@ -22,6 +22,7 @@ dim3 gridDim;
 
 #endif
 
+bool init_wrappers_call = false;
 
 thread_local int vct_atomic_add;
 thread_local int vct_atomic_rem;
