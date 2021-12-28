@@ -285,6 +285,10 @@ extern size_t n_workers;
 
 extern bool init_wrappers_call;
 
+extern unsigned int * tid_x[OPENMP_MAX_NUM_THREADS];
+extern unsigned int * tid_y[OPENMP_MAX_NUM_THREADS];
+extern unsigned int * tid_z[OPENMP_MAX_NUM_THREADS];
+
 static void init_wrappers()
 {
     init_wrappers_call = true;
@@ -350,9 +354,6 @@ void launch_kernel(boost::context::detail::transfer_t par)
     boost::context::detail::jump_fcontext(par.fctx,0);
 }
 
-extern unsigned int * tid_x[OPENMP_MAX_NUM_THREADS];
-extern unsigned int * tid_y[OPENMP_MAX_NUM_THREADS];
-extern unsigned int * tid_z[OPENMP_MAX_NUM_THREADS];
 
 template<typename lambda_f, typename ite_type>
 static void exe_kernel(lambda_f f, ite_type & ite)
