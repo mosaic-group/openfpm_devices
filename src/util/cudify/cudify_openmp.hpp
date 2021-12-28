@@ -293,6 +293,16 @@ static void init_wrappers()
     {
         n_workers = omp_get_num_threads();
     }
+
+    #pragma omp parallel for
+    for (int s = 0 ; s < n_workers ; s++)
+    {
+        unsigned int tid = omp_get_thread_num();
+        tid_x[tid] = &threadIdx.x;
+        tid_y[tid] = &threadIdx.y;
+        tid_z[tid] = &threadIdx.z;
+
+    }
 }
 
 
@@ -340,6 +350,10 @@ void launch_kernel(boost::context::detail::transfer_t par)
     boost::context::detail::jump_fcontext(par.fctx,0);
 }
 
+extern unsigned int * tid_x[OPENMP_MAX_NUM_THREADS];
+extern unsigned int * tid_y[OPENMP_MAX_NUM_THREADS];
+extern unsigned int * tid_z[OPENMP_MAX_NUM_THREADS];
+
 template<typename lambda_f, typename ite_type>
 static void exe_kernel(lambda_f f, ite_type & ite)
 {
@@ -380,10 +394,10 @@ static void exe_kernel(lambda_f f, ite_type & ite)
         {
             for (int k = 0 ; k < ite.wthr.x ; k++)
             {
+                size_t tid = omp_get_thread_num();
+
                 if (first_block == true || is_sync_free == false)
                 {
-                    size_t tid = omp_get_thread_num();
-
                     blockIdx.z = i;
                     blockIdx.y = j;
                     blockIdx.x = k;
@@ -408,13 +422,13 @@ static void exe_kernel(lambda_f f, ite_type & ite)
                         // Work threads
                         for (int it = 0 ; it < ite.thr.z ; it++)
                         {
-                            threadIdx.z = it;
+                            *tid_z[tid] = it;
                             for (int jt = 0 ; jt < ite.thr.y ; jt++)
                             {
-                                threadIdx.y = jt;
+                                *tid_y[tid] = jt;
                                 for (int kt = 0 ; kt < ite.thr.x ; kt++)
                                 {
-                                    threadIdx.x = kt;
+                                    *tid_x[tid] = kt;
                                     auto t = boost::context::detail::jump_fcontext(contexts[nc + tid*stride],&fe);
                                     contexts[nc + tid*stride] = t.fctx;
 
@@ -435,13 +449,13 @@ static void exe_kernel(lambda_f f, ite_type & ite)
                     // Work threads
                     for (int it = 0 ; it < ite.thr.z ; it++)
                     {
-                        threadIdx.z = it;
+                        *tid_z[tid] = it;
                         for (int jt = 0 ; jt < ite.thr.y ; jt++)
                         {
-                            threadIdx.y = jt;
+                            *tid_y[tid] = jt;
                             for (int kt = 0 ; kt < ite.thr.x ; kt++)
                             {
-                                threadIdx.x = kt;
+                                *tid_x[tid] = kt;
                                 f();
                             }
                         }
