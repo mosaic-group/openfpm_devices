@@ -17,10 +17,6 @@ alpa_base_structs __alpa_base__;
 thread_local dim3 threadIdx;
 thread_local dim3 blockIdx;
 
-#ifndef OPENMP_MAX_NUM_THREADS
-#define OPENMP_MAX_NUM_THREADS 896
-#endif
-
 unsigned int * tid_x[OPENMP_MAX_NUM_THREADS];
 unsigned int * tid_y[OPENMP_MAX_NUM_THREADS];
 unsigned int * tid_z[OPENMP_MAX_NUM_THREADS];

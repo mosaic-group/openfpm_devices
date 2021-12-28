@@ -8,6 +8,10 @@
 
 #if defined(CUDIFY_USE_SEQUENTIAL) || defined(CUDIFY_USE_OPENMP)
 
+#ifndef OPENMP_MAX_NUM_THREADS
+#define OPENMP_MAX_NUM_THREADS 896
+#endif
+
 /**
  * CUDA error types
  */
