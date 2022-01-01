@@ -48,10 +48,6 @@ static void __syncthreads()
 extern int thread_local vct_atomic_add;
 extern int thread_local vct_atomic_rem;
 
-static void cudaMemcpyToSymbol(unsigned char * global_cuda_error_array,const void * mem,size_t sz,int offset,int unused)
-{
-    memcpy(global_cuda_error_array+offset,mem,sz);
-}
 
 namespace cub
 {
@@ -501,6 +497,108 @@ static void exe_kernel_lambda(lambda_f f, ite_type & ite)
 }
 
 template<typename lambda_f, typename ite_type>
+static void exe_kernel_lambda_tls(lambda_f f, ite_type & ite)
+{
+    if (ite.nthrs() == 0 || ite.nblocks() == 0) {return;}
+
+    if (mem_stack.size() < ite.nthrs())
+    {
+        int old_size = mem_stack.size();
+        mem_stack.resize(ite.nthrs());
+
+        for (int i = old_size ; i < mem_stack.size() ; i++)
+        {
+            mem_stack[i] = new char [CUDIFY_BOOST_CONTEXT_STACK_SIZE];
+        }
+    }
+
+    // Resize contexts
+    contexts.resize(mem_stack.size());
+
+    bool is_sync_free = true;
+
+    bool first_block = true;
+
+    for (int i = 0 ; i < ite.wthr.z ; i++)
+    {
+        for (int j = 0 ; j < ite.wthr.y ; j++)
+        {
+            for (int k = 0 ; k < ite.wthr.x ; k++)
+            {
+                Fun_enc<lambda_f> fe(f);
+                if (first_block == true || is_sync_free == false)
+                {
+                    blockIdx.z = i;
+                    blockIdx.y = j;
+                    blockIdx.x = k;
+                    int nc = 0;
+                    for (int it = 0 ; it < ite.thr.z ; it++)
+                    {
+                        for (int jt = 0 ; jt < ite.thr.y ; jt++)
+                        {
+                            for (int kt = 0 ; kt < ite.thr.x ; kt++)
+                            {
+                                contexts[nc] = boost::context::detail::make_fcontext((char *)mem_stack[nc]+CUDIFY_BOOST_CONTEXT_STACK_SIZE-16,CUDIFY_BOOST_CONTEXT_STACK_SIZE,launch_kernel<Fun_enc<lambda_f>>);
+
+                                nc++;
+                            }
+                        }
+                    }
+
+                    bool work_to_do = true;
+                    while(work_to_do)
+                    {
+                        nc = 0;
+                        // Work threads
+                        for (int it = 0 ; it < ite.thr.z ; it++)
+                        {
+                            threadIdx.z = it;
+                            for (int jt = 0 ; jt < ite.thr.y ; jt++)
+                            {
+                                threadIdx.y = jt;
+                                for (int kt = 0 ; kt < ite.thr.x ; kt++)
+                                {
+                                    threadIdx.x = kt;
+                                    auto t = boost::context::detail::jump_fcontext(contexts[nc],&fe);
+                                    contexts[nc] = t.fctx;
+
+                                    work_to_do &= (t.data != 0);
+                                    is_sync_free &= !(work_to_do);
+                                    nc++;
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    blockIdx.z = i;
+                    blockIdx.y = j;
+                    blockIdx.x = k;
+                    int fb = 0;
+                    // Work threads
+                    for (int it = 0 ; it < ite.thr.z ; it++)
+                    {
+                        threadIdx.z = it;
+                        for (int jt = 0 ; jt < ite.thr.y ; jt++)
+                        {
+                            threadIdx.y = jt;
+                            for (int kt = 0 ; kt < ite.thr.x ; kt++)
+                            {
+                                threadIdx.x = kt;
+                                f();
+                            }
+                        }
+                    }
+                }
+
+                first_block = false;
+            }
+        }
+    }
+}
+
+template<typename lambda_f, typename ite_type>
 static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
 {
     for (int i = 0 ; i < ite.wthr.z ; i++)
@@ -631,7 +729,24 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
         \
         exe_kernel_lambda(lambda_f,ite);\
         \
-        CHECK_SE_CLASS1_POST("lambda")\
+        CHECK_SE_CLASS1_POST("lambda",0)\
+        }
+
+#define CUDA_LAUNCH_LAMBDA_TLS(ite,lambda_f) \
+        {\
+        gridDim.x = ite.wthr.x;\
+        gridDim.y = ite.wthr.y;\
+        gridDim.z = ite.wthr.z;\
+        \
+        blockDim.x = ite.thr.x;\
+        blockDim.y = ite.thr.y;\
+        blockDim.z = ite.thr.z;\
+        \
+        CHECK_SE_CLASS1_PRE\
+        \
+        exe_kernel_lambda_tls(lambda_f,ite);\
+        \
+        CHECK_SE_CLASS1_POST("lambda",0)\
         }
 
 #define CUDA_LAUNCH_DIM3(cuda_call,wthr_,thr_, ...)\
@@ -660,6 +775,55 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
             },itg);\
         \
         CHECK_SE_CLASS1_POST(#cuda_call,__VA_ARGS__)\
+        }
+
+#define CUDA_LAUNCH_LAMBDA_DIM3_TLS(wthr_,thr_,lambda_f) \
+        {\
+        dim3 wthr__(wthr_);\
+        dim3 thr__(thr_);\
+        \
+        ite_gpu<1> itg;\
+        itg.wthr = wthr_;\
+        itg.thr = thr_;\
+        gridDim.x = itg.wthr.x;\
+        gridDim.y = itg.wthr.y;\
+        gridDim.z = itg.wthr.z;\
+        \
+        blockDim.x = itg.thr.x;\
+        blockDim.y = itg.thr.y;\
+        blockDim.z = itg.thr.z;\
+        \
+        CHECK_SE_CLASS1_PRE\
+        \
+        exe_kernel_lambda_tls(lambda_f,itg);\
+        \
+        }
+
+#define CUDA_LAUNCH_DIM3_DEBUG_SE1(cuda_call,wthr_,thr_, ...)\
+        {\
+        dim3 wthr__(wthr_);\
+        dim3 thr__(thr_);\
+        \
+        ite_gpu<1> itg;\
+        itg.wthr = wthr_;\
+        itg.thr = thr_;\
+        \
+        gridDim.x = wthr__.x;\
+        gridDim.y = wthr__.y;\
+        gridDim.z = wthr__.z;\
+        \
+        blockDim.x = thr__.x;\
+        blockDim.y = thr__.y;\
+        blockDim.z = thr__.z;\
+        \
+        CHECK_SE_CLASS1_PRE\
+        \
+        exe_kernel([&]() -> void {\
+            \
+            cuda_call(__VA_ARGS__);\
+            \
+            },itg);\
+        \
         }
 
 #define CUDA_CHECK()
