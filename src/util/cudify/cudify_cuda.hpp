@@ -78,6 +78,30 @@ static void init_wrappers()
         }\
         }
 
+#define CUDA_LAUNCH_DIM3_DEBUG_SE1(cuda_call,wthr,thr, ...) \
+        {\
+        cudaDeviceSynchronize(); \
+        {\
+            cudaError_t e = cudaGetLastError();\
+            if (e != cudaSuccess)\
+            {\
+                std::string error = cudaGetErrorString(e);\
+                std::cout << "Cuda an error has occurred before this CUDA_LAUNCH, detected in: " << __FILE__ << ":" << __LINE__ << " " << error << std::endl;\
+            }\
+        }\
+        CHECK_SE_CLASS1_PRE\
+        cuda_call<<<wthr,thr>>>(__VA_ARGS__);\
+        cudaDeviceSynchronize(); \
+        {\
+            cudaError_t e = cudaGetLastError();\
+            if (e != cudaSuccess)\
+            {\
+                std::string error = cudaGetErrorString(e);\
+                std::cout << "Cuda Error in: " << __FILE__ << ":" << __LINE__ << " " << error << std::endl;\
+            }\
+        }\
+        }
+
 #define CUDA_LAUNCH_LAMBDA(ite, lambda_f, ...) \
         {\
         cudaDeviceSynchronize(); \
@@ -100,7 +124,59 @@ static void init_wrappers()
                 std::string error = cudaGetErrorString(e);\
                 std::cout << "Cuda Error in: " << __FILE__ << ":" << __LINE__ << " " << error << std::endl;\
             }\
-            CHECK_SE_CLASS1_POST("lambda")\
+            CHECK_SE_CLASS1_POST("lambda",0)\
+        }\
+        }
+
+#define CUDA_LAUNCH_LAMBDA_TLS(ite, lambda_f, ...) \
+        {\
+        cudaDeviceSynchronize(); \
+        {\
+            cudaError_t e = cudaGetLastError();\
+            if (e != cudaSuccess)\
+            {\
+                std::string error = cudaGetErrorString(e);\
+                std::cout << "Cuda an error has occurred before this CUDA_LAUNCH, detected in: " << __FILE__ << ":" << __LINE__ << " " << error << std::endl;\
+            }\
+        }\
+        CHECK_SE_CLASS1_PRE\
+        if (ite.wthr.x != 0)\
+        {kernel_launch_lambda<<<ite.wthr,ite.thr>>>(lambda_f);}\
+        cudaDeviceSynchronize(); \
+        {\
+            cudaError_t e = cudaGetLastError();\
+            if (e != cudaSuccess)\
+            {\
+                std::string error = cudaGetErrorString(e);\
+                std::cout << "Cuda Error in: " << __FILE__ << ":" << __LINE__ << " " << error << std::endl;\
+            }\
+            CHECK_SE_CLASS1_POST("lambda",0)\
+        }\
+        }
+
+#define CUDA_LAUNCH_LAMBDA_DIM3_TLS(wthr_,thr_, lambda_f, ...) \
+        {\
+        cudaDeviceSynchronize(); \
+        {\
+            cudaError_t e = cudaGetLastError();\
+            if (e != cudaSuccess)\
+            {\
+                std::string error = cudaGetErrorString(e);\
+                std::cout << "Cuda an error has occurred before this CUDA_LAUNCH, detected in: " << __FILE__ << ":" << __LINE__ << " " << error << std::endl;\
+            }\
+        }\
+        CHECK_SE_CLASS1_PRE\
+        if (ite.wthr.x != 0)\
+        {kernel_launch_lambda<<<wthr_,thr_>>>(lambda_f);}\
+        cudaDeviceSynchronize(); \
+        {\
+            cudaError_t e = cudaGetLastError();\
+            if (e != cudaSuccess)\
+            {\
+                std::string error = cudaGetErrorString(e);\
+                std::cout << "Cuda Error in: " << __FILE__ << ":" << __LINE__ << " " << error << std::endl;\
+            }\
+            CHECK_SE_CLASS1_POST("lambda",0)\
         }\
         }
 
