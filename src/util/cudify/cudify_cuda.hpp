@@ -20,6 +20,13 @@ __global__ void kernel_launch_lambda(lambda_f f)
     f(bid,tid);
 }
 
+template<typename lambda_f>
+__global__ void kernel_launch_lambda_tls(lambda_f f)
+{
+    f();
+}
+
+
 #endif
 
 static void init_wrappers()
@@ -217,6 +224,28 @@ static void init_wrappers()
         kernel_launch_lambda<<<ite.wthr,ite.thr>>>(lambda_f);
 
 #define CUDA_CHECK()
+
+#define CUDA_LAUNCH_LAMBDA_TLS(ite, lambda_f, ...) \
+        {\
+        if (ite.wthr.x != 0)\
+        {kernel_launch_lambda<<<ite.wthr,ite.thr>>>(lambda_f);}\
+        }
+
+#define CUDA_LAUNCH_LAMBDA_DIM3(wthr_,thr_, lambda_f, ...) \
+        {\
+        dim3 wthr__(wthr_);\
+        dim3 thr__(thr_);\
+        if (ite.wthr.x != 0)\
+        {kernel_launch_lambda<<<wthr__,thr__>>>(lambda_f);}\
+        }
+
+#define CUDA_LAUNCH_LAMBDA_DIM3_TLS(wthr_,thr_, lambda_f, ...) \
+        {\
+        dim3 wthr__(wthr_);\
+        dim3 thr__(thr_);\
+        if (ite.wthr.x != 0)\
+        {kernel_launch_lambda_tls<<<wthr__,thr__>>>(lambda_f);}\
+        }
 
 #endif
 

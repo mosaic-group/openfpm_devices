@@ -12,7 +12,9 @@ set (CMAKE_CUDA_STANDARD 14)
 set (ENV{BOOST_ROOT} ${BOOST_ROOT})
 set (Boost_NO_BOOST_CMAKE OFF)
 find_package(Boost 1.72.0 REQUIRED COMPONENTS unit_test_framework iostreams program_options OPTIONAL_COMPONENTS fiber context)
-find_package(OpenMP)
+if (NOT CUDA_ON_BACKEND STREQUAL "HIP")
+	find_package(OpenMP)
+endif()
 
 set(CUDA_ON_BACKEND CACHE STRING "Activate several backend for CUDA")
 

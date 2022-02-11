@@ -205,6 +205,20 @@ static cudaError_t cudaMemcpy ( void* dst, const void* src, size_t count, cudaMe
 #include "hipcub/hipcub.hpp"
 #include "hipcub/block/block_scan.hpp"
 
+template<typename lambda_f>
+__global__ void kernel_launch_lambda(lambda_f f)
+{
+    dim3 bid = blockIdx;
+    dim3 tid = threadIdx;
+    f(bid,tid);
+}
+
+template<typename lambda_f>
+__global__ void kernel_launch_lambda_tls(lambda_f f)
+{
+    f();
+}
+
 namespace cub
 {
     template<typename T, unsigned int bd>
@@ -310,6 +324,45 @@ bool has_work_gpu_cl_(const wthr_type & wthr, const thr_type & thr)
         {hipLaunchKernelGGL(HIP_KERNEL_NAME(cuda_call),wthr_,thr_, 0, 0, __VA_ARGS__);}\
         \
         CHECK_SE_CLASS1_POST(#cuda_call,__VA_ARGS__)\
+        }
+
+#define CUDA_LAUNCH_LAMBDA(ite,lambda_f, ...)\
+        {\
+        \
+        CHECK_SE_CLASS1_PRE\
+        \
+        if (has_work_gpu_cl_(ite.wthr,ite.thr) == true)\
+        {hipLaunchKernelGGL(HIP_KERNEL_NAME(kernel_launch_lambda),ite.wthr,ite.thr, 0, 0, lambda_f);}\
+        \
+        CHECK_SE_CLASS1_POST("kernel_launch_lambda",__VA_ARGS__)\
+        }
+
+#define CUDA_LAUNCH_LAMBDA_TLS(ite, lambda_f, ...) \
+        {\
+        CHECK_SE_CLASS1_PRE\
+        if (ite.wthr.x != 0)\
+        {hipLaunchKernelGGL(HIP_KERNEL_NAME(kernel_launch_lambda_tls),ite.wthr,ite.thr,0,0,lambda_f);}\
+	CHECK_SE_CLASS1_POST("kernel_launch_lambda",__VA_ARGS__)\
+        }
+
+#define CUDA_LAUNCH_LAMBDA_DIM3_TLS(wthr_,thr_, lambda_f, ...) \
+        {\
+        dim3 wthr__(wthr_);\
+        dim3 thr__(thr_);\
+	CHECK_SE_CLASS1_PRE\
+        if (wthr__.x != 0)\
+        {hipLaunchKernelGGL(HIP_KERNEL_NAME(kernel_launch_lambda_tls),wthr_,thr_, 0, 0, lambda_f);}\
+	CHECK_SE_CLASS1_POST("kernel_launch_lambda",__VA_ARGS__)\
+        }
+
+#define CUDA_LAUNCH_LAMBDA_DIM3(wthr_,thr_, lambda_f, ...) \
+        {\
+        dim3 wthr__(wthr_);\
+        dim3 thr__(thr_);\
+        CHECK_SE_CLASS1_PRE\
+        if (wthr__.x != 0)\
+        {hipLaunchKernelGGL(HIP_KERNEL_NAME(kernel_launch_lambda),wthr_,thr_, 0, 0, lambda_f);}\
+        CHECK_SE_CLASS1_POST("kernel_launch_lambda",__VA_ARGS__)\
         }
 
 #define CUDA_CHECK()

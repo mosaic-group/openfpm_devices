@@ -2,6 +2,10 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
+#include <type_traits>
+
+std::is_trivially_copyable<int> b;
+
 #include "util/cuda_launch.hpp"
 #include "memory/CudaMemory.cuh"
 
