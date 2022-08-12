@@ -19,9 +19,9 @@ bool CudaMemory::flush()
 		//! copy from host to device memory
 
 		#ifdef __HIP__
-		CUDA_SAFE_CALL(hipMemcpy(dm,hm,sz,hipMemcpyHostToDevice));
+		CUDA_SAFE_CALL(hipMemcpy(dm,hm,sz+32,hipMemcpyHostToDevice));
 		#else
-		CUDA_SAFE_CALL(cudaMemcpy(dm,hm,sz,cudaMemcpyHostToDevice));
+		CUDA_SAFE_CALL(cudaMemcpy(dm,hm,sz+32,cudaMemcpyHostToDevice));
 		#endif
 	}
 	
@@ -41,15 +41,15 @@ bool CudaMemory::allocate(size_t sz)
 	if (dm == NULL)
 	{
 		#ifdef __HIP__
-		CUDA_SAFE_CALL(hipMalloc(&dm,sz));
+		CUDA_SAFE_CALL(hipMalloc(&dm,sz+32));
 		#elif defined(CUDIFY_USE_CUDA)
-		CUDA_SAFE_CALL(cudaMalloc(&dm,sz));
+		CUDA_SAFE_CALL(cudaMalloc(&dm,sz+32));
 		#else
 		if (sz != 0)
 		{
-			dm = new unsigned char[sz];
+			dm = new unsigned char[sz+32];
 			#ifdef GARBAGE_INJECTOR
-			memset(dm,0xFF,sz);
+			memset(dm,0xFF,sz+32);
 			#endif
 		}
 		#endif
@@ -135,13 +135,13 @@ void CudaMemory::allocate_host(size_t sz) const
 	if (hm == NULL)
 	{
 		#ifdef __HIP__
-		CUDA_SAFE_CALL(hipHostMalloc(&hm,sz,hipHostMallocMapped))
+		CUDA_SAFE_CALL(hipHostMalloc(&hm,sz+32,hipHostMallocMapped))
 		#elif defined(CUDIFY_USE_CUDA)
-		CUDA_SAFE_CALL(cudaHostAlloc(&hm,sz,cudaHostAllocMapped))
+		CUDA_SAFE_CALL(cudaHostAlloc(&hm,sz+32,cudaHostAllocMapped))
 		#else
-		hm = new unsigned char[sz];
+		hm = new unsigned char[sz+32];
 		#ifdef GARBAGE_INJECTOR
-		memset(hm,0xFF,sz);
+		memset(hm,0xFF,sz+32);
 		#endif
 		#endif
 	}
@@ -166,11 +166,11 @@ bool CudaMemory::copyFromPointer(const void * ptr)
 	#ifdef __HIP__
     CUDA_SAFE_CALL(hipHostGetDevicePointer(&dvp,hm,0));
     // memory copy
-    memcpy(dvp,ptr,sz);
+    memcpy(dvp,ptr,sz+32);
 	#else
 	CUDA_SAFE_CALL(cudaHostGetDevicePointer(&dvp,hm,0));
 	// memory copy
-	memcpy(dvp,ptr,sz);
+	memcpy(dvp,ptr,sz+32);
 	#endif
 
 	return true;
@@ -195,12 +195,14 @@ bool CudaMemory::copyDeviceToDevice(const CudaMemory & m)
 	}
 
 	//! Copy the memory
-	#ifdef __HIP__
-	CUDA_SAFE_CALL(hipMemcpy(dm,m.dm,m.sz,hipMemcpyDeviceToDevice));
-	#else
-	CUDA_SAFE_CALL(cudaMemcpy(dm,m.dm,m.sz,cudaMemcpyDeviceToDevice));
-	#endif
-
+	if (sz != 0)
+	{
+		#ifdef __HIP__
+		CUDA_SAFE_CALL(hipMemcpy(dm,m.dm,m.sz+32,hipMemcpyDeviceToDevice));
+		#else
+		CUDA_SAFE_CALL(cudaMemcpy(dm,m.dm,m.sz+32,cudaMemcpyDeviceToDevice));
+		#endif
+	}
 	return true;
 }
 
@@ -278,21 +280,21 @@ bool CudaMemory::resize(size_t sz)
 		if (this->sz < sz)
 		{
 			#ifdef __HIP__
-			CUDA_SAFE_CALL(hipMalloc(&tdm,sz));
+			CUDA_SAFE_CALL(hipMalloc(&tdm,sz+32));
 			#elif defined(CUDIFY_USE_CUDA)
-			CUDA_SAFE_CALL(cudaMalloc(&tdm,sz));
+			CUDA_SAFE_CALL(cudaMalloc(&tdm,sz+32));
 			#else
-			tdm = new unsigned char [sz];
+			tdm = new unsigned char [sz+32];
 			#ifdef GARBAGE_INJECTOR
-			memset(tdm,0xFF,sz);
+			memset(tdm,0xFF,sz+32);
 			#endif
 			#endif
 
 #ifdef GARBAGE_INJECTOR
 			#ifdef __HIP__
-			CUDA_SAFE_CALL(hipMemset(tdm,-1,sz));
+			CUDA_SAFE_CALL(hipMemset(tdm,-1,sz+32));
 			#elif defined(CUDIFY_USE_CUDA)
-			CUDA_SAFE_CALL(cudaMemset(tdm,-1,sz));
+			CUDA_SAFE_CALL(cudaMemset(tdm,-1,sz+32));
 			#endif
 #endif
 		}
@@ -310,13 +312,13 @@ bool CudaMemory::resize(size_t sz)
 		if (this->sz < sz)
 		{
 			#ifdef __HIP__
-			CUDA_SAFE_CALL(hipHostMalloc(&thm,sz,hipHostMallocMapped));
+			CUDA_SAFE_CALL(hipHostMalloc(&thm,sz+32,hipHostMallocMapped));
 			#elif defined(CUDIFY_USE_CUDA)
-			CUDA_SAFE_CALL(cudaHostAlloc(&thm,sz,cudaHostAllocMapped));
+			CUDA_SAFE_CALL(cudaHostAlloc(&thm,sz+32,cudaHostAllocMapped));
 			#else
-			thm = new unsigned char [sz];
+			thm = new unsigned char [sz+32];
 			#ifdef GARBAGE_INJECTOR
-			memset(thm,0xFF,sz);
+			memset(thm,0xFF,sz+32);
 			#endif
 			#endif
 		}
@@ -372,9 +374,9 @@ void CudaMemory::deviceToHost()
 
 	//! copy from device to host memory
 	#ifdef __HIP__
-	CUDA_SAFE_CALL(hipMemcpy(hm,dm,sz,hipMemcpyDeviceToHost));
+	CUDA_SAFE_CALL(hipMemcpy(hm,dm,sz+32,hipMemcpyDeviceToHost));
 	#else
-	CUDA_SAFE_CALL(cudaMemcpy(hm,dm,sz,cudaMemcpyDeviceToHost));
+	CUDA_SAFE_CALL(cudaMemcpy(hm,dm,sz+32,cudaMemcpyDeviceToHost));
 	#endif
 }
 
@@ -394,9 +396,9 @@ void CudaMemory::deviceToHost(CudaMemory & mem)
 
 	//! copy from device to host memory
 	#ifdef __HIP__
-	CUDA_SAFE_CALL(hipMemcpy(mem.hm,dm,mem.sz,hipMemcpyDeviceToHost));
+	CUDA_SAFE_CALL(hipMemcpy(mem.hm,dm,mem.sz+32,hipMemcpyDeviceToHost));
 	#else
-	CUDA_SAFE_CALL(cudaMemcpy(mem.hm,dm,mem.sz,cudaMemcpyDeviceToHost));
+	CUDA_SAFE_CALL(cudaMemcpy(mem.hm,dm,mem.sz+32,cudaMemcpyDeviceToHost));
 	#endif
 }
 
@@ -416,9 +418,9 @@ void CudaMemory::hostToDevice(CudaMemory & mem)
 
 	//! copy from device to host memory
 	#ifdef __HIP__
-	CUDA_SAFE_CALL(hipMemcpy(dm,mem.hm,mem.sz,hipMemcpyHostToDevice));
+	CUDA_SAFE_CALL(hipMemcpy(dm,mem.hm,mem.sz+32,hipMemcpyHostToDevice));
 	#else
-	CUDA_SAFE_CALL(cudaMemcpy(dm,mem.hm,mem.sz,cudaMemcpyHostToDevice));
+	CUDA_SAFE_CALL(cudaMemcpy(dm,mem.hm,mem.sz+32,cudaMemcpyHostToDevice));
 	#endif
 }
 
@@ -513,9 +515,9 @@ void CudaMemory::hostToDevice()
 
 	//! copy from device to host memory
 	#ifdef __HIP__
-	CUDA_SAFE_CALL(hipMemcpy(dm,hm,sz,hipMemcpyHostToDevice));
+	CUDA_SAFE_CALL(hipMemcpy(dm,hm,sz+32,hipMemcpyHostToDevice));
 	#else
-	CUDA_SAFE_CALL(cudaMemcpy(dm,hm,sz,cudaMemcpyHostToDevice));
+	CUDA_SAFE_CALL(cudaMemcpy(dm,hm,sz+32,cudaMemcpyHostToDevice));
 	#endif
 }
 
