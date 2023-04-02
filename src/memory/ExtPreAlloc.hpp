@@ -65,6 +65,27 @@ public:
 		mem.resize(size);
 	}
 
+	/*! \brief Set the internal memory if you did not do it in the constructor
+     *
+	 * \param size number of bytes
+	 * \param mem external memory, used if you want to keep the memory
+     *
+	 */
+	void setMemory(size_t size, Mem & mem)
+	{
+		this->mem = &mem;
+		mem.resize(size);
+	}
+
+	/*! \brief Get the internal memory if you did not do it in the constructor
+     *
+	 * \return the internal memory
+     *
+	 */
+	Mem * getMemory()
+	{
+		return this->mem;
+	}
 
 	/*! \brief Copy the memory from device to device
 	 *
