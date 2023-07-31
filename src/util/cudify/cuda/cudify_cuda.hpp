@@ -11,6 +11,7 @@ constexpr int default_kernel_wg_threads_ = 1024;
 #endif
 
 #ifdef __NVCC__
+#include "operators.hpp"
 
 template<typename lambda_f>
 __global__ void kernel_launch_lambda(lambda_f f)

@@ -394,12 +394,16 @@ void CudaMemory::deviceToHost(CudaMemory & mem)
 	if (mem.sz > sz)
 	{resize(mem.sz);}
 
-	//! copy from device to host memory
-	#ifdef __HIP__
-	CUDA_SAFE_CALL(hipMemcpy(mem.hm,dm,mem.sz+32,hipMemcpyDeviceToHost));
-	#else
-	CUDA_SAFE_CALL(cudaMemcpy(mem.hm,dm,mem.sz+32,cudaMemcpyDeviceToHost));
-	#endif
+
+	if (sz != 0)
+	{
+		//! copy from device to host memory
+		#ifdef __HIP__
+		CUDA_SAFE_CALL(hipMemcpy(mem.hm,dm,mem.sz+32,hipMemcpyDeviceToHost));
+		#else
+		CUDA_SAFE_CALL(cudaMemcpy(mem.hm,dm,mem.sz+32,cudaMemcpyDeviceToHost));
+		#endif
+	}
 }
 
 /*! \brief It transfer to device memory from the host of another memory

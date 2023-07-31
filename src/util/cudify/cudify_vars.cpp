@@ -1,13 +1,12 @@
-#include "config.h"
-#include "cudify_hardware_common.hpp"
+#include "cudify_hardware_cpu.hpp"
 #ifdef HAVE_BOOST_CONTEXT
 #include <boost/context/continuation.hpp>
 #endif
 #include <vector>
-#include "cudify_hardware_common.hpp"
+#include "config.h"
 
 #ifdef HAVE_ALPAKA
-#include "cudify_hardware_alpaka.hpp"
+#include "alpala/cudify_hardware_alpaka.hpp"
 
 alpa_base_structs __alpa_base__;
 #endif

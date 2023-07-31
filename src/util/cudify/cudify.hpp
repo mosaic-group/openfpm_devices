@@ -12,15 +12,15 @@
 
 
 #if defined(CUDIFY_USE_CUDA)
-#include "util/cudify/cudify_cuda.hpp"
+#include "cuda/cudify_cuda.hpp"
 #elif defined(CUDIFY_USE_ALPAKA)
-#include "cudify_alpaka.hpp"
+#include "alpaka/cudify_alpaka.hpp"
 #elif defined(CUDIFY_USE_OPENMP)
-#include "cudify_openmp.hpp"
+#include "openmp/cudify_openmp.hpp"
 #elif defined(CUDIFY_USE_HIP)
-#include "cudify_hip.hpp"
+#include "hip/cudify_hip.hpp"
 #elif defined(CUDIFY_USE_SEQUENTIAL)
-#include "cudify_sequencial.hpp"
+#include "sequential/cudify_sequential.hpp"
 #else
 #define CUDA_ON_BACKEND CUDA_BACKEND_NONE
 

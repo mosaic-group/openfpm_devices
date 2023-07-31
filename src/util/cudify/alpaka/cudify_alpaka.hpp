@@ -125,9 +125,7 @@ static T atomicAdd(T * address, T2 val)
     return old;
 };
 
-#define MGPU_HOST_DEVICE
-
-namespace mgpu
+namespace gpu
 {
     template<typename type_t>
     struct less_t : public std::binary_function<type_t, type_t, bool> {
@@ -141,35 +139,35 @@ namespace mgpu
     };
 /*    template<typename type_t>
     struct less_equal_t : public std::binary_function<type_t, type_t, bool> {
-    MGPU_HOST_DEVICE bool operator()(type_t a, type_t b) const {
+    bool operator()(type_t a, type_t b) const {
         return a <= b;
     }
     };*/
     template<typename type_t>
     struct greater_t : public std::binary_function<type_t, type_t, bool> {
-    MGPU_HOST_DEVICE bool operator()(type_t a, type_t b) const {
+    bool operator()(type_t a, type_t b) const {
         return a > b;
     }
     template<typename type2_t, typename type3_t>
-    MGPU_HOST_DEVICE bool operator()(type2_t a, type3_t b) const {
+    bool operator()(type2_t a, type3_t b) const {
         return a > b;
     }
     };
 /*    template<typename type_t>
     struct greater_equal_t : public std::binary_function<type_t, type_t, bool> {
-    MGPU_HOST_DEVICE bool operator()(type_t a, type_t b) const {
+    bool operator()(type_t a, type_t b) const {
         return a >= b;
     }
     };
     template<typename type_t>
     struct equal_to_t : public std::binary_function<type_t, type_t, bool> {
-    MGPU_HOST_DEVICE bool operator()(type_t a, type_t b) const {
+    bool operator()(type_t a, type_t b) const {
         return a == b;
     }
     };
     template<typename type_t>
     struct not_equal_to_t : public std::binary_function<type_t, type_t, bool> {
-    MGPU_HOST_DEVICE bool operator()(type_t a, type_t b) const {
+    bool operator()(type_t a, type_t b) const {
         return a != b;
     }
     };*/
@@ -186,14 +184,14 @@ namespace mgpu
 
 /*    template<typename type_t>
     struct minus_t : public std::binary_function<type_t, type_t, type_t> {
-        MGPU_HOST_DEVICE type_t operator()(type_t a, type_t b) const {
+        type_t operator()(type_t a, type_t b) const {
         return a - b;
     }
     };
 
     template<typename type_t>
     struct multiplies_t : public std::binary_function<type_t, type_t, type_t> {
-    MGPU_HOST_DEVICE type_t operator()(type_t a, type_t b) const {
+    type_t operator()(type_t a, type_t b) const {
         return a * b;
     }
     };*/
@@ -214,7 +212,7 @@ namespace mgpu
 }
 
 
-namespace mgpu
+namespace gpu
 {
     template<typename input_it,
              typename segments_it, typename output_it, typename op_t, typename type_t, typename context_t>
