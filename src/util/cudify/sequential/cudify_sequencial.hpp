@@ -2,6 +2,7 @@
 #define CUDIFY_SEQUENCIAL_HPP_
 
 #define CUDA_ON_BACKEND CUDA_BACKEND_SEQUENTIAL
+#define GPU_HOST_DEVICE
 
 #include "config.h"
 
@@ -102,6 +103,7 @@ static T atomicAdd(T * address, T2 val)
     *address += val;
     return old;
 };
+
 
 namespace gpu
 {

@@ -15,6 +15,7 @@
 #include <type_traits>
 
 #define CUDA_ON_BACKEND CUDA_BACKEND_ALPAKA
+#define GPU_HOST_DEVICE
 
 extern alpa_base_structs __alpa_base__;
 
