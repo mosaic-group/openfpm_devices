@@ -198,7 +198,7 @@ static cudaError_t cudaMemcpy ( void* dst, const void* src, size_t count, cudaMe
 
 #ifdef __HIPCC__
 
-#include "cudify_hardware_common.hpp"
+#include "util/cudify/cudify_hardware_cpu.hpp"
 #include "util/cuda_util.hpp"
 #include <vector>
 #include <string.h>

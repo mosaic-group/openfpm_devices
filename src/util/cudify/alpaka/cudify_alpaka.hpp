@@ -9,8 +9,8 @@
  *
  */
 
-#include "cudify_hardware.hpp"
-#include "cuda_util.hpp"
+#include "util/cudify/cudify_hardware_cpu.hpp"
+#include "util/cuda_util.hpp"
 #include "boost/bind.hpp"
 #include <type_traits>
 

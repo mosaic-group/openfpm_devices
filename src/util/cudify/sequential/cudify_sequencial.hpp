@@ -7,7 +7,7 @@
 
 constexpr int default_kernel_wg_threads_ = 1024;
 
-#include "cudify_hardware_common.hpp"
+#include "util/cudify/cudify_hardware_cpu.hpp"
 
 #ifdef HAVE_BOOST_CONTEXT
 

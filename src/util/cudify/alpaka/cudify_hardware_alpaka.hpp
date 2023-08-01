@@ -11,7 +11,7 @@
 //#define ALPAKA_ACC_ANY_BT_OACC_ENABLED
 //#define ALPAKA_ACC_ANY_BT_OMP5_ENABLED
 
-#include "cudify_hardware_common.hpp"
+#include "util/cudify/cudify_hardware_cpu.hpp"
 #include <alpaka/alpaka.hpp>
 
 
