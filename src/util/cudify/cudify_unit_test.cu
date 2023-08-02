@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_SUITE( cudify_tests_cuda )
 #elif defined(CUDIFY_USE_HIP)
 BOOST_AUTO_TEST_SUITE( cudify_tests_hip )
 #else
-BOOST_AUTO_TEST_SUITE( cudify_tests_sequencial )
+BOOST_AUTO_TEST_SUITE( cudify_tests_sequential )
 #endif
 
 struct par_struct
