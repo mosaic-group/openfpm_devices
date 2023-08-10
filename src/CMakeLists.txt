@@ -150,13 +150,28 @@ install(FILES util/ofp_context.hpp
 
 install(FILES util/cudify/alpaka/cudify_alpaka.hpp
     util/cudify/alpaka/cudify_hardware_alpaka.hpp
-    util/cudify/cudify_hardware_cpu.hpp
-    util/cudify/sequential/cudify_sequential.hpp
-    util/cudify/openmp/cudify_openmp.hpp
-    util/cudify/hip/cudify_hip.hpp
-    util/cudify/cudify.hpp
-    util/cudify/cuda/cudify_cuda.hpp
+    DESTINATION openfpm_devices/include/util/cudify/alpaka
+    COMPONENT OpenFPM)
+
+install(FILES util/cudify/sequential/cudify_sequential.hpp
+    DESTINATION openfpm_devices/include/util/cudify/sequential
+    COMPONENT OpenFPM)
+
+install(FILES util/cudify/openmp/cudify_openmp.hpp
+    DESTINATION openfpm_devices/include/util/cudify/openmp
+    COMPONENT OpenFPM)
+
+install(FILES util/cudify/hip/cudify_hip.hpp
+    DESTINATION openfpm_devices/include/util/cudify/hip
+    COMPONENT OpenFPM)
+
+install(FILES util/cudify/cuda/cudify_cuda.hpp
     util/cudify/cuda/operators.hpp
+    DESTINATION openfpm_devices/include/util/cudify/cuda
+    COMPONENT OpenFPM)
+
+install(FILES util/cudify/cudify_hardware_cpu.hpp
+    util/cudify/cudify.hpp
     DESTINATION openfpm_devices/include/util/cudify
     COMPONENT OpenFPM)
 
