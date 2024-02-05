@@ -131,7 +131,6 @@ endif()
 if (CUDA_ON_BACKEND STREQUAL "OpenMP")
 	## We need OpenMP
 	if (NOT OPENMP_FOUND OR NOT Boost_CONTEXT_FOUND)
-		file(WRITE error_code "220")
 		message(FATAL_ERROR "Error to run CUDA on CPU (OpenMP backend) we need Boost::context and OpenMP installed, it seems is not available in your system")
 	endif()
 endif()
