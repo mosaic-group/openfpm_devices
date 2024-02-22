@@ -95,9 +95,6 @@ ${DEFINE_HAVE_OSX}
 /* Define if you have PARMETIS library */
 ${DEFINE_HAVE_PARMETIS}
 
-/* Define if you have PETSC library */
-${DEFINE_HAVE_PETSC}
-
 /* Define to 1 if you have the <stdint.h> header file. */
 ${DEFINE_HAVE_STDINT_H}
 

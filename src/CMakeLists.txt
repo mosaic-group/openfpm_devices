@@ -99,15 +99,15 @@ target_include_directories (ofpmmemory_dl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/co
 target_include_directories (ofpmmemory_dl PUBLIC ${ALPAKA_ROOT}/include)
 target_include_directories (ofpmmemory_dl PUBLIC ${Boost_INCLUDE_DIRS})
 
-target_link_libraries(mem ${Boost_LIBRARIES_BCK})
+target_link_libraries(mem ${Boost_LIBRARIES})
 if (OPENMP_FOUND)
     target_link_libraries(mem OpenMP::OpenMP_CXX)
     target_link_libraries(ofpmmemory OpenMP::OpenMP_CXX)
     target_link_libraries(ofpmmemory_dl OpenMP::OpenMP_CXX)
 endif()
 
-target_link_libraries(ofpmmemory ${Boost_LIBRARIES_BCK})
-target_link_libraries(ofpmmemory_dl ${Boost_LIBRARIES_BCK})
+target_link_libraries(ofpmmemory ${Boost_LIBRARIES})
+target_link_libraries(ofpmmemory_dl ${Boost_LIBRARIES})
 
 if (TEST_COVERAGE)
     target_link_libraries(mem -lgcov)
