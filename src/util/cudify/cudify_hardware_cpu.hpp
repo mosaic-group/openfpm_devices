@@ -4,7 +4,6 @@
 
 #include <initializer_list>
 #include <cstring>
-#include "util/cuda_util.hpp"
 
 #if defined(CUDIFY_USE_SEQUENTIAL) || defined(CUDIFY_USE_OPENMP)
 

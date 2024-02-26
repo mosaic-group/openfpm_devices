@@ -1,17 +1,13 @@
 #ifndef CUDIFY_OPENMP_HPP_
 #define CUDIFY_OPENMP_HPP_
 
-
-
 #include "config.h"
 
 constexpr int default_kernel_wg_threads_ = 1024;
 
 #include <omp.h>
 
-
 #define CUDA_ON_BACKEND CUDA_BACKEND_OPENMP
-#define GPU_HOST_DEVICE
 
 #include "util/cudify/cudify_hardware_cpu.hpp"
 

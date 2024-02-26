@@ -95,6 +95,9 @@ ${DEFINE_HAVE_OSX}
 /* Define if you have PARMETIS library */
 ${DEFINE_HAVE_PARMETIS}
 
+/* Define if you have PETSC library */
+${DEFINE_HAVE_PETSC}
+
 /* Define to 1 if you have the <stdint.h> header file. */
 ${DEFINE_HAVE_STDINT_H}
 
@@ -185,6 +188,9 @@ ${DEFINE_STOP_ON_ERROR}
 
 /* Garbage injector*/
 ${DEFINE_GARBAGE_INJECTOR}
+
+/* VCluster Garbage injector*/
+${DEFINE_VCLUSTER_GARBAGE_INJECTOR}
 
 /* Test coverage mode */
 ${DEFINE_TEST_COVERAGE_MODE}

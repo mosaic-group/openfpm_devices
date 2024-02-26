@@ -2,7 +2,7 @@
 #include <cstddef>
 #include "CudaMemory.cuh"
 #include "cuda_macro.h"
-#include "util/cudify/cudify.hpp"
+#include "util/cuda_util.hpp"
 #include <cstring>
 
 #define CUDA_EVENT 0x1201

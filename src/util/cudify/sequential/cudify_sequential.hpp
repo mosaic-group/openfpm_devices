@@ -2,7 +2,6 @@
 #define CUDIFY_SEQUENCIAL_HPP_
 
 #define CUDA_ON_BACKEND CUDA_BACKEND_SEQUENTIAL
-#define GPU_HOST_DEVICE
 
 #include "config.h"
 
@@ -12,7 +11,6 @@ constexpr int default_kernel_wg_threads_ = 1024;
 
 #ifdef HAVE_BOOST_CONTEXT
 
-#include "util/cuda_util.hpp"
 #include <boost/bind/bind.hpp>
 #include <type_traits>
 #ifdef HAVE_BOOST_CONTEXT

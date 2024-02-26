@@ -141,7 +141,6 @@ install(FILES util/ofp_context.hpp
     util/gpu_context.hpp
     util/gpu_types.hpp
     util/print_stack.hpp
-    util/cuda_launch.hpp
     util/se_util.hpp
     util/cuda_util.hpp
     util/cuda_kernel_error_checker.hpp
@@ -171,7 +170,6 @@ install(FILES util/cudify/cuda/cudify_cuda.hpp
     COMPONENT OpenFPM)
 
 install(FILES util/cudify/cudify_hardware_cpu.hpp
-    util/cudify/cudify.hpp
     DESTINATION openfpm_devices/include/util/cudify
     COMPONENT OpenFPM)
 

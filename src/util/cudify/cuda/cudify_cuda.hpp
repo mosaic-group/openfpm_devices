@@ -2,6 +2,7 @@
 #define __CUDIFY_CUDA_HPP__
 
 #define CUDA_ON_BACKEND CUDA_BACKEND_CUDA
+#include <cuda_runtime.h>
 
 constexpr int default_kernel_wg_threads_ = 1024;
 
@@ -12,10 +13,6 @@ constexpr int default_kernel_wg_threads_ = 1024;
 
 #ifdef __NVCC__
 #include "operators.hpp"
-
-#ifndef GPU_HOST_DEVICE
-  #define GPU_HOST_DEVICE __forceinline__ __device__ __host__
-#endif
 
 template<typename lambda_f>
 __global__ void kernel_launch_lambda(lambda_f f)

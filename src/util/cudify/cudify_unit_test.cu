@@ -6,7 +6,7 @@
 
 std::is_trivially_copyable<int> b;
 
-#include "util/cuda_launch.hpp"
+#include "util/cuda_util.hpp"
 #include "memory/CudaMemory.cuh"
 
 #ifdef CUDIFY_USE_OPENMP

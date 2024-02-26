@@ -10,12 +10,10 @@
  */
 
 #include "util/cudify/cudify_hardware_cpu.hpp"
-#include "util/cuda_util.hpp"
 #include "boost/bind.hpp"
 #include <type_traits>
 
 #define CUDA_ON_BACKEND CUDA_BACKEND_ALPAKA
-#define GPU_HOST_DEVICE
 
 extern alpa_base_structs __alpa_base__;
 

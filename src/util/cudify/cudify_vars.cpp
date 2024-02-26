@@ -1,4 +1,4 @@
-#include "cudify_hardware_cpu.hpp"
+#include "util/cuda_util.hpp"
 #ifdef HAVE_BOOST_CONTEXT
 #include <boost/context/continuation.hpp>
 #endif
