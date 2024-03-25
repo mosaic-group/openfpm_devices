@@ -27,7 +27,7 @@ if ( CUDA_ON_BACKEND STREQUAL "HIP" AND HIP_FOUND )
 
     hip_add_executable(mem main.cpp memory/HeapMemory.cpp util/cudify/cudify_vars.cpp  memory/mem_conf.cpp  ${CUDA_SOURCES} ${CUDA_SOURCES_TEST})
 
-    list(APPEND HIP_HIPCC_FLAGS -D__NVCC__ -D__HIP__  -DCUDART_VERSION=11000 -D__CUDACC__ -D__CUDACC_VER_MAJOR__=11 -D__CUDACC_VER_MINOR__=0 -D__CUDACC_VER_BUILD__=0 --std=c++14)
+    list(APPEND HIP_HIPCC_FLAGS -D__NVCC__ -D__HIP__  -DCUDART_VERSION=11000 -D__CUDACC__ -D__CUDACC_VER_MAJOR__=11 -D__CUDACC_VER_MINOR__=0 -D__CUDACC_VER_BUILD__=0 --std=c++17)
 
     set(CMAKE_SHARED_LIBRARY_CXX_FLAGS "-fPIC")
         set_property(TARGET ofpmmemory PROPERTY NO_SONAME ON)
