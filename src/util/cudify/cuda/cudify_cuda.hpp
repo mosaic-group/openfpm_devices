@@ -335,11 +335,10 @@ static void init_wrappers()
 template<typename... Args, typename ite_type>
 void CUDA_LAUNCH(void (* _kernel)(Args...),ite_type ite,Args... args)
 {
-    FixConfigLaunch(_kernel,ite.wthr,ite.thr);
-
 //    std::cout << "DEMANGLE " << typeid(decltype(_kernel)).name() << " " << ite.wthr.x << " " << ite.wthr.y << " " << ite.wthr.z << "/" << ite.thr.x << " " << ite.thr.y << " " << ite.thr.z  << std::endl;
 
     #ifdef __NVCC__
+    FixConfigLaunch(_kernel,ite.wthr,ite.thr);
     _kernel<<<ite.wthr,ite.thr>>>(args...);
     #else
     std::cout << __FILE__ << ":" << __LINE__ << " " << "CUDA_LAUNCH not implemented for this compiler" << std::endl;
@@ -349,11 +348,10 @@ void CUDA_LAUNCH(void (* _kernel)(Args...),ite_type ite,Args... args)
 template<typename... Args>
 void CUDA_LAUNCH_DIM3(void (* _kernel)(Args...),dim3 wthr, dim3 thr,Args... args)
 {
-    FixConfigLaunch(_kernel,wthr,thr);
-
 //    std::cout << "DEMANGLE " << typeid(decltype(_kernel)).name() << "  " << wthr.x << " " << wthr.y << " " << wthr.z << "/" << thr.x << " " << thr.y << " " << thr.z  << std::endl;
 
     #ifdef __NVCC__
+    FixConfigLaunch(_kernel,wthr,thr);
     _kernel<<<wthr,thr>>>(args...);
     #else
     std::cout << __FILE__ << ":" << __LINE__ << " " << "CUDA_LAUNCH_DIM3 not implemented for this compiler" << std::endl;
