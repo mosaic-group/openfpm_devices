@@ -818,6 +818,7 @@ static void exe_kernel_no_sync(lambda_f f, ite_type & ite)
 
 #else
 
+
 #define CUDA_LAUNCH(cuda_call,ite, ...) \
         {\
         gridDim.x = ite.wthr.x;\

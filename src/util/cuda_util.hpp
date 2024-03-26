@@ -61,6 +61,8 @@
 #define CUDA_BACKEND_OPENMP 4
 #define CUDA_BACKEND_HIP 5
 
+
+
 #if defined(CUDIFY_USE_CUDA)
 #include "cudify/cuda/cudify_cuda.hpp"
 #elif defined(CUDIFY_USE_ALPAKA)
@@ -77,6 +79,7 @@
 constexpr int default_kernel_wg_threads_ = 1024;
 
 static void init_wrappers() {}
+
 
 #endif
 
