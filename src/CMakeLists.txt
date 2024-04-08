@@ -172,7 +172,3 @@ install(FILES util/cudify/cuda/cudify_cuda.hpp
 install(FILES util/cudify/cudify_hardware_cpu.hpp
     DESTINATION openfpm_devices/include/util/cudify
     COMPONENT OpenFPM)
-
-install(FILES ptr_info.hpp
-    DESTINATION openfpm_devices/include
-    COMPONENT OpenFPM)
