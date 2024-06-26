@@ -321,7 +321,7 @@ void launch_kernel(boost::context::detail::transfer_t par)
 }
 
 template<typename lambda_f, typename ite_type>
-static void exe_kernel(lambda_f f, ite_type & ite)
+static void exe_kernel(lambda_f f, const ite_type & ite)
 {
     if (ite.nthrs() == 0 || ite.nblocks() == 0) {return;}
 
