@@ -17,6 +17,7 @@ constexpr int default_kernel_wg_threads_ = 1024;
 #include <boost/context/continuation.hpp>
 #endif
 #include <vector>
+#include <limits>
 #include <string.h>
 
 
@@ -107,13 +108,14 @@ namespace gpu
 {
     template<typename type_t>
     struct less_t : public std::binary_function<type_t, type_t, bool> {
-    bool operator()(type_t a, type_t b) const {
-        return a < b;
-    }
-    template<typename type2_t, typename type3_t>
-    bool operator()(type2_t a, type3_t b) const {
-        return a < b;
-    }
+        bool operator()(type_t a, type_t b) const {
+            return a < b;
+        }
+
+        template<typename type2_t, typename type3_t>
+        bool operator()(type2_t a, type3_t b) const {
+            return a < b;
+        }
     };
 /*    template<typename type_t>
     struct less_equal_t : public std::binary_function<type_t, type_t, bool> {
@@ -123,13 +125,14 @@ namespace gpu
     };*/
     template<typename type_t>
     struct greater_t : public std::binary_function<type_t, type_t, bool> {
-    bool operator()(type_t a, type_t b) const {
-        return a > b;
-    }
-    template<typename type2_t, typename type3_t>
-    bool operator()(type2_t a, type3_t b) const {
-        return a > b;
-    }
+        bool operator()(type_t a, type_t b) const {
+            return a > b;
+        }
+
+        template<typename type2_t, typename type3_t>
+        bool operator()(type2_t a, type3_t b) const {
+            return a > b;
+        }
     };
 /*    template<typename type_t>
     struct greater_equal_t : public std::binary_function<type_t, type_t, bool> {
@@ -156,8 +159,12 @@ namespace gpu
     template<typename type_t>
     struct plus_t : public std::binary_function<type_t, type_t, type_t> {
         type_t operator()(type_t a, type_t b) const {
-        return a + b;
-    }
+            return a + b;
+        }
+
+        type_t reduceInitValue() const {
+            return 0;
+        }
     };
 
 /*    template<typename type_t>
@@ -176,16 +183,24 @@ namespace gpu
 
     template<typename type_t>
     struct maximum_t  : public std::binary_function<type_t, type_t, type_t> {
-    type_t operator()(type_t a, type_t b) const {
-        return std::max(a, b);
-    }
+        type_t operator()(type_t a, type_t b) const {
+            return std::max(a, b);
+        }
+
+        type_t reduceInitValue() const {
+            return std::numeric_limits<T>::min();
+        }
     };
 
     template<typename type_t>
     struct minimum_t  : public std::binary_function<type_t, type_t, type_t> {
-    type_t operator()(type_t a, type_t b) const {
-        return std::min(a, b);
-    }
+        type_t operator()(type_t a, type_t b) const {
+            return std::min(a, b);
+        }
+
+        type_t reduceInitValue() const {
+            return std::numeric_limits<T>::max();
+        }
     };
 }
 
