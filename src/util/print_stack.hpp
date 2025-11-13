@@ -70,7 +70,7 @@ static inline void print_stack()
 	{
 		// for for the best address to source code translator
 		char syscom[256];
-		sprintf(syscom,"%s --version",translators[i].c_str());
+		snprintf(syscom,256,"%s --version",translators[i].c_str());
 
 		std::string ss = exec(syscom);
 		size_t found = ss.find("command not found");
@@ -101,7 +101,7 @@ static inline void print_stack()
 		if (translator.size() != 0)
 		{
 			char syscom[256];
-			sprintf(syscom,"%s %p -f --demangle -e %s",translator.c_str(), trace[i],program_name.c_str()); //last parameter is the name of this app
+			snprintf(syscom,256,"%s %p -f --demangle -e %s",translator.c_str(), trace[i],program_name.c_str()); //last parameter is the name of this app
 
 			std::string ss = exec(syscom);
 			std::stringstream sss(ss);
