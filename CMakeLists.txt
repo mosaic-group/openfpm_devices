@@ -4,6 +4,15 @@ project(openfpm_devices LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CUDA_STANDARD 14)
 
+if (CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+	enable_testing()
+	if (CUDA_ON_BACKEND STREQUAL "SEQUENTIAL" OR CUDA_ON_BACKEND STREQUAL "OpenMP")
+		find_package(Boost 1.72 REQUIRED COMPONENTS unit_test_framework context)
+	else()
+		find_package(Boost 1.72 REQUIRED COMPONENTS unit_test_framework)
+	endif()
+endif()
+
 if (ENABLE_GARBAGE_INJECTOR)
 	set(DEFINE_GARBAGE_INJECTOR "#define GARBAGE_INJECTOR")
 endif()
@@ -84,6 +93,167 @@ elseif (CUDA_ON_BACKEND STREQUAL "OpenMP")
 elseif (CUDA_ON_BACKEND STREQUAL "SEQUENTIAL")
 	set(DEFINE_CUDIFY_BACKEND "#define CUDIFY_USE_SEQUENTIAL")
 	set(DEFINE_CUDA_GPU "#define CUDA_GPU")
+elseif (CUDA_ON_BACKEND STREQUAL "METAL")
+	if (NOT APPLE)
+		message(FATAL_ERROR "METAL backend requires macOS/Apple platform")
+	endif()
+
+	set(DEFINE_CUDIFY_BACKEND "#define CUDIFY_USE_METAL")
+	set(DEFINE_CUDA_GPU "#define CUDA_GPU")
+
+	set(MOLTENVK_ROOT "" CACHE PATH "MoltenVK installation prefix")
+	set(VULKAN_HEADERS_ROOT "" CACHE PATH "Vulkan-Headers installation prefix")
+	# A prior non-Metal configure may have exported these as empty INTERNAL
+	# cache entries below. Clear only unusable results so find_* searches again
+	# when an existing build directory is switched to the Metal backend.
+	if (NOT VULKAN_INCLUDE_DIR)
+		unset(VULKAN_INCLUDE_DIR CACHE)
+	endif()
+	if (NOT MOLTENVK_LIBRARY)
+		unset(MOLTENVK_LIBRARY CACHE)
+	endif()
+	find_path(VULKAN_INCLUDE_DIR vulkan/vulkan.h
+		HINTS "${VULKAN_HEADERS_ROOT}/include" "${MOLTENVK_ROOT}/include"
+			/opt/homebrew/opt/vulkan-headers/include /usr/local/include)
+	find_library(MOLTENVK_LIBRARY MoltenVK
+		HINTS "${MOLTENVK_ROOT}/lib" /opt/homebrew/opt/molten-vk/lib /usr/local/lib)
+	if (NOT VULKAN_INCLUDE_DIR OR NOT MOLTENVK_LIBRARY)
+		message(FATAL_ERROR "METAL backend requires Vulkan-Headers and MoltenVK")
+	endif()
+
+	set(OPENFPM_MOLTENVK_HIP_CLANG "" CACHE FILEPATH
+		"HIP-capable clang built with SPIR-V support")
+	set(OPENFPM_MOLTENVK_LLVM_OPT "" CACHE FILEPATH
+		"llvm-opt matching the Metal HIP compiler")
+	set(OPENFPM_MOLTENVK_LLVM_LINK "" CACHE FILEPATH
+		"llvm-link matching the Metal HIP compiler")
+	set(OPENFPM_MOLTENVK_LLVM_CONFIG "" CACHE FILEPATH
+		"llvm-config matching the Metal HIP compiler")
+	set(OPENFPM_MOLTENVK_CLSPV "" CACHE FILEPATH "clspv executable")
+	set(OPENFPM_MOLTENVK_ABI_TOOL "" CACHE FILEPATH
+		"OpenFPM packed Metal kernel ABI normalizer")
+	set(OPENFPM_CHIPSTAR_ROOT "" CACHE PATH "chipStar source or install prefix")
+	set(OPENFPM_CHIPSTAR_GENERATED_INCLUDE "" CACHE PATH
+		"Optional chipStar generated include directory")
+	if (NOT OPENFPM_MOLTENVK_CLSPV)
+		find_program(_openfpm_clspv NAMES clspv
+			HINTS "$ENV{CLSPV_ROOT}" PATH_SUFFIXES bin build/bin)
+		if (_openfpm_clspv)
+			set(OPENFPM_MOLTENVK_CLSPV "${_openfpm_clspv}"
+				CACHE FILEPATH "" FORCE)
+		endif()
+	endif()
+	if (OPENFPM_MOLTENVK_CLSPV)
+		get_filename_component(_openfpm_clspv_bin
+			"${OPENFPM_MOLTENVK_CLSPV}" DIRECTORY)
+		get_filename_component(_openfpm_clspv_build
+			"${_openfpm_clspv_bin}" DIRECTORY)
+	endif()
+	if (NOT OPENFPM_MOLTENVK_HIP_CLANG)
+		find_program(_openfpm_spirv_clang NAMES clang++
+			HINTS "$ENV{OPENFPM_MOLTENVK_LLVM_ROOT}"
+				"${_openfpm_clspv_build}/third_party/llvm"
+			PATH_SUFFIXES bin NO_DEFAULT_PATH)
+		if (_openfpm_spirv_clang)
+			set(OPENFPM_MOLTENVK_HIP_CLANG "${_openfpm_spirv_clang}"
+				CACHE FILEPATH "" FORCE)
+		endif()
+	endif()
+	if (OPENFPM_MOLTENVK_LLVM_OPT)
+		get_filename_component(_openfpm_llvm_bin
+			"${OPENFPM_MOLTENVK_LLVM_OPT}" DIRECTORY)
+	elseif (OPENFPM_MOLTENVK_HIP_CLANG)
+		get_filename_component(_openfpm_llvm_bin
+			"${OPENFPM_MOLTENVK_HIP_CLANG}" DIRECTORY)
+		if (EXISTS "${_openfpm_llvm_bin}/opt")
+			set(OPENFPM_MOLTENVK_LLVM_OPT "${_openfpm_llvm_bin}/opt"
+				CACHE FILEPATH "" FORCE)
+		endif()
+	endif()
+	if (_openfpm_llvm_bin)
+		if (NOT OPENFPM_MOLTENVK_LLVM_LINK AND
+			EXISTS "${_openfpm_llvm_bin}/llvm-link")
+			set(OPENFPM_MOLTENVK_LLVM_LINK
+				"${_openfpm_llvm_bin}/llvm-link" CACHE FILEPATH "" FORCE)
+		endif()
+		if (NOT OPENFPM_MOLTENVK_LLVM_CONFIG AND
+			EXISTS "${_openfpm_llvm_bin}/llvm-config")
+			set(OPENFPM_MOLTENVK_LLVM_CONFIG
+				"${_openfpm_llvm_bin}/llvm-config" CACHE FILEPATH "" FORCE)
+		endif()
+	endif()
+	if (NOT OPENFPM_CHIPSTAR_ROOT AND DEFINED ENV{CHIPSTAR_ROOT} AND
+		EXISTS "$ENV{CHIPSTAR_ROOT}/HIP/include")
+		set(OPENFPM_CHIPSTAR_ROOT "$ENV{CHIPSTAR_ROOT}"
+			CACHE PATH "" FORCE)
+	endif()
+	foreach(tool OPENFPM_MOLTENVK_HIP_CLANG OPENFPM_MOLTENVK_LLVM_OPT
+			OPENFPM_MOLTENVK_LLVM_LINK OPENFPM_MOLTENVK_LLVM_CONFIG
+			OPENFPM_MOLTENVK_CLSPV OPENFPM_CHIPSTAR_ROOT)
+		if (NOT ${tool})
+			message(FATAL_ERROR "${tool} is required for the METAL kernel translation layer")
+		endif()
+	endforeach()
+
+	if (NOT OPENFPM_MOLTENVK_ABI_TOOL OR
+		OPENFPM_MOLTENVK_ABI_TOOL STREQUAL
+			"${CMAKE_BINARY_DIR}/openfpm-tools/openfpm-moltenvk-kernel-abi")
+		execute_process(COMMAND "${OPENFPM_MOLTENVK_LLVM_CONFIG}" --cxxflags
+			OUTPUT_VARIABLE _openfpm_llvm_cxxflags
+			OUTPUT_STRIP_TRAILING_WHITESPACE
+			RESULT_VARIABLE _openfpm_llvm_cxxflags_result
+			ERROR_VARIABLE _openfpm_llvm_cxxflags_error)
+		execute_process(COMMAND "${OPENFPM_MOLTENVK_LLVM_CONFIG}" --ldflags
+			OUTPUT_VARIABLE _openfpm_llvm_ldflags
+			OUTPUT_STRIP_TRAILING_WHITESPACE
+			RESULT_VARIABLE _openfpm_llvm_ldflags_result
+			ERROR_VARIABLE _openfpm_llvm_ldflags_error)
+		execute_process(COMMAND "${OPENFPM_MOLTENVK_LLVM_CONFIG}" --libs
+				core irreader support
+			OUTPUT_VARIABLE _openfpm_llvm_libraries
+			OUTPUT_STRIP_TRAILING_WHITESPACE
+			RESULT_VARIABLE _openfpm_llvm_libraries_result
+			ERROR_VARIABLE _openfpm_llvm_libraries_error)
+		if (NOT _openfpm_llvm_cxxflags_result EQUAL 0 OR
+			NOT _openfpm_llvm_ldflags_result EQUAL 0 OR
+			NOT _openfpm_llvm_libraries_result EQUAL 0)
+			message(FATAL_ERROR
+				"Unable to query the LLVM configuration required by the Metal ABI tool:\n"
+				"${_openfpm_llvm_cxxflags_error}"
+				"${_openfpm_llvm_ldflags_error}"
+				"${_openfpm_llvm_libraries_error}")
+		endif()
+		separate_arguments(_openfpm_llvm_cxxflags NATIVE_COMMAND
+			"${_openfpm_llvm_cxxflags}")
+		separate_arguments(_openfpm_llvm_ldflags NATIVE_COMMAND
+			"${_openfpm_llvm_ldflags}")
+		separate_arguments(_openfpm_llvm_libraries NATIVE_COMMAND
+			"${_openfpm_llvm_libraries}")
+		find_library(_openfpm_zstd_library zstd
+			HINTS /opt/homebrew/opt/zstd/lib /usr/local/lib)
+		if (NOT _openfpm_zstd_library)
+			message(FATAL_ERROR "LLVM requires libzstd to build the Metal ABI tool")
+		endif()
+		set(_openfpm_apple_clang /usr/bin/clang++)
+		set(_openfpm_abi_tool_dir "${CMAKE_BINARY_DIR}/openfpm-tools")
+		set(_openfpm_abi_tool
+			"${_openfpm_abi_tool_dir}/openfpm-moltenvk-kernel-abi")
+		add_custom_command(OUTPUT "${_openfpm_abi_tool}"
+			COMMAND "${CMAKE_COMMAND}" -E make_directory
+				"${_openfpm_abi_tool_dir}"
+			COMMAND "${_openfpm_apple_clang}" ${_openfpm_llvm_cxxflags}
+				"${CMAKE_CURRENT_SOURCE_DIR}/cmake/MoltenVKKernelABI.cpp"
+				${_openfpm_llvm_ldflags} ${_openfpm_llvm_libraries}
+				"${_openfpm_zstd_library}" -lz -lcurses -lm
+				-o "${_openfpm_abi_tool}"
+			DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/MoltenVKKernelABI.cpp"
+			COMMENT "Building the OpenFPM Metal kernel ABI normalizer"
+			VERBATIM)
+		add_custom_target(openfpm_moltenvk_abi_tool
+			DEPENDS "${_openfpm_abi_tool}")
+		set(OPENFPM_MOLTENVK_ABI_TOOL "${_openfpm_abi_tool}"
+			CACHE FILEPATH "" FORCE)
+	endif()
 endif()
 
 if (ALPAKA_ROOT)
@@ -136,6 +306,8 @@ if(hasParent)
 	set(DEFINE_CUDA_GPU ${DEFINE_CUDA_GPU}  CACHE INTERNAL "")
 	set(DEFINE_HAVE_OPENMP ${DEFINE_HAVE_OPENMP} CACHE INTERNAL "")
 	set(DEFINE_HAVE_ALPAKA ${DEFINE_HAVE_ALPAKA} CACHE INTERNAL "")
+	set(VULKAN_INCLUDE_DIR ${VULKAN_INCLUDE_DIR} CACHE INTERNAL "")
+	set(MOLTENVK_LIBRARY ${MOLTENVK_LIBRARY} CACHE INTERNAL "")
 	set(CUDA_FOUND ${CUDA_FOUND} CACHE INTERNAL "")
 	set(CUDA_VERSION_MAJOR ${CUDA_VERSION_MAJOR} CACHE INTERNAL "")
 	set(CUDA_VERSION_MINOR ${CUDA_VERSION_MINOR} CACHE INTERNAL "")

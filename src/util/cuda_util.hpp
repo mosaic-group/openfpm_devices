@@ -11,6 +11,26 @@
 #include "config.h"
 #include "cuda_kernel_error_checker.hpp"
 
+// The Metal translation pass is a real HIP device compilation.  Pull the HIP
+// attributes in before defining the compatibility feature macros below;
+// including hip_runtime only from cudify_metal.hpp would be too late.
+#if defined(CUDIFY_USE_METAL) && defined(__HIPCC__)
+#include <hip/hip_runtime.h>
+
+// OpenFPM's shared CUDA/HIP implementation historically uses __NVCC__ as the
+// "GPU compiler is parsing this translation unit" feature test.  The regular
+// HIP build deliberately defines it as a compatibility macro too.  Define it
+// only after hip_runtime has selected chipStar's SPIR-V platform; defining it
+// before that include makes the HIP headers incorrectly select NVIDIA.
+#ifndef __NVCC__
+#define __NVCC__ 1
+#define OPENFPM_METAL_HIP_NVCC_COMPAT
+#endif
+#ifndef CUDART_VERSION
+#define CUDART_VERSION 11000
+#endif
+#endif
+
 #if defined(CUDIFY_USE_ALPAKA)
 #define CUDA_ON_CPU
 #elif defined(CUDIFY_USE_OPENMP)
@@ -21,7 +41,7 @@
 
 // CUDA_GPU: CUDA, HIP, SEQUENTIAL, OPENMP, ALPAKA
 #ifdef CUDA_GPU
-       #ifndef __NVCC__
+	#if !defined(__NVCC__) && !defined(__HIPCC__)
 		#ifndef __host__
 		#define __host__
 		#define __device__
@@ -60,8 +80,7 @@
 #define CUDA_BACKEND_ALPAKA 3
 #define CUDA_BACKEND_OPENMP 4
 #define CUDA_BACKEND_HIP 5
-
-
+#define CUDA_BACKEND_METAL 6
 
 #if defined(CUDIFY_USE_CUDA)
 #include "cudify/cuda/cudify_cuda.hpp"
@@ -73,6 +92,8 @@
 #include "cudify/hip/cudify_hip.hpp"
 #elif defined(CUDIFY_USE_SEQUENTIAL)
 #include "cudify/sequential/cudify_sequential.hpp"
+#elif defined(CUDIFY_USE_METAL)
+#include "cudify/metal/cudify_metal.hpp"
 #else
 #define CUDA_ON_BACKEND CUDA_BACKEND_NONE
 

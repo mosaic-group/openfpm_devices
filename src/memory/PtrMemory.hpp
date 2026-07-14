@@ -42,6 +42,9 @@ class PtrMemory : public memory
 	size_t spm;
 
 	//! Pointed memory
+	void * hm;
+
+	//! Device view of the same externally-owned bytes
 	void * dm;
 
 	//! Reference counter
@@ -80,10 +83,10 @@ public:
 	virtual void * getDevicePointer();
 
 
-	//! Do nothing
+	//! Synchronization is owned by the external allocation
 	virtual void deviceToHost(){};
 
-	//! Do nothing
+	//! Synchronization is owned by the external allocation
 	virtual void hostToDevice(){};
 
 	//! Do nothing
@@ -112,9 +115,12 @@ public:
 		return ref_cnt;
 	}
 
-	/*! \brief Return true if the device and the host pointer are the same
+	/*! \brief Return true because this non-owning view has no sync boundary
 	 *
-	 * \return true if they are the same
+	 * Distinct host/device views must be synchronized by their external owner
+	 * before construction.
+	 *
+	 * \return true
 	 *
 	 */
 	constexpr static bool isDeviceHostSame()
@@ -133,12 +139,23 @@ public:
 	}
 
 	// Default constructor
-	PtrMemory():spm(0),dm(NULL),ref_cnt(0)
+	PtrMemory():spm(0),hm(NULL),dm(NULL),ref_cnt(0)
 	{
 	};
 
 	//! Constructor, we choose a default alignment of 32 for avx
-	PtrMemory(void * ptr, size_t sz):spm(sz),dm(ptr),ref_cnt(0)
+	PtrMemory(void * ptr, size_t sz):spm(sz),hm(ptr),dm(ptr),ref_cnt(0)
+	{
+	};
+
+	/*! \brief Construct a synchronized non-owning host/device view.
+	 *
+	 * The owner must publish host writes before constructing this view and keep
+	 * both pointers valid for its lifetime. PtrMemory never owns or synchronizes
+	 * the external allocation.
+	 */
+	PtrMemory(void * host_ptr, void * device_ptr, size_t sz)
+	:spm(sz),hm(host_ptr),dm(device_ptr),ref_cnt(0)
 	{
 	};
 
