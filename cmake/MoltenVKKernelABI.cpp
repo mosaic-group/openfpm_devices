@@ -67,10 +67,13 @@ constexpr std::uint16_t op_type_pointer = 32;
 constexpr std::uint16_t op_constant = 43;
 constexpr std::uint16_t op_undef = 45;
 constexpr std::uint16_t op_constant_null = 46;
+constexpr std::uint16_t op_function = 54;
 constexpr std::uint16_t op_function_parameter = 55;
+constexpr std::uint16_t op_function_end = 56;
 constexpr std::uint16_t op_function_call = 57;
 constexpr std::uint16_t op_variable = 59;
 constexpr std::uint16_t op_load = 61;
+constexpr std::uint16_t op_store = 62;
 constexpr std::uint16_t op_access_chain = 65;
 constexpr std::uint16_t op_in_bounds_access_chain = 66;
 constexpr std::uint16_t op_ptr_access_chain = 67;
@@ -94,6 +97,7 @@ constexpr std::uint16_t op_branch_conditional = 250;
 constexpr std::uint16_t op_switch = 251;
 constexpr std::uint16_t op_atomic_fadd_ext = 6035;
 constexpr std::uint32_t decoration_array_stride = 6;
+constexpr std::uint32_t storage_class_function = 7;
 constexpr std::uint32_t storage_class_physical_buffer = 5349;
 }
 
@@ -416,8 +420,17 @@ constexpr std::uint32_t storage_class_physical_buffer = 5349;
 		std::uint32_t source = 0;
 		std::uint16_t operand = 0;
 	};
+	struct PhysicalLoadSnapshot
+	{
+		std::uint32_t pointer_type = 0;
+		std::uint32_t variable = 0;
+		std::uint32_t loaded_value = 0;
+	};
 	std::map<std::size_t, PointerAccessRepair> pointer_access_repairs;
 	std::map<std::size_t, PointerOperandCast> pointer_operand_casts;
+	std::map<std::size_t, PhysicalLoadSnapshot> physical_load_snapshots;
+	std::map<std::uint32_t, std::vector<PhysicalLoadSnapshot>>
+		physical_loads_by_function;
 	std::map<std::size_t, std::map<std::uint16_t, std::uint32_t>>
 		phi_operand_repairs;
 	std::map<std::uint32_t, std::vector<PhiPointerCast>> phi_casts_by_block;
@@ -442,11 +455,14 @@ constexpr std::uint32_t storage_class_physical_buffer = 5349;
 			physical_pointer_types.insert(type);
 		return type;
 	};
+	std::uint32_t current_function = 0;
 	for (std::size_t offset = 5; offset < words.size();)
 	{
 		std::uint16_t opcode = 0;
 		std::uint16_t word_count = 0;
 		if (!validInstruction(words, offset, opcode, word_count)) return 1;
+		if (opcode == spirv::op_function && word_count >= 3)
+			current_function = words[offset + 2];
 		if (opcode == spirv::op_ptr_access_chain && word_count == 5)
 		{
 			const std::uint32_t result_type = words[offset + 1];
@@ -468,6 +484,21 @@ constexpr std::uint32_t storage_class_physical_buffer = 5349;
 			const std::uint32_t result_type = words[offset + 1];
 			const std::uint32_t pointer = words[offset + 3];
 			auto pointer_type = all_value_types.find(pointer);
+			if (pointer_type != all_value_types.end() &&
+				pointer_storage_classes[pointer_type->second] ==
+					spirv::storage_class_physical_buffer)
+			{
+				if (current_function == 0)
+				{
+					errs() << "MoltenVKKernelABI: physical load outside a function\n";
+					return 1;
+				}
+				PhysicalLoadSnapshot snapshot{
+					pointerTypeFor(spirv::storage_class_function, result_type),
+					next_id++, next_id++};
+				physical_load_snapshots[offset] = snapshot;
+				physical_loads_by_function[current_function].push_back(snapshot);
+			}
 			if (pointer_type != all_value_types.end() &&
 				pointer_storage_classes[pointer_type->second] ==
 					spirv::storage_class_physical_buffer &&
@@ -501,6 +532,7 @@ constexpr std::uint32_t storage_class_physical_buffer = 5349;
 				}
 			}
 		}
+		if (opcode == spirv::op_function_end) current_function = 0;
 		offset += word_count;
 	}
 	std::map<std::uint32_t, PointerAccessRepair *> access_repair_by_result;
@@ -591,15 +623,20 @@ constexpr std::uint32_t storage_class_physical_buffer = 5349;
 	output.reserve(words.size() + missing_array_strides.size() * 4 +
 		atomic_repairs.size() * 5 + pointer_access_repairs.size() * 4 +
 		phi_operand_repairs.size() * 4 + pointer_operand_casts.size() * 4 +
-		synthesized_pointer_types.size() * 4);
+		synthesized_pointer_types.size() * 4 +
+		physical_load_snapshots.size() * 11);
 	output.insert(output.end(), words.begin(), words.begin() + 5);
 	std::uint32_t current_block = 0;
+	current_function = 0;
+	std::set<std::uint32_t> emitted_function_variables;
 	std::set<std::uint32_t> emitted_phi_cast_blocks;
 	for (std::size_t offset = 5; offset < words.size();)
 	{
 		std::uint16_t opcode = 0;
 		std::uint16_t word_count = 0;
 		if (!validInstruction(words, offset, opcode, word_count)) return 1;
+		if (opcode == spirv::op_function && word_count >= 3)
+			current_function = words[offset + 2];
 		if (offset == first_type)
 		{
 			for (const auto & [pointer_type, stride] : missing_array_strides)
@@ -674,9 +711,31 @@ constexpr std::uint32_t storage_class_physical_buffer = 5349;
 			output.push_back(pointer_operand_cast->second.result);
 			output.push_back(pointer_operand_cast->second.source);
 		}
+		const auto physical_load = physical_load_snapshots.find(offset);
 		const std::size_t instruction_start = output.size();
 		const auto pointer_access = pointer_access_repairs.find(offset);
-		if (pointer_access != pointer_access_repairs.end())
+		if (physical_load != physical_load_snapshots.end())
+		{
+			// Older SPIRV-Cross revisions keep PhysicalStorageBuffer loads as
+			// pointer expressions and can evaluate them after an intervening
+			// store.  Preserve the original aligned load, but immediately
+			// materialize its value in Function storage so source program order
+			// remains explicit when MoltenVK translates the module.
+			output.insert(output.end(), words.begin() + offset,
+				words.begin() + offset + word_count);
+			output[instruction_start + 2] = physical_load->second.loaded_value;
+			if (pointer_operand_cast != pointer_operand_casts.end())
+				output[instruction_start + pointer_operand_cast->second.operand] =
+					pointer_operand_cast->second.result;
+			output.push_back((3u << 16) | spirv::op_store);
+			output.push_back(physical_load->second.variable);
+			output.push_back(physical_load->second.loaded_value);
+			output.push_back((4u << 16) | spirv::op_load);
+			output.push_back(words[offset + 1]);
+			output.push_back(words[offset + 2]);
+			output.push_back(physical_load->second.variable);
+		}
+		else if (pointer_access != pointer_access_repairs.end())
 		{
 			output.insert(output.end(), words.begin() + offset,
 				words.begin() + offset + word_count);
@@ -707,7 +766,8 @@ constexpr std::uint32_t storage_class_physical_buffer = 5349;
 		if (phi_repair != phi_operand_repairs.end())
 			for (const auto & [operand, replacement] : phi_repair->second)
 				output[instruction_start + operand] = replacement;
-		if (pointer_operand_cast != pointer_operand_casts.end())
+		if (pointer_operand_cast != pointer_operand_casts.end() &&
+			physical_load == physical_load_snapshots.end())
 			output[instruction_start + pointer_operand_cast->second.operand] =
 				pointer_operand_cast->second.result;
 		if (atomic_pointer != 0)
@@ -722,6 +782,20 @@ constexpr std::uint32_t storage_class_physical_buffer = 5349;
 					output.push_back(key.first);
 					output.push_back(key.second);
 				}
+		if (opcode == spirv::op_label && current_function != 0 &&
+			emitted_function_variables.insert(current_function).second)
+		{
+			auto variables = physical_loads_by_function.find(current_function);
+			if (variables != physical_loads_by_function.end())
+				for (const PhysicalLoadSnapshot & snapshot : variables->second)
+				{
+					output.push_back((4u << 16) | spirv::op_variable);
+					output.push_back(snapshot.pointer_type);
+					output.push_back(snapshot.variable);
+					output.push_back(spirv::storage_class_function);
+				}
+		}
+		if (opcode == spirv::op_function_end) current_function = 0;
 		offset += word_count;
 	}
 	output[3] = next_id;
