@@ -3,12 +3,19 @@
 #include "util/metal/MoltenVKKernel.hpp"
 
 #include <cstring>
+#include <chrono>
 #include <cstdio>
 #include <exception>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
+
+struct ihipEvent_t
+{
+	std::chrono::steady_clock::time_point timestamp;
+	bool recorded = false;
+};
 
 namespace
 {
@@ -117,6 +124,62 @@ extern "C" int hipDeviceSynchronize()
 		std::fprintf(stderr,"Metal HIP synchronization failed: %s\n",error.what());
 		return 1;
 	}
+}
+
+extern "C" int hipEventCreate(ihipEvent_t ** event)
+{
+	if (event == nullptr) return 1;
+	try
+	{
+		*event = new ihipEvent_t;
+		return 0;
+	}
+	catch (...)
+	{
+		*event = nullptr;
+		return 1;
+	}
+}
+
+extern "C" int hipEventDestroy(ihipEvent_t * event)
+{
+	delete event;
+	return 0;
+}
+
+extern "C" int hipEventRecord(ihipEvent_t * event, void *)
+{
+	if (event == nullptr) return 1;
+	try
+	{
+		openfpm::metal::metal_synchronize();
+		event->timestamp = std::chrono::steady_clock::now();
+		event->recorded = true;
+		return 0;
+	}
+	catch (const std::exception & error)
+	{
+		std::fprintf(stderr,"Metal HIP event record failed: %s\n",error.what());
+		return 1;
+	}
+}
+
+extern "C" int hipEventSynchronize(ihipEvent_t * event)
+{
+	if (event == nullptr) return 1;
+	return hipDeviceSynchronize();
+}
+
+extern "C" int hipEventElapsedTime(float * milliseconds,
+	ihipEvent_t * start, ihipEvent_t * stop)
+{
+	if (milliseconds == nullptr || start == nullptr || stop == nullptr ||
+		!start->recorded || !stop->recorded)
+		return 1;
+	const auto elapsed = std::chrono::duration<double,std::milli>(
+		stop->timestamp - start->timestamp);
+	*milliseconds = static_cast<float>(elapsed.count());
+	return 0;
 }
 
 extern "C" int hipMemcpy(void * destination, const void * source,

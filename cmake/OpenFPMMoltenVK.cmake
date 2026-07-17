@@ -17,6 +17,12 @@ function(openfpm_add_moltenvk_kernels)
     cmake_parse_arguments(MVK "${options}" "${one_value_args}"
         "${multi_value_args}" ${ARGN})
 
+    if (NOT MVK_HIP_CLANG)
+        set(MVK_HIP_CLANG "${OPENFPM_MOLTENVK_HIP_CLANG}")
+    endif()
+    if (NOT MVK_LLVM_OPT)
+        set(MVK_LLVM_OPT "${OPENFPM_MOLTENVK_LLVM_OPT}")
+    endif()
     if (NOT MVK_LLVM_LINK)
         set(MVK_LLVM_LINK "${OPENFPM_MOLTENVK_LLVM_LINK}")
     endif()
@@ -30,6 +36,16 @@ function(openfpm_add_moltenvk_kernels)
     if (NOT MVK_ABI_TOOL)
         set(MVK_ABI_TOOL "${OPENFPM_MOLTENVK_ABI_TOOL}")
     endif()
+	if (NOT MVK_CLSPV)
+		set(MVK_CLSPV "${OPENFPM_MOLTENVK_CLSPV}")
+	endif()
+	if (NOT MVK_CHIPSTAR_ROOT)
+		set(MVK_CHIPSTAR_ROOT "${OPENFPM_CHIPSTAR_ROOT}")
+	endif()
+	if (NOT MVK_CHIPSTAR_GENERATED_INCLUDE)
+		set(MVK_CHIPSTAR_GENERATED_INCLUDE
+			"${OPENFPM_CHIPSTAR_GENERATED_INCLUDE}")
+	endif()
 	if (NOT MVK_SPIRV_VAL)
 		set(MVK_SPIRV_VAL "${OPENFPM_MOLTENVK_SPIRV_VAL}")
 	endif()
@@ -118,7 +134,7 @@ function(openfpm_add_moltenvk_kernels)
     endif()
 
     set(common_flags
-        "-x\nhip\n--offload=spirv64\n--no-offload-new-driver\n-nohipwrapperinc\n-no-hip-rt\n-nogpulib\n--hip-path=${MVK_CHIPSTAR_ROOT}\n--target=arm64-apple-darwin\n-O2\n-D__HIP_PLATFORM_SPIRV__\n-DNDEBUG\n--sysroot=${macos_sdk}\n-I${MVK_CHIPSTAR_ROOT}/HIP/include\n-I${MVK_CHIPSTAR_ROOT}/include\n-include\n${_openfpm_mvk_frontend_compat}\n")
+        "-x\nhip\n--offload=spirv64\n--no-offload-new-driver\n-nohipwrapperinc\n-no-hip-rt\n-nogpulib\n--hip-path=${MVK_CHIPSTAR_ROOT}\n--target=arm64-apple-darwin\n-O2\n-D__HIP_PLATFORM_SPIRV__\n-DNDEBUG\n--sysroot=${macos_sdk}\n-I${MVK_CHIPSTAR_ROOT}/HIP/include\n-I${MVK_CHIPSTAR_ROOT}/include\n-I${MVK_CHIPSTAR_ROOT}/include/cuspv\n-include\n${_openfpm_mvk_frontend_compat}\n")
 	file(WRITE "${flags_file}" "${common_flags}"
 		"--cuda-device-only\n-emit-llvm\n-c\n-Xarch_device\n"
 		# Metal on Apple GPUs has no native fp64.  HIP/CUDA float kernels often

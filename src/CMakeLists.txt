@@ -10,7 +10,7 @@ if (CUDA_ON_BACKEND STREQUAL "METAL")
         util/metal/MoltenVKHipRuntime.cpp
         util/metal/MoltenVKPrimitives.cpp)
     set(MEM_TEST_SOURCES memory/MoltenVKMemory_unit_test.cpp)
-elseif(NOT CUDA_ON_BACKEND STREQUAL "None")
+elseif(NOT CUDA_ON_BACKEND STREQUAL "NONE")
     set(CUDA_SOURCES memory/CudaMemory.cu )
     set(CUDA_SOURCES_TEST util/cudify/cudify_unit_test.cu)
     set(METAL_SOURCES)
@@ -146,7 +146,7 @@ if (CUDA_ON_BACKEND STREQUAL "METAL")
             INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}"
                 "${CMAKE_BINARY_DIR}/config" ${Boost_INCLUDE_DIRS})
     endforeach()
-elseif (CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR AND NOT CUDA_ON_BACKEND STREQUAL "None")
+elseif (CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR AND NOT CUDA_ON_BACKEND STREQUAL "NONE")
     # A parent OpenFPM build writes these selections to its generated
     # config.h. Standalone openfpm_devices builds need equivalent definitions.
     foreach(target mem ofpmmemory ofpmmemory_dl)
@@ -256,6 +256,7 @@ install(FILES memory/MoltenVKMemory.hpp
     COMPONENT OpenFPM)
 
 install(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/OpenFPMGPU.cmake
     ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/OpenFPMMoltenVK.cmake
     ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/CompileMoltenVKKernels.cmake
     ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/MoltenVKKernelABI.cpp
