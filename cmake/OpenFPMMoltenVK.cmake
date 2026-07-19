@@ -137,20 +137,10 @@ function(openfpm_add_moltenvk_kernels)
         "-x\nhip\n--offload=spirv64\n--no-offload-new-driver\n-nohipwrapperinc\n-no-hip-rt\n-nogpulib\n--hip-path=${MVK_CHIPSTAR_ROOT}\n--target=arm64-apple-darwin\n-O2\n-D__HIP_PLATFORM_SPIRV__\n-DNDEBUG\n--sysroot=${macos_sdk}\n-I${MVK_CHIPSTAR_ROOT}/HIP/include\n-I${MVK_CHIPSTAR_ROOT}/include\n-I${MVK_CHIPSTAR_ROOT}/include/cuspv\n-include\n${_openfpm_mvk_frontend_compat}\n")
 	file(WRITE "${flags_file}" "${common_flags}"
 		"--cuda-device-only\n-emit-llvm\n-c\n-Xarch_device\n"
-		# Metal on Apple GPUs has no native fp64.  HIP/CUDA float kernels often
-		# use unsuffixed literals (for example `float_value += 0.05`), which the
-		# C++ front end would otherwise promote to double and make untranslatable.
-		# Apply the OpenCL rule that treats such literals as float.  The same flag
-		# must be used for the host half because literal types can participate in
-		# template deduction and therefore in the registered kernel's mangled name
-		# and closure layout. Explicit double types remain double and are
-		# intentionally outside float-first mode.
-		"-cl-single-precision-constant\n"
 		"-I${MVK_CHIPSTAR_ROOT}/include/hip/devicelib/macOS\n"
 		"-I${_openfpm_mvk_compat_include}\n")
     file(WRITE "${host_flags_file}" "${common_flags}"
 		"--cuda-host-only\n-fPIC\n-std=c++17\n"
-		"-cl-single-precision-constant\n"
         "-I${_openfpm_mvk_compat_include}\n")
     if (MVK_CHIPSTAR_GENERATED_INCLUDE)
         file(APPEND "${flags_file}" "-I${MVK_CHIPSTAR_GENERATED_INCLUDE}\n")

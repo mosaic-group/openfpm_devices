@@ -242,11 +242,11 @@ elseif (CUDA_ON_BACKEND STREQUAL "METAL")
 			COMMAND "${CMAKE_COMMAND}" -E make_directory
 				"${_openfpm_abi_tool_dir}"
 			COMMAND "${_openfpm_apple_clang}" ${_openfpm_llvm_cxxflags}
-				"${CMAKE_CURRENT_SOURCE_DIR}/cmake/MoltenVKKernelABI.cpp"
+				"${CMAKE_CURRENT_SOURCE_DIR}/src/spirv_molten/MoltenVKKernelABI.cpp"
 				${_openfpm_llvm_ldflags} ${_openfpm_llvm_libraries}
 				"${_openfpm_zstd_library}" -lz -lcurses -lm
 				-o "${_openfpm_abi_tool}"
-			DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/MoltenVKKernelABI.cpp"
+			DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/spirv_molten/MoltenVKKernelABI.cpp"
 			COMMENT "Building the OpenFPM Metal kernel ABI normalizer"
 			VERBATIM)
 		add_custom_target(openfpm_moltenvk_abi_tool

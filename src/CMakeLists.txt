@@ -259,7 +259,6 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/OpenFPMGPU.cmake
     ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/OpenFPMMoltenVK.cmake
     ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/CompileMoltenVKKernels.cmake
-    ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/MoltenVKKernelABI.cpp
     DESTINATION openfpm_devices/cmake
     COMPONENT OpenFPM)
 

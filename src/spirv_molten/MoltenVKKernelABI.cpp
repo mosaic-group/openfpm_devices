@@ -1,4 +1,5 @@
-// Normalize HIP-generated SPIR kernels to the single physical-pointer argument
+// Build-time LLVM/SPIR-V compatibility tool for HIP-generated Metal kernels.
+// Normalize SPIR kernels to the single physical-pointer argument
 // record ABI used by the OpenFPM MoltenVK launcher.
 //
 // Usage:
@@ -1009,6 +1010,15 @@ void writeMetadata(raw_ostream & output, const KernelLayout & layout)
 		name == "__chip_atomic_add_system_f32";
 }
 
+[[nodiscard]] SyncScope::ID chipStarAtomicSyncScope(StringRef name,
+	LLVMContext & context)
+{
+	if (name.contains("_block_"))
+		return context.getOrInsertSyncScopeID("workgroup");
+	if (name.contains("_system_")) return SyncScope::System;
+	return context.getOrInsertSyncScopeID("device");
+}
+
 [[nodiscard]] bool containsPointerLeaf(Type * type,
 	SmallPtrSetImpl<Type *> & visiting)
 {
@@ -1559,11 +1569,12 @@ void lowerChipStarAtomicAdds(Module & module)
 						 isChipStarFloatAtomicAdd(callee->getName())))
 						calls.push_back(call);
 
-	const SyncScope::ID device_scope =
-		module.getContext().getOrInsertSyncScopeID("device");
 	for (CallInst * call : calls)
 	{
 		Function * callee = call->getCalledFunction();
+		if (callee == nullptr) continue;
+		const SyncScope::ID atomic_scope =
+			chipStarAtomicSyncScope(callee->getName(),module.getContext());
 		if (callee != nullptr && isChipStarFloatAtomicAdd(callee->getName()))
 		{
 			if (call->arg_size() != 2 || !call->getType()->isFloatTy() ||
@@ -1594,27 +1605,47 @@ void lowerChipStarAtomicAdds(Module & module)
 			Value * pointer = pre_builder.CreateIntToPtr(address,
 				PointerType::get(module.getContext(), 1),
 				"openfpm_atomic_float_pointer");
-			Type * integer_type = Type::getInt32Ty(module.getContext());
-			FunctionType * compare_exchange_type = FunctionType::get(integer_type,
-				{pointer->getType(), integer_type, integer_type}, false);
-			FunctionCallee compare_exchange = module.getOrInsertFunction(
-				"_Z14atomic_cmpxchgPU3AS1Vjjj", compare_exchange_type);
-			if (Function * compare_exchange_function =
-				dyn_cast<Function>(compare_exchange.getCallee()))
+			IntegerType * integer_type = Type::getInt32Ty(module.getContext());
+			const Align alignment =
+				module.getDataLayout().getABITypeAlign(integer_type);
+			auto compare_exchange = [&](IRBuilder<> & builder, Value * expected,
+				Value * desired, const char * observed_name,
+				const char * success_name) -> std::pair<Value *,Value *>
 			{
-				compare_exchange_function->setCallingConv(CallingConv::SPIR_FUNC);
-				compare_exchange_function->addFnAttr(Attribute::Convergent);
-			}
-			Value * zero = ConstantInt::get(cast<IntegerType>(integer_type), 0);
-			CallInst * initial = pre_builder.CreateCall(compare_exchange_type,
-				compare_exchange.getCallee(), {pointer, zero, zero},
-				"openfpm_atomic_float_initial");
-			initial->setCallingConv(CallingConv::SPIR_FUNC);
+				if (atomic_scope == SyncScope::System)
+				{
+					AtomicCmpXchgInst * exchange = builder.CreateAtomicCmpXchg(
+						pointer,expected,desired,alignment,AtomicOrdering::Monotonic,
+						AtomicOrdering::Monotonic,atomic_scope);
+					exchange->setWeak(false);
+					return {builder.CreateExtractValue(exchange,0,observed_name),
+						builder.CreateExtractValue(exchange,1,success_name)};
+				}
+
+				FunctionType * type = FunctionType::get(integer_type,
+					{pointer->getType(),integer_type,integer_type},false);
+				FunctionCallee callee = module.getOrInsertFunction(
+					"_Z14atomic_cmpxchgPU3AS1Vjjj",type);
+				if (Function * function = dyn_cast<Function>(callee.getCallee()))
+				{
+					function->setCallingConv(CallingConv::SPIR_FUNC);
+					function->addFnAttr(Attribute::Convergent);
+				}
+				CallInst * observed = builder.CreateCall(type,callee.getCallee(),
+					{pointer,expected,desired},observed_name);
+				observed->setCallingConv(CallingConv::SPIR_FUNC);
+				return {observed,builder.CreateICmpEQ(observed,expected,success_name)};
+			};
+			Value * zero = ConstantInt::get(integer_type, 0);
+			auto initial_exchange = compare_exchange(pre_builder,zero,zero,
+				"openfpm_atomic_float_initial",
+				"openfpm_atomic_float_initial_success");
+			Value * initial = initial_exchange.first;
 			pre_builder.CreateBr(loop);
 
 			IRBuilder<> loop_builder(loop);
 			loop_builder.SetCurrentDebugLocation(call->getDebugLoc());
-			PHINode * expected = loop_builder.CreatePHI(initial->getType(), 2,
+			PHINode * expected = loop_builder.CreatePHI(integer_type, 2,
 				"openfpm_atomic_float_expected");
 			expected->addIncoming(initial, before);
 			Value * old_float = loop_builder.CreateBitCast(expected,
@@ -1622,14 +1653,13 @@ void lowerChipStarAtomicAdds(Module & module)
 			Instruction * sum = cast<Instruction>(loop_builder.CreateFAdd(
 				old_float, call->getArgOperand(1), "openfpm_atomic_float_sum"));
 			sum->setFastMathFlags(call->getFastMathFlags());
-			Value * desired = loop_builder.CreateBitCast(sum, initial->getType(),
+			Value * desired = loop_builder.CreateBitCast(sum, integer_type,
 				"openfpm_atomic_float_desired");
-			CallInst * observed = loop_builder.CreateCall(compare_exchange_type,
-				compare_exchange.getCallee(), {pointer, expected, desired},
-				"openfpm_atomic_float_observed");
-			observed->setCallingConv(CallingConv::SPIR_FUNC);
-			Value * success = loop_builder.CreateICmpEQ(observed, expected,
+			auto exchange = compare_exchange(loop_builder,expected,desired,
+				"openfpm_atomic_float_observed",
 				"openfpm_atomic_float_success");
+			Value * observed = exchange.first;
+			Value * success = exchange.second;
 			expected->addIncoming(observed, loop);
 			loop_builder.CreateCondBr(success, continuation, loop);
 
@@ -1658,7 +1688,7 @@ void lowerChipStarAtomicAdds(Module & module)
 		AtomicRMWInst * atomic = builder.CreateAtomicRMW(AtomicRMWInst::Add,
 			pointer, call->getArgOperand(1),
 			module.getDataLayout().getABITypeAlign(call->getType()),
-			AtomicOrdering::Monotonic, device_scope);
+			AtomicOrdering::Monotonic, atomic_scope);
 		atomic->takeName(call);
 		call->replaceAllUsesWith(atomic);
 		call->eraseFromParent();
@@ -1685,6 +1715,8 @@ void lowerInlinedChipStarAtomicAdds(Module & module)
 
 	const SyncScope::ID device_scope =
 		module.getContext().getOrInsertSyncScopeID("device");
+	const SyncScope::ID workgroup_scope =
+		module.getContext().getOrInsertSyncScopeID("workgroup");
 	for (CallInst * call : calls)
 	{
 		if (call->arg_size() != 4 || !call->getType()->isIntegerTy() ||
@@ -1696,16 +1728,20 @@ void lowerInlinedChipStarAtomicAdds(Module & module)
 
 		auto * ordering = dyn_cast<ConstantInt>(call->getArgOperand(2));
 		auto * scope = dyn_cast<ConstantInt>(call->getArgOperand(3));
-		if (ordering == nullptr || !ordering->isZero() || scope == nullptr ||
-			!scope->equalsInt(2))
+		if (ordering == nullptr || !ordering->isZero() || scope == nullptr)
 			continue;
+		SyncScope::ID atomic_scope = device_scope;
+		if (scope->equalsInt(1)) atomic_scope = workgroup_scope;
+		else if (scope->equalsInt(2)) atomic_scope = device_scope;
+		else if (scope->equalsInt(3)) atomic_scope = SyncScope::System;
+		else continue;
 
 		IRBuilder<> builder(call);
 		builder.SetCurrentDebugLocation(call->getDebugLoc());
 		AtomicRMWInst * atomic = builder.CreateAtomicRMW(AtomicRMWInst::Add,
 			call->getArgOperand(0), call->getArgOperand(1),
 			module.getDataLayout().getABITypeAlign(call->getType()),
-			AtomicOrdering::Monotonic, device_scope);
+			AtomicOrdering::Monotonic, atomic_scope);
 		atomic->takeName(call);
 		call->replaceAllUsesWith(atomic);
 		call->eraseFromParent();
@@ -1928,13 +1964,21 @@ void lowerPointerValuedMemoryPayloads(Module & module)
 void lowerUnsupportedDevicePrintf(Module & module)
 {
 	SmallVector<CallInst *, 8> calls;
+	SmallPtrSet<FPExtInst *, 16> promoted_float_arguments;
 	for (Function & function : module)
 		for (BasicBlock & block : function)
 			for (Instruction & instruction : block)
 				if (auto * call = dyn_cast<CallInst>(&instruction);
 					call != nullptr && call->getCalledFunction() != nullptr &&
 					call->getCalledFunction()->getName() == "printf")
+				{
 					calls.push_back(call);
+					for (Value * argument : call->args())
+						if (auto * promotion = dyn_cast<FPExtInst>(argument);
+							promotion != nullptr && promotion->getSrcTy()->isFloatTy() &&
+							promotion->getDestTy()->isDoubleTy())
+							promoted_float_arguments.insert(promotion);
+				}
 
 	for (CallInst * call : calls)
 	{
@@ -1942,6 +1986,11 @@ void lowerUnsupportedDevicePrintf(Module & module)
 			call->replaceAllUsesWith(Constant::getNullValue(call->getType()));
 		call->eraseFromParent();
 	}
+	// C varargs promote float printf arguments to double. Once printf becomes a
+	// backend no-op, those side-effect-free promotions are dead and must not be
+	// mistaken for real fp64 arithmetic by the compatibility validator.
+	for (FPExtInst * promotion : promoted_float_arguments)
+		if (promotion->use_empty()) promotion->eraseFromParent();
 	if (Function * printf_function = module.getFunction("printf");
 		printf_function != nullptr && printf_function->use_empty())
 		printf_function->eraseFromParent();
@@ -2146,14 +2195,11 @@ void lowerPhysicalPointerComparisons(Module & module)
 //     float_value += 0.05;
 //
 // reaches LLVM as fptrunc(fadd(fpext(float_value), double 0.05)).  This is not
-// an explicit fp64 data path: every non-constant leaf is still a float and the
-// result is immediately converted back to float.  Rebuild such closed
-// expression trees in the float domain so existing HIP/CUDA sources retain
-// their intended float-first device behaviour on Metal.  Integral conversions
-// are also safe leaves when the only externally visible result is float; this
-// covers expressions such as `float_value = 1000.0 + thread_index`. Expressions
-// fed by a double argument, load, call, or phi are deliberately left alone;
-// real fp64 remains unsupported rather than being silently narrowed.
+// an explicit fp64 data path: every non-constant leaf is still a float or an
+// integer and the result is immediately converted back to float.  Rebuild only
+// those closed expression trees in the float domain.  Expressions fed by a
+// double argument, load, call, phi, or any unrecognized operation remain
+// untouched and are rejected later as genuine unsupported fp64 arithmetic.
 [[nodiscard]] bool canLowerPromotedFloatArithmetic(Value * value,
 	SmallPtrSetImpl<Value *> & active)
 {
@@ -2278,6 +2324,23 @@ Value * lowerPromotedFloatArithmeticValue(Value * value, IRBuilder<> & builder)
 	return replacement;
 }
 
+// Remove only the whitelisted promoted-double tree.  Its float or integer
+// source operands are leaves and may belong to unrelated computations.
+void eraseDeadPromotedFloatArithmetic(Value * value)
+{
+	auto * instruction = dyn_cast<Instruction>(value);
+	if (instruction == nullptr || !instruction->use_empty()) return;
+
+	SmallVector<Value *, 3> operands;
+	const bool leaf = isa<FPExtInst>(instruction) ||
+		isa<SIToFPInst>(instruction) || isa<UIToFPInst>(instruction);
+	if (!leaf)
+		for (Value * operand : instruction->operand_values())
+			if (operand->getType()->isDoubleTy()) operands.push_back(operand);
+	instruction->eraseFromParent();
+	for (Value * operand : operands) eraseDeadPromotedFloatArithmetic(operand);
+}
+
 void lowerPromotedFloatArithmetic(Module & module)
 {
 	SmallVector<FPTruncInst *, 32> truncations;
@@ -2296,10 +2359,11 @@ void lowerPromotedFloatArithmetic(Module & module)
 			continue;
 		IRBuilder<> builder(truncation);
 		builder.SetCurrentDebugLocation(truncation->getDebugLoc());
-		Value * replacement = lowerPromotedFloatArithmeticValue(
-			truncation->getOperand(0),builder);
+		Value * promoted_root = truncation->getOperand(0);
+		Value * replacement = lowerPromotedFloatArithmeticValue(promoted_root,builder);
 		truncation->replaceAllUsesWith(replacement);
 		truncation->eraseFromParent();
+		eraseDeadPromotedFloatArithmetic(promoted_root);
 	}
 }
 
@@ -2362,19 +2426,11 @@ void lowerStorageOnlyDoubleTransfers(Module & module)
 	}
 }
 
-// Apple GPUs do not expose 64-bit floating point through Metal.  A float HIP
-// kernel can nevertheless acquire an otherwise unnecessary double operation
-// through the usual C++ arithmetic conversions, for example
-//
-//     float distance = ...;
-//     if (distance > 0.000001) ...;
-//
-// Clang represents this as fcmp(fpext(float), double-constant).  The comparison
-// can be evaluated exactly in the original float domain because the variable
-// has only float values.  Round the constant toward the comparison boundary so
-// this remains true even when the source double is not exactly representable as
-// a float.  This is an ABI translation rule, not a source workaround: the same
-// HIP/CUDA kernel stays valid and unchanged for every backend.
+// A promoted float compared with a double literal is also an incidental fp64
+// expression.  Evaluate it in the float domain while preserving the exact
+// comparison result for every float input.  Non-representable constants are
+// rounded toward the comparison boundary; equality with such a constant is
+// necessarily false (or true for unordered inequality).
 void lowerPromotedFloatComparisons(Module & module)
 {
 	SmallVector<FCmpInst *, 16> comparisons;
@@ -2483,6 +2539,105 @@ void lowerPromotedFloatComparisons(Module & module)
 		comparison->eraseFromParent();
 		if (extension->use_empty()) extension->eraseFromParent();
 	}
+}
+
+[[nodiscard]] bool isDoubleScalarOrVector(Type * type)
+{
+	if (type->isDoubleTy()) return true;
+	auto * vector_type = dyn_cast<VectorType>(type);
+	return vector_type != nullptr && vector_type->getElementType()->isDoubleTy();
+}
+
+[[nodiscard]] bool instructionReferencesDouble(const Instruction & instruction)
+{
+	if (!instruction.getType()->isVoidTy() &&
+		isDoubleScalarOrVector(instruction.getType()))
+		return true;
+	for (const Use & operand : instruction.operands())
+		if (isDoubleScalarOrVector(operand->getType())) return true;
+	return false;
+}
+
+// Numeric fp64 is not available through Metal on Apple GPUs.  Diagnose it
+// explicitly instead of silently narrowing it.  Opaque eight-byte transfers
+// have already been converted to bitwise i64 copies above and remain valid.
+[[nodiscard]] bool rejectUnsupportedDoubleArithmetic(Module & module)
+{
+	bool found = false;
+	for (Function & function : module)
+	{
+		for (BasicBlock & block : function)
+		{
+			for (Instruction & instruction : block)
+			{
+				bool numeric_operation = false;
+				switch (instruction.getOpcode())
+				{
+				case Instruction::FNeg:
+				case Instruction::FAdd:
+				case Instruction::FSub:
+				case Instruction::FMul:
+				case Instruction::FDiv:
+				case Instruction::FRem:
+				case Instruction::FCmp:
+				case Instruction::FPTrunc:
+				case Instruction::FPExt:
+				case Instruction::FPToUI:
+				case Instruction::FPToSI:
+				case Instruction::UIToFP:
+				case Instruction::SIToFP:
+					numeric_operation = true;
+					break;
+				default:
+					numeric_operation = isa<CallBase>(instruction);
+					break;
+				}
+				if (!numeric_operation || !instructionReferencesDouble(instruction))
+					continue;
+
+				if (!found)
+					errs() << "MoltenVKKernelABI: Metal does not support fp64 "
+						"arithmetic. Keep float algorithms in float at the source; "
+						"intentional double kernels are unsupported.\n";
+				found = true;
+				errs() << "  in " << function.getName() << ": ";
+				instruction.print(errs());
+				errs() << '\n';
+			}
+		}
+	}
+	return found;
+}
+
+// Metal exposes workgroup- and device-scope atomics, but not CUDA's
+// host/device system scope. Preserve the distinction while lowering, then
+// reject the unsupported guarantee instead of weakening it to device scope.
+[[nodiscard]] bool rejectUnsupportedSystemScopeAtomics(Module & module)
+{
+	for (Function & function : module)
+	{
+		for (BasicBlock & block : function)
+		{
+			for (Instruction & instruction : block)
+			{
+				SyncScope::ID scope = SyncScope::SingleThread;
+				if (auto * atomic = dyn_cast<AtomicRMWInst>(&instruction))
+					scope = atomic->getSyncScopeID();
+				else if (auto * exchange = dyn_cast<AtomicCmpXchgInst>(&instruction))
+					scope = exchange->getSyncScopeID();
+				else continue;
+				if (scope != SyncScope::System) continue;
+
+				errs() << "MoltenVKKernelABI: atomicAdd_system is unsupported "
+					"because Metal cannot provide CUDA system-scope atomic "
+					"semantics.\n  in " << function.getName() << ": ";
+				instruction.print(errs());
+				errs() << '\n';
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 // Older SPIRV-Cross emits `reinterpret_cast<ulong>(array[index])` for an
@@ -2838,6 +2993,8 @@ int normalizeLlvmCompatibility(StringRef input_path, StringRef output_path)
 	lowerStorageOnlyDoubleTransfers(*module);
 	lowerPromotedFloatArithmetic(*module);
 	lowerPromotedFloatComparisons(*module);
+	if (rejectUnsupportedDoubleArithmetic(*module)) return 1;
+	if (rejectUnsupportedSystemScopeAtomics(*module)) return 1;
 	lowerAggregateGepPtrToInt(*module);
 	lowerPhysicalPtrToInt(*module);
 	lowerPackedArgumentFloatingLoads(*module);
