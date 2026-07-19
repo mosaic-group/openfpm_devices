@@ -27,9 +27,18 @@
 #ifndef CUDA_MEMORY_CUH_
 #define CUDA_MEMORY_CUH_
 
+#include "config.h"
+
+#ifdef CUDIFY_USE_METAL
+
+#include "MoltenVKMemory.hpp"
+
+using CudaMemory = MoltenVKMemory;
+
+#else
+
 #define EXCEPT_MC noexcept
 
-#include "config.h"
 #include "memory.hpp"
 #include <iostream>
 
@@ -240,6 +249,6 @@ public:
 	}
 };
 
-
 #endif
 
+#endif

@@ -21,7 +21,7 @@
  */
 void PtrMemory::fill(unsigned char c)
 {
-	memset(dm,c,this->size());
+	memset(hm,c,this->size());
 }
 
 /*! \brief Allocate a chunk of memory
@@ -55,7 +55,7 @@ bool PtrMemory::copyFromPointer(const void * ptr,size_t sz)
 {
 	// memory copy
 
-	memcpy(dm,ptr,sz);
+	memcpy(hm,ptr,sz);
 
 	return true;
 }
@@ -80,7 +80,7 @@ bool PtrMemory::copyDeviceToDevice(const PtrMemory & m)
 	}
 
 	// Copy the memory from m
-	memcpy(dm,m.dm,m.spm);
+	memcpy(hm,m.hm,m.spm);
 	return true;
 }
 
@@ -155,7 +155,7 @@ bool PtrMemory::resize(size_t sz)
 
 void * PtrMemory::getPointer()
 {
-	return dm;
+	return hm;
 }
 
 /*! \brief Return a pointer to the allocated memory
@@ -178,7 +178,7 @@ void * PtrMemory::getDevicePointer()
 
 const void * PtrMemory::getPointer() const
 {
-	return dm;
+	return hm;
 }
 
 

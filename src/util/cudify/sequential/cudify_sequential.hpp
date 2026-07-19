@@ -107,7 +107,7 @@ static T atomicAdd(T * address, T2 val)
 namespace gpu
 {
     template<typename type_t>
-    struct less_t : public std::binary_function<type_t, type_t, bool> {
+    struct less_t {
         bool operator()(type_t a, type_t b) const {
             return a < b;
         }
@@ -124,7 +124,7 @@ namespace gpu
     }
     };*/
     template<typename type_t>
-    struct greater_t : public std::binary_function<type_t, type_t, bool> {
+    struct greater_t {
         bool operator()(type_t a, type_t b) const {
             return a > b;
         }
@@ -157,7 +157,7 @@ namespace gpu
     // Device-side arithmetic operators.
 
     template<typename type_t>
-    struct plus_t : public std::binary_function<type_t, type_t, type_t> {
+    struct plus_t {
         type_t operator()(type_t a, type_t b) const {
             return a + b;
         }
@@ -182,24 +182,24 @@ namespace gpu
     };*/
 
     template<typename type_t>
-    struct maximum_t  : public std::binary_function<type_t, type_t, type_t> {
+    struct maximum_t {
         type_t operator()(type_t a, type_t b) const {
             return std::max(a, b);
         }
 
         type_t reduceInitValue() const {
-            return std::numeric_limits<T>::min();
+	return std::numeric_limits<type_t>::min();
         }
     };
 
     template<typename type_t>
-    struct minimum_t  : public std::binary_function<type_t, type_t, type_t> {
+    struct minimum_t {
         type_t operator()(type_t a, type_t b) const {
             return std::min(a, b);
         }
 
         type_t reduceInitValue() const {
-            return std::numeric_limits<T>::max();
+	return std::numeric_limits<type_t>::max();
         }
     };
 }

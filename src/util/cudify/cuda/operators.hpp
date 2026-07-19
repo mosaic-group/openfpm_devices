@@ -3,49 +3,49 @@
 namespace gpu {
 
 template<typename type_t>
-struct less_t : public std::binary_function<type_t, type_t, bool> {
+struct less_t {
   __forceinline__ __device__ __host__ bool operator()(type_t a, type_t b) const {
     return a < b;
   }
 };
 
 template<typename type_t>
-struct less_equal_t : public std::binary_function<type_t, type_t, bool> {
+struct less_equal_t {
   __forceinline__ __device__ __host__ bool operator()(type_t a, type_t b) const {
     return a <= b;
   }
 };
 
 template<typename type_t>
-struct greater_t : public std::binary_function<type_t, type_t, bool> {
+struct greater_t {
   __forceinline__ __device__ __host__ bool operator()(type_t a, type_t b) const {
     return a > b;
   }
 };
 
 template<typename type_t>
-struct greater_equal_t : public std::binary_function<type_t, type_t, bool> {
+struct greater_equal_t {
   __forceinline__ __device__ __host__ bool operator()(type_t a, type_t b) const {
     return a >= b;
   }
 };
 
 template<typename type_t>
-struct equal_to_t : public std::binary_function<type_t, type_t, bool> {
+struct equal_to_t {
   __forceinline__ __device__ __host__ bool operator()(type_t a, type_t b) const {
     return a == b;
   }
 };
 
 template<typename type_t>
-struct not_equal_to_t : public std::binary_function<type_t, type_t, bool> {
+struct not_equal_to_t {
   __forceinline__ __device__ __host__ bool operator()(type_t a, type_t b) const {
     return a != b;
   }
 };
 
 template<typename type_t>
-struct plus_t : public std::binary_function<type_t, type_t, type_t> {
+struct plus_t {
 	__forceinline__ __device__ __host__ type_t operator()(type_t a, type_t b) const {
     return a + b;
   }
@@ -56,7 +56,7 @@ struct plus_t : public std::binary_function<type_t, type_t, type_t> {
 };
 
 template<typename type_t>
-struct minus_t : public std::binary_function<type_t, type_t, type_t> {
+struct minus_t {
 	__forceinline__ __device__ __host__ type_t operator()(type_t a, type_t b) const {
     return a - b;
   }
@@ -67,14 +67,14 @@ struct minus_t : public std::binary_function<type_t, type_t, type_t> {
 };
 
 template<typename type_t>
-struct multiplies_t : public std::binary_function<type_t, type_t, type_t> {
+struct multiplies_t {
   __forceinline__ __device__ __host__ type_t operator()(type_t a, type_t b) const {
     return a * b;
   }
 };
 
 template<typename type_t>
-struct maximum_t  : public std::binary_function<type_t, type_t, type_t> {
+struct maximum_t {
   __forceinline__ __device__ __host__ type_t operator()(type_t a, type_t b) const {
     return (a < b) ? b : a;
   }
@@ -85,7 +85,7 @@ struct maximum_t  : public std::binary_function<type_t, type_t, type_t> {
 };
 
 template<typename type_t>
-struct minimum_t  : public std::binary_function<type_t, type_t, type_t> {
+struct minimum_t {
   __forceinline__ __device__ __host__ type_t operator()(type_t a, type_t b) const {
     return (b < a) ? b : a;
   }

@@ -10,7 +10,69 @@
 
 #include <iostream>
 
-#ifdef CUDA_ON_CPU
+#ifdef CUDIFY_USE_METAL
+
+#include "memory/MoltenVKMemory.hpp"
+#include "util/metal/MoltenVKContext.hpp"
+#include <chrono>
+#include <stdexcept>
+
+namespace gpu
+{
+	enum gpu_context_opt { no_print_props, print_props, dummy };
+	struct context_t {};
+
+	class ofp_context_t : public context_t
+	{
+	public:
+		class primitive_scratch
+		{
+			MoltenVKMemory memory_;
+
+		public:
+			void resize(std::size_t size)
+			{
+				if (!memory_.resize(size))
+					throw std::runtime_error("Unable to resize Metal primitive scratch memory");
+			}
+
+			template<unsigned int property>
+			void * getDeviceBuffer()
+			{
+				static_assert(property == 0,"Metal primitive scratch has one buffer");
+				return memory_.getDevicePointer();
+			}
+		};
+
+	private:
+		std::string props_ = "Apple Metal";
+		std::chrono::steady_clock::time_point timer_start_;
+		primitive_scratch primitive_scratch_[3];
+
+	public:
+		ofp_context_t(gpu_context_opt opt = no_print_props, int = 0, int = 0)
+		{
+			if (opt == print_props) std::cout << props_ << std::endl;
+		}
+		const std::string & props() const { return props_; }
+		int ptx_version() const { return 0; }
+		int stream() { return 0; }
+		void synchronize() { metal_synchronize(); }
+		void timer_begin() { timer_start_ = std::chrono::steady_clock::now(); }
+		double timer_end()
+		{
+			metal_synchronize();
+			return std::chrono::duration<double>(std::chrono::steady_clock::now() - timer_start_).count();
+		}
+		int getDevice() { return 0; }
+		int getNDevice() { return openfpm::metal::moltenvk_context().device() == VK_NULL_HANDLE ? 0 : 1; }
+		primitive_scratch & getTemporalCUB() { return primitive_scratch_[0]; }
+		primitive_scratch & getTemporalCUB2() { return primitive_scratch_[1]; }
+		primitive_scratch & getTemporalCUB3() { return primitive_scratch_[2]; }
+	};
+}
+
+#elif defined(CUDA_ON_CPU)
 
 namespace gpu
 {
